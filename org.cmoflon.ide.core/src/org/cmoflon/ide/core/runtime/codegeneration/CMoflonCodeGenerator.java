@@ -403,7 +403,7 @@ public class CMoflonCodeGenerator
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            st.inspect();
+            //st.inspect();
             code.append(st.render());
             code.append("\n\n");
          }

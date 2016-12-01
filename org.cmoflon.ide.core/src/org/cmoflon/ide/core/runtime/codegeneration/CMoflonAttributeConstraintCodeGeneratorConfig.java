@@ -83,7 +83,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
       super(resourceSet);
       if (project == null)
       {
-         throw new RuntimeException("Parameter ecoreResource must be defined for AttributeConstraintCodeGeneratorConfig");
+         throw new RuntimeException("Parameter project must be defined for AttributeConstraintCodeGeneratorConfig");
       }
 
       //load attribute constraint libraries first loaded has higher priority 

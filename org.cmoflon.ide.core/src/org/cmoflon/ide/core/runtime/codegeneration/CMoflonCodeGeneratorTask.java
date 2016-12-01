@@ -112,7 +112,7 @@ public class CMoflonCodeGeneratorTask implements ITask
          final EPackage ePackage = (EPackage) resource.getContents().get(0);
 
          // (1) Instantiate code generation engine
-         final DefaultCodeGeneratorConfig defaultCodeGeneratorConfig = new DefaultCodeGeneratorConfig(resourceSet);
+         final CMoflonAttributeConstraintCodeGeneratorConfig defaultCodeGeneratorConfig = new CMoflonAttributeConstraintCodeGeneratorConfig(resourceSet, ecoreFile.getProject());
          MethodBodyHandler methodBodyHandler = new DemoclesMethodBodyHandler(resourceSet, defaultCodeGeneratorConfig);
          subMon.worked(5);
 
