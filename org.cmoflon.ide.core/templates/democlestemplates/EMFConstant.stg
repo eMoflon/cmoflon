@@ -1,0 +1,3 @@
+EEnumLiteralImpl(constant, importManager, autoboxing) ::= <<
+<constant.EEnum.name>.<constant.literal>
+>>

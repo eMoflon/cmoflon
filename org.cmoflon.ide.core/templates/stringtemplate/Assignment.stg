@@ -1,0 +1,21 @@
+AssignWithTypeCheck(engine, importManager, body, chain) ::= <<
+<first(rest(chain.value.operation.parameters)):{x|<x.Type.LinkedElement.Name; format="fulluppercase">_T*}> <first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, true)> = <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>;
+<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+>>
+
+AssignWithNullCheck(engine, importManager, body, chain) ::= <<
+<first(chain.value.operation.parameters):{x|<x.Type.LinkedElement.Name; format="fulluppercase">_T*}> <first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> = <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>;
+if (<first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> != NULL) {
+	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif> 
+}
+>>
+
+Assign(engine, importManager, body, chain) ::= <<
+<first(chain.value.operation.parameters):{x|<if(x.Specification.Type.LinkedElement.serializable)><x.Specification.type.linkedElement.name><else><x.Specification.type; format="fulluppercase">_T*<endif>}> <first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> = <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>;
+<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+>>
+
+AssignWithClassCastException(engine, importManager, body, chain) ::= <<
+<first(chain.value.operation.parameters):{x|<x.Type.LinkedElement.Name; format="fulluppercase">_T*}> <first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> = (<first(chain.value.operation.parameters):{x| <x.Type.LinkedElement.Name; format="fulluppercase">_T*>}>) <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>;
+<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+>>

@@ -1,0 +1,39 @@
+Variable(variable, importManager, autoboxing, prefix=false) ::= <<
+<if(autoboxing && variable.type.primitive)><if(prefix)>tmp<variable.name; format="uppercase"><else><variable.name; format="lowercase"><endif><else><if(prefix)>tmp<variable.name; format="uppercase"><else><variable.name; format="lowercase"><endif><endif>
+>>
+
+Constant(constant, importManager, autoboxing, prefix=false) ::= <<
+<if(constant.value)><constant.value:(constant.value.class.simpleName)(importManager, autoboxing)><else><constant.value; null="null"><endif>
+>>
+
+ParameterName(parameter, importManager, autoboxing=true, prefix=false) ::= <<
+<parameter.specification:(parameter.specification.class.simpleName)(importManager, autoboxing, prefix)>
+>>
+
+ParameterType(parameter, importManager) ::= <<
+<importManager.(parameter.specification.type)>
+>>
+
+ParameterTypeAndName(parameter, importManager, prefix=false) ::= <<
+<parameter:ParameterType(importManager)> <parameter:ParameterName(importManager, false, prefix)>
+>>
+
+Name(variableOperation, importManager, prefix=false) ::= <<
+<first(variableOperation.parameters):ParameterName(importManager, prefix)>
+>>
+
+TypeAndName(variableOperation, importManager) ::= <<
+<first(variableOperation.parameters):ParameterTypeAndName(importManager)>
+>>
+
+Boolean(constant, importManager, autoboxing) ::= <<
+<constant>
+>>
+
+Integer(constant, importManager, autoboxing) ::= <<
+<constant>
+>>
+
+String(constant, importManager, autoboxing) ::= <<
+"<constant>"
+>>

@@ -1,0 +1,84 @@
+group cFile;
+
+parameter(name, type)::=<<
+<if(type.builtIn)><type.name><else><type.name;format="fulluppercase">_T*<endif> <name>, 
+>>
+
+parameterConstant(comp,algo,name)::=<<
+COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">
+>>
+processBegin(component,algo)::=<<
+
+#if COMPONENT_<component;format="fulluppercase"> == COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">
+PROCESS(component_<component>, "<component>: <algo>");
+PROCESS_THREAD(component_<component>, ev, data) {
+	PROCESS_BEGIN();
+
+
+>>
+
+processEnd()::=<<
+	PROCESS_END();
+}
+
+#endif
+
+>>
+
+bootCompWait(component)::=<<
+	BOOT_COMPONENT_WAIT(component_<component>);
+	static struct etimer waittime;
+	etimer_set(&waittime, CLOCK_SECOND * 300);
+
+
+>>
+
+mainLoop()::=<<
+	while(1) {
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&waittime));
+		etimer_reset(&waittime); 
+		init();
+
+
+>>
+
+watchdogStart()::=<<
+		watchdog_start();
+
+	}
+
+>>
+
+watchdogStop()::=<<
+		watchdog_stop();
+
+
+>>
+
+
+dropUnidirectionalEdges()::=<<
+		LINK_T* onehop;
+		for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
+			if(networkaddr_equal(onehop->node1, networkaddr_node_addr()) && onehop->weight_node1_to_node2 == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
+				component_network_ignoredlinks_add(onehop->node2);
+			}
+		}
+
+
+>>
+
+membDeclaration(name,type,count)::=<<
+MEMB(memb_<name>, <type>, <count>);<\n>
+>>
+listDeclaration(name)::=<<
+LIST(list_matches_<name>);<\n>
+>>
+
+init(blocks)::=<<
+void init(){
+	<blocks:{x| memb_init(&memb_<x>);<\n>list_init(list_matches_<x>);};separator="\n">
+	memb_init(&memb_local);
+}
+
+
+>>

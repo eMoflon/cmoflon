@@ -1,0 +1,35 @@
+Equal(engine, importManager, body, chain) ::= <<
+if (<first(chain.value.operation.parameters):{x| <x.Specification.Type.LinkedElement.Name; format="fulllowercase">}>_equals(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>)) {
+	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+}
+>>
+
+Unequal(engine, importManager, body, chain) ::= <<
+if (!<first(chain.value.operation.parameters):{x| <x.Specification.Type.LinkedElement.Name; format="fulllowercase">}>_equals(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>)) {
+	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+}
+>>
+
+Smaller(engine, importManager, body, chain) ::= <<
+if (<first(chain.value.operation.parameters):{x| <x.Specification.Type.LinkedElement.Name; format="fulllowercase">}>_compare(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>) \< 0) {
+	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+}
+>>
+
+SmallerOrEqual(engine, importManager, body, chain) ::= <<
+if (<first(chain.value.operation.parameters):{x| <x.Specification.Type.LinkedElement.Name; format="fulllowercase">}>_compare(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>) \<= 0) {
+	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+}
+>>
+
+Larger(engine, importManager, body, chain) ::= <<
+if (<first(chain.value.operation.parameters):{x| <x.Specification.Type.LinkedElement.Name; format="fulllowercase">}>_compare(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>) > 0) {
+	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+}
+>>
+
+LargerOrEqual(engine, importManager, body, chain) ::= <<
+if (<first(chain.value.operation.parameters):{x| <x.Specification.Type.LinkedElement.Name; format="fulllowercase">}>_compare(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>) >= 0) {
+	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+}
+>>
