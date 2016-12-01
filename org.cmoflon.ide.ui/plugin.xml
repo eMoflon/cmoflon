@@ -14,7 +14,7 @@
             finalPerspective="org.moflon.ide.ui.perspective"
             hasPages="true"
             id="org.cmoflon.ide.ui.admin.wizards.metamodel.NewCMoflonMetamodelWizard"
-            name="New CMoflon Metamodel Wizard"
+            name="New cMoflon Metamodel Wizard"
             preferredPerspectives="org.moflon.ide.ui.perspective"
             project="true">
       </wizard>
@@ -33,7 +33,7 @@
                   label="BuildCMoflon"
                   mnemonic="C"
                   style="push"
-                  tooltip="Build CMoflon Code">
+                  tooltip="Build cMoflon Code">
                <visibleWhen
                      checkEnabled="false">
                   <reference

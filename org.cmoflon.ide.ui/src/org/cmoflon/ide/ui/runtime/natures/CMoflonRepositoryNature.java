@@ -1,6 +1,5 @@
 package org.cmoflon.ide.ui.runtime.natures;
 
-import org.cmoflon.ide.core.CMoflonCoreActivator;
 import org.cmoflon.ide.core.runtime.builders.CMoflonRepositoryBuilder;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;

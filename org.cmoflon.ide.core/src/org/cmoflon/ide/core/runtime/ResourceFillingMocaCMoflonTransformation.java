@@ -10,10 +10,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 import org.moflon.core.utilities.UncheckedCoreException;
 import org.moflon.ide.core.CoreActivator;
 import org.moflon.ide.core.runtime.BasicResourceFillingMocaToMoflonTransformation;
@@ -34,8 +32,6 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
    private Map<String, MetamodelProperties> propertiesMap;
 
    private static final Logger logger = Logger.getLogger(ResourceFillingMocaCMoflonTransformation.class);
-
-   public static final URI MOFLON_PROPERTIES_URI = URI.createURI(MoflonPropertiesContainerHelper.MOFLON_CONFIG_FILE);
 
    /**
     * 

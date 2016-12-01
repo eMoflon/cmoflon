@@ -16,10 +16,12 @@ import org.cmoflon.ide.core.runtime.codegeneration.utilities.FieldAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.MethodAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.Type;
 import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
@@ -46,7 +48,7 @@ import org.moflon.compiler.sdm.democles.SearchPlanAdapter;
 import org.moflon.compiler.sdm.democles.TemplateConfigurationProvider;
 import org.moflon.compiler.sdm.democles.eclipse.AdapterResource;
 import org.moflon.core.utilities.MoflonUtil;
-import org.moflon.moca.inject.InjectionManager;
+import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.sdm.runtime.democles.Scope;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -60,7 +62,7 @@ import org.stringtemplate.v4.STGroup;
 public class CMoflonCodeGenerator
 {
 
-   // A List of the Built in ETypes of EMoflon. Created at instanciation of the
+   // A List of the Built in ETypes of EMoflon. Created at instantiation of the
    // CMoflonCodeGenerator.
    private List<String> builtInTypes;
 
@@ -87,9 +89,7 @@ public class CMoflonCodeGenerator
 
    private GenModel genModel;
 
-   public final String NL = System.getProperties().getProperty("line.separator");
-
-   public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel, InjectionManager injectionManager)
+   public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel)
    {
       this.templateProvider = getTemplateConfigurationProvider(genModel);
       this.ecore = ecore;
@@ -128,6 +128,7 @@ public class CMoflonCodeGenerator
 
    public IStatus generateCode(IProgressMonitor monitor)
    {
+      final String newline = System.getProperties().getProperty("line.separator");
       final SubMonitor subMon = SubMonitor.convert(monitor);
       List<MethodAttribute> methods = new ArrayList<MethodAttribute>();
       List<FieldAttribute> fields = new ArrayList<FieldAttribute>();
@@ -151,19 +152,19 @@ public class CMoflonCodeGenerator
                // generate Method Header
                if (!generatedMethodBody.equals(MoflonUtil.DEFAULT_METHOD_BODY))
                {
-                  generatedCode += NL;
+                  generatedCode += newline;
                   generatedCode += genOperation.getTypeParameters(genClass);
                   generatedCode += genOperation.getImportedType(genClass);
                   generatedCode += " ";
                   generatedCode += genOperation.getName();
                   generatedCode += ("(");
                   generatedCode += getParametersFromEcore(genOperation.getEcoreOperation());
-                  generatedCode += ("){" + NL);
+                  generatedCode += ("){" + newline);
                   for (String line : generatedMethodBody.split("\n"))
                   {
                      generatedCode += "\t" + line;
                   }
-                  generatedCode += ("}" + NL);
+                  generatedCode += ("}" + newline);
                } else
                {
                   logger.info("No generated Method body for: " + genOperation.getName());
@@ -275,7 +276,13 @@ public class CMoflonCodeGenerator
       contents += (SourceFileGenerator.generateClosingPart(dropUnidirectionalEdges, source));
       try
       {
-         CMoflonWorkspaceHelper.addFile(project, CMoflonWorkspaceHelper.GEN_FOLDER + "/" + filename + ".c", contents, monitor);
+         String outputFileName = CMoflonWorkspaceHelper.GEN_FOLDER + "/" + filename + ".c";
+         IFile outputFile = project.getFile(outputFileName);
+         if (outputFile.exists())
+         {
+            outputFile.delete(true, new NullProgressMonitor());
+         }
+         WorkspaceHelper.addFile(project, outputFileName, contents, monitor);
       } catch (CoreException e)
       {
          e.printStackTrace();
@@ -523,11 +530,15 @@ public class CMoflonCodeGenerator
       contents += end.render();
       try
       {
-         CMoflonWorkspaceHelper.addFile(project, CMoflonWorkspaceHelper.GEN_FOLDER + "/" + componentName + "-" + algorithmName + ".h", contents,
-               subMon.split(1));
+         String outputFileName = CMoflonWorkspaceHelper.GEN_FOLDER + "/" + componentName + "-" + algorithmName + ".h";
+         IFile outputFile = project.getFile(outputFileName);
+         if (outputFile.exists())
+         {
+            outputFile.delete(true, new NullProgressMonitor());
+         }
+         CMoflonWorkspaceHelper.addFile(project, outputFileName, contents, subMon.split(1));
       } catch (CoreException e)
       {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
    }

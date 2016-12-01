@@ -19,7 +19,6 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.moflon.core.utilities.MoflonUtilitiesActivator;
-import org.moflon.ide.ui.UIActivator;
 import org.moflon.ide.ui.admin.wizards.metamodel.NewMetamodelProjectInfoPage;
 
 /**
