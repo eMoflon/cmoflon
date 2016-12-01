@@ -75,7 +75,8 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 
       MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(workspaceProject.getName(),
             metaModelProjectName);
-      setDefaultCodeGenerator(moflonProperties);
+      final MoflonPropertiesContainer moflonProps = moflonProperties;
+      moflonProps.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES);
       subMon.worked(1);
 
       MoflonPropertiesContainerHelper.save(moflonProperties, subMon.split(1));
@@ -93,41 +94,24 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 
    private static void addGitIgnoreFiles(final IProject project, final IProgressMonitor monitor) throws CoreException
    {
-      try
+      final SubMonitor subMon = SubMonitor.convert(monitor, "Creating .gitignore files", 2);
+      IFile genGitIgnore = WorkspaceHelper.getGenFolder(project).getFile(".gitignore");
+      if (!genGitIgnore.exists())
       {
-         final SubMonitor subMon = SubMonitor.convert(monitor, "Creating .gitignore files", 2);
-         IFile genGitIgnore = WorkspaceHelper.getGenFolder(project).getFile(".gitignore");
-         if (!genGitIgnore.exists())
-         {
-            genGitIgnore.create(new ByteArrayInputStream("*".getBytes()), true, subMon.split(1));
-         }
+         genGitIgnore.create(new ByteArrayInputStream("*".getBytes()), true, subMon.split(1));
+      }
 
-         IFile modelGitIgnore = WorkspaceHelper.getModelFolder(project).getFile(".gitignore");
-         if (!modelGitIgnore.exists())
-         {
-            modelGitIgnore.create(new ByteArrayInputStream("*".getBytes()), true, subMon.split(1));
-         }
-      } finally
+      IFile modelGitIgnore = WorkspaceHelper.getModelFolder(project).getFile(".gitignore");
+      if (!modelGitIgnore.exists())
       {
-         monitor.done();
+         modelGitIgnore.create(new ByteArrayInputStream("*".getBytes()), true, subMon.split(1));
       }
    }
 
    public static void createFoldersIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException
    {
-      try
-      {
-         final SubMonitor subMon = SubMonitor.convert(monitor, "Creating folders within project", 5);
-         WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getGenFolder(project), subMon.split(1));
-         WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getModelFolder(project), subMon.split(1));
-      } finally
-      {
-         monitor.done();
-      }
-   }
-
-   private void setDefaultCodeGenerator(final MoflonPropertiesContainer moflonProps)
-   {
-      moflonProps.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES);
+      final SubMonitor subMon = SubMonitor.convert(monitor, "Creating folders within project", 5);
+      WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getGenFolder(project), subMon.split(1));
+      WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getModelFolder(project), subMon.split(1));
    }
 }
