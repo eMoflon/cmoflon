@@ -4,7 +4,7 @@ AssignWithTypeCheck(engine, importManager, body, chain) ::= <<
 >>
 
 AssignWithNullCheck(engine, importManager, body, chain) ::= <<
-<first(chain.value.operation.parameters):{x|<x.Type.LinkedElement.Name; format="fulluppercase">_T*}> <first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> = <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>;
+<first(chain.value.operation.parameters):{x|<if(x.Type)><x.Type.LinkedElement.Name; format="fulluppercase"><else><x.specification.type.linkedElement.name ;format="fulluppercase"><endif>_T*}> <first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> = <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>;
 if (<first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> != NULL) {
 	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif> 
 }

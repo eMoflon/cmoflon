@@ -146,6 +146,8 @@ public class CMoflonCodeGenerator
             logger.info("GenClass: " + genClass.getName());
             genClassesForInjectedCode.add(genClass);
             fields.addAll(getFields(genClass));
+            if(genClass.isAbstract())
+            	continue;
             for (GenOperation genOperation : genClass.getGenOperations())
             {
                String generatedMethodBody = getGeneratedMethodBody(genOperation.getEcoreOperation());
@@ -169,7 +171,7 @@ public class CMoflonCodeGenerator
                {
                   logger.info("No generated Method body for: " + genOperation.getName());
                   methods.add(new MethodAttribute(new Type(isBuiltInType(genOperation.getGenClass().getName()), genOperation.getGenClass().getName()),
-                        new Type(isBuiltInType(genOperation.getEcoreOperation().getEType().getName()), genOperation.getEcoreOperation().getEType().getName()),
+                        new Type(isBuiltInType(genOperation.getEcoreOperation().getEType()==null?"void":genOperation.getEcoreOperation().getEType().getName()), genOperation.getEcoreOperation().getEType()==null?"void":genOperation.getEcoreOperation().getEType().getName()),
                         genOperation.getName(), getParametersFromEcore(genOperation.getEcoreOperation())));
                }
             }
@@ -403,7 +405,7 @@ public class CMoflonCodeGenerator
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            //st.inspect();
+            st.inspect();
             code.append(st.render());
             code.append("\n\n");
          }

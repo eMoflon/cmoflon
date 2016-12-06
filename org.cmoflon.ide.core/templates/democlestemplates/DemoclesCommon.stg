@@ -11,7 +11,7 @@ ParameterName(parameter, importManager, autoboxing=true, prefix=false) ::= <<
 >>
 
 ParameterType(parameter, importManager) ::= <<
-<importManager.(parameter.specification.type)>
+<parameter.specification.type.linkedElement.name;format="fulluppercase">_T*
 >>
 
 ParameterTypeAndName(parameter, importManager, prefix=false) ::= <<

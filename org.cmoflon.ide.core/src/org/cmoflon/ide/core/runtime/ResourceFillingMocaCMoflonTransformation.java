@@ -69,9 +69,7 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
       try
       {
          final String projectName = properties.getProjectName();
-         CMoflonProjectCreator createMoflonProject = new CMoflonProjectCreator();
-         createMoflonProject.setProjectName(projectName);
-         createMoflonProject.setMetaModelProjectName(properties.getMetamodelProjectName());
+         CMoflonProjectCreator createMoflonProject = new CMoflonProjectCreator(properties);
 
          ResourcesPlugin.getWorkspace().run(createMoflonProject, new NullProgressMonitor());
       } catch (final CoreException e)
