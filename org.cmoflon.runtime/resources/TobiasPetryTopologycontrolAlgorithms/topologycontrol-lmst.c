@@ -68,7 +68,7 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 				bool node2_connected = _lmst_nodelist_isconnected(edge_actual->node2) && !_lmst_nodelist_isconnected(edge_actual->node1);
 				if(node1_connected ^ node2_connected) {
 					bool criteria1 = edge_best == NULL;
-          bool criteria2 =  MAX(edge_actual->weight_node1_to_node2, edge_actual->weight_node2_to_node1) <  MAX(edge_best->weight_node1_to_node2, edge_best->weight_node2_to_node1));
+          			bool criteria2 =  MAX(edge_actual->weight_node1_to_node2, edge_actual->weight_node2_to_node1) <  MAX(edge_best->weight_node1_to_node2, edge_best->weight_node2_to_node1));
 					bool criteria3 = (MAX(edge_actual->weight_node1_to_node2, edge_actual->weight_node2_to_node1) == MAX(edge_best->weight_node1_to_node2, edge_best->weight_node2_to_node1) 
                            && networkaddr_cmp(NETWORKADDR_MAX(edge_actual), NETWORKADDR_MAX(edge_best)) < 0);
 					if(criteria1 || criteria2 || criteria3)
