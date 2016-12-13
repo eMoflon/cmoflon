@@ -10,11 +10,14 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.moflon.core.utilities.UncheckedCoreException;
 import org.moflon.ide.core.CoreActivator;
 import org.moflon.ide.core.runtime.BasicResourceFillingMocaToMoflonTransformation;
+import org.moflon.ide.core.runtime.MetamodelLoader;
+import org.moflon.ide.core.runtime.ProjectDependencyAnalyzer;
 import org.moflon.ide.core.runtime.ResourceFillingMocaToMoflonTransformation;
 import org.moflon.util.plugins.MetamodelProperties;
 
@@ -64,11 +67,10 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
 
    protected void handleMissingProject(final Node node, final IProject project)
    {
-      MetamodelProperties properties = propertiesMap.get(project.getName());
+      MetamodelProperties properties = propertiesMap.get(project.getName().split("_C")[0]);
 
       try
       {
-         final String projectName = properties.getProjectName();
          CMoflonProjectCreator createMoflonProject = new CMoflonProjectCreator(properties);
 
          ResourcesPlugin.getWorkspace().run(createMoflonProject, new NullProgressMonitor());
@@ -77,4 +79,39 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
          this.reportError(e);
       }
    }
+   
+   @Override
+	public void handleOutermostPackage(Node node, EPackage outermostPackage) {
+	   final String projectName = getProjectName(node)+"_C";
+		final String exportAttribute = lookupAttribute(node, MOCA_TREE_ATTRIBUTE_EXPORT);
+		if (isExported(exportAttribute)) {
+			final String nodeName = node.getName();
+			if (MOCA_TREE_ATTRIBUTE_REPOSITORY_PROJECT.equals(nodeName) ||
+					MOCA_TREE_ATTRIBUTE_INTEGRATION_PROJECT.equals(nodeName)) {
+				// Handling (creating/opening) projects in Eclipse workspace
+				IProject workspaceProject = workspace.getRoot().getProject(projectName);
+				if (!workspaceProject.exists()) {
+					handleOrReportMissingProject(node, workspaceProject);
+				}
+				assert workspaceProject != null && workspaceProject.exists();
+				if (!workspaceProject.isAccessible()) {
+					handleOrReportClosedProject(node, workspaceProject);
+				}
+				assert workspaceProject.isAccessible();
+				handleOpenProject(node, workspaceProject);
+				metamodelLoaderTasks.add(new MetamodelLoader(metamodelBuilder, set, node, outermostPackage));
+				projectDependencyAnalyzerTasks.add(
+						new ProjectDependencyAnalyzer(metamodelBuilder, metamodelProject, workspaceProject, outermostPackage));
+			} else {
+				reportError("Project " + getProjectName(node)
+						+ " has unknown type " + node.getName());
+			}
+		} else {
+			if (!MOCA_TREE_ATTRIBUTE_REPOSITORY_PROJECT.equals(node.getName())) {
+				reportError("Project " + getProjectName(node)
+						+ " must always be exported");
+			}
+			metamodelLoaderTasks.add(new MetamodelLoader(metamodelBuilder, set, node, outermostPackage));
+		}
+	}
 }

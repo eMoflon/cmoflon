@@ -95,7 +95,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                final IProgressMonitor exporterSubMonitor = subMon.split(100);
                exporterSubMonitor.beginTask("Running MOCA-to-cMoflon transformation", properties.keySet().size());
 
-               BasicResourceFillingMocaToMoflonTransformation exporter = new ResourceFillingMocaCMoflonTransformation(set, properties, exporterSubMonitor,
+               ResourceFillingMocaCMoflonTransformation exporter = new ResourceFillingMocaCMoflonTransformation(set, properties, exporterSubMonitor,
                      this.getProject(), this);
                exporter.mocaToEcore(mocaTreeReader.getMocaTree());
                for (final ErrorMessage message : exporter.getMocaToMoflonReport().getErrorMessages())
