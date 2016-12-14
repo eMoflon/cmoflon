@@ -20,7 +20,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.gervarro.eclipse.task.ITask;
@@ -38,6 +41,9 @@ import org.moflon.ide.core.runtime.ProjectDependencyAnalyzer;
 import org.moflon.ide.core.runtime.builders.MetamodelBuilder;
 import org.moflon.sdm.compiler.democles.validation.result.ErrorMessage;
 import org.moflon.util.plugins.MetamodelProperties;
+
+import MocaTree.Node;
+import MocaTree.impl.NodeImpl;
 
 /**
  * Builder for Projects with {@link CMoflonMetamodelNature}. Similar to {@link MetamodelBuilder}. Triggers the {@link ResourceFillingMocaCMoflonTransformation}.
@@ -88,8 +94,14 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                // Load Moca tree in read-only mode
                final URI mocaFileURI = URI.createURI(mocaFilePath, true).resolve(projectURI);
                final Resource mocaTreeResource = set.getResource(mocaFileURI, true);
-
-               final MocaTreeEAPropertiesReader mocaTreeReader = new MocaTreeEAPropertiesReader();
+               NodeImpl pack =(NodeImpl) mocaTreeResource.getContents().get(0).eContents().get(0).eContents().get(2);
+               String oldValue=pack.getAttribute().get(1).getValue();
+               String newValue=oldValue+"_C";
+               pack.getAttribute().get(1).setValue(pack.getAttribute().get(1).getValue().replaceAll(oldValue, newValue));
+               pack.getAttribute().get(2).setValue(pack.getAttribute().get(2).getValue().replaceAll(oldValue, newValue));
+               pack.getAttribute().get(3).setValue(pack.getAttribute().get(3).getValue().replaceAll(oldValue, newValue));
+               pack.getAttribute().get(4).setValue(pack.getAttribute().get(4).getValue().replaceAll(oldValue, newValue));
+               final CMoflonMocaTreeEAPropertiesReader mocaTreeReader = new CMoflonMocaTreeEAPropertiesReader();
                final Map<String, MetamodelProperties> properties = mocaTreeReader.getProperties(getProject());
 
                final IProgressMonitor exporterSubMonitor = subMon.split(100);

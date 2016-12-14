@@ -19,6 +19,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.moflon.core.utilities.MoflonUtilitiesActivator;
+import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.ui.admin.wizards.metamodel.NewMetamodelProjectInfoPage;
 
 /**
@@ -103,7 +104,7 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 
          // Add Nature and Builders
          CMoflonWorkspaceHelper.addNature(newProjectHandle, CMoflonMetamodelNature.NATURE_ID, subMon.split(1));
-
+         CMoflonWorkspaceHelper.addNature(newProjectHandle, WorkspaceHelper.METAMODEL_NATURE_ID, subMon.split(1));
          //CMoflonWorkspaceHelper.addNature(newProjectHandle, CoreActivator.JAVA_NATURE_ID, subMon.split(1));
 
          CMoflonWorkspaceHelper.moveProjectToWorkingSet(newProjectHandle, SPECIFICATION_WORKINGSET_NAME);

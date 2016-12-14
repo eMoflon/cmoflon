@@ -67,7 +67,7 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
 
    protected void handleMissingProject(final Node node, final IProject project)
    {
-      MetamodelProperties properties = propertiesMap.get(project.getName().split("_C")[0]);
+      MetamodelProperties properties = propertiesMap.get(project.getName());
 
       try
       {
@@ -82,7 +82,7 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
    
    @Override
 	public void handleOutermostPackage(Node node, EPackage outermostPackage) {
-	   final String projectName = getProjectName(node)+"_C";
+	   final String projectName = getProjectName(node);
 		final String exportAttribute = lookupAttribute(node, MOCA_TREE_ATTRIBUTE_EXPORT);
 		if (isExported(exportAttribute)) {
 			final String nodeName = node.getName();

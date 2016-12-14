@@ -3,11 +3,16 @@ package org.cmoflon.ide.core.utilities;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.moflon.core.utilities.WorkspaceHelper;
+import org.moflon.ide.core.CoreActivator;
 
 /**
  * Extends the {@link WorkspaceHelper} with functionality for getting the properties files.
@@ -54,4 +59,5 @@ public class CMoflonWorkspaceHelper extends WorkspaceHelper
       }
       return properties;
    }
+
 }
