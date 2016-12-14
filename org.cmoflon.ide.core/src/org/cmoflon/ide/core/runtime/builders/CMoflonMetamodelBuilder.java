@@ -43,6 +43,7 @@ import org.moflon.sdm.compiler.democles.validation.result.ErrorMessage;
 import org.moflon.util.plugins.MetamodelProperties;
 
 import MocaTree.Node;
+import MocaTree.Text;
 import MocaTree.impl.NodeImpl;
 
 /**
@@ -94,13 +95,17 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                // Load Moca tree in read-only mode
                final URI mocaFileURI = URI.createURI(mocaFilePath, true).resolve(projectURI);
                final Resource mocaTreeResource = set.getResource(mocaFileURI, true);
-               NodeImpl pack =(NodeImpl) mocaTreeResource.getContents().get(0).eContents().get(0).eContents().get(2);
-               String oldValue=pack.getAttribute().get(1).getValue();
-               String newValue=oldValue+"_C";
-               pack.getAttribute().get(1).setValue(pack.getAttribute().get(1).getValue().replaceAll(oldValue, newValue));
-               pack.getAttribute().get(2).setValue(pack.getAttribute().get(2).getValue().replaceAll(oldValue, newValue));
-               pack.getAttribute().get(3).setValue(pack.getAttribute().get(3).getValue().replaceAll(oldValue, newValue));
-               pack.getAttribute().get(4).setValue(pack.getAttribute().get(4).getValue().replaceAll(oldValue, newValue));
+               Node node=(NodeImpl) mocaTreeResource.getContents().get(0);
+  	         Node root = (Node)((NodeImpl) node.getChildren().get(0));
+  	         for(Text child:root.getChildren())
+  	         if(!((Node) child).getAttribute().get(7).getValue().contains("eMoflon Languages")){
+  	             String oldValue=((Node) child).getAttribute().get(1).getValue();
+  	             String newValue=oldValue+"_C";
+  	             ((Node)child).getAttribute().get(1).setValue(((Node)child).getAttribute().get(1).getValue().replaceAll(oldValue, newValue));
+  	             ((Node)child).getAttribute().get(2).setValue(((Node)child).getAttribute().get(2).getValue().replaceAll(oldValue, newValue));
+  	             ((Node)child).getAttribute().get(3).setValue(((Node)child).getAttribute().get(3).getValue().replaceAll(oldValue, newValue));
+  	             ((Node)child).getAttribute().get(4).setValue(((Node)child).getAttribute().get(4).getValue().replaceAll(oldValue, newValue));
+  	         }
                final CMoflonMocaTreeEAPropertiesReader mocaTreeReader = new CMoflonMocaTreeEAPropertiesReader();
                final Map<String, MetamodelProperties> properties = mocaTreeReader.getProperties(getProject());
 
