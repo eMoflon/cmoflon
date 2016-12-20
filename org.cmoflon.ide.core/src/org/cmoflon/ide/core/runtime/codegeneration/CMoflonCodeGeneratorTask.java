@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.emf.codegen.ecore.generator.GeneratorAdapterFactory.Descriptor;
 import org.eclipse.emf.codegen.ecore.genmodel.GenModel;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.util.WrappedException;
@@ -24,7 +25,9 @@ import org.moflon.codegen.eclipse.GenericMoflonProcess;
 import org.moflon.codegen.eclipse.MonitoredGenModelBuilder;
 import org.moflon.codegen.eclipse.MonitoredMetamodelLoader;
 import org.moflon.compiler.sdm.democles.DefaultCodeGeneratorConfig;
+import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
+import org.moflon.compiler.sdm.democles.attributes.AttributeConstraintTemplateConfig;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 
@@ -171,7 +174,8 @@ public class CMoflonCodeGeneratorTask implements ITask
          System.out.println("Entering Code Generation in CMoflonCodeGenerator");
          // (6) Generate code
          subMon.subTask("Generating code for project " + project.getName());
-         final CMoflonCodeGenerator codeGenerator = new CMoflonCodeGenerator(resource, project, this.genModel);
+         Descriptor codeGenerationEngine = new DemoclesGeneratorAdapterFactory(defaultCodeGeneratorConfig.createTemplateConfiguration(genModel), null);
+         final CMoflonCodeGenerator codeGenerator = new CMoflonCodeGenerator(resource, project, this.genModel,codeGenerationEngine);
          final IStatus codeGenerationStatus = codeGenerator.generateCode(subMon.split(30));
          if (subMon.isCanceled())
          {

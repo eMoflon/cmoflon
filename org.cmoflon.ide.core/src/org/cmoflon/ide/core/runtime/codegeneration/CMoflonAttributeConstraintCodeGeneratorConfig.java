@@ -300,6 +300,6 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
    @Override
    public TemplateConfigurationProvider createTemplateConfiguration(final GenModel genModel)
    {
-      return new AttributeConstraintTemplateConfig(genModel, attributeVariableConstraintLibraries);
+      return new CMoflonAttributeConstraintTemplateConfig(genModel, attributeVariableConstraintLibraries);
    }
 }

@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.emf.codegen.ecore.generator.GeneratorAdapterFactory.Descriptor;
 import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
 import org.eclipse.emf.codegen.ecore.genmodel.GenModel;
 import org.eclipse.emf.codegen.ecore.genmodel.GenOperation;
@@ -43,6 +44,7 @@ import org.gervarro.democles.codegen.ImportManager;
 import org.gervarro.democles.codegen.OperationSequenceCompiler;
 import org.gervarro.democles.codegen.TemplateInvocation;
 import org.gervarro.democles.compiler.CompilerPatternBody;
+import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
 import org.moflon.compiler.sdm.democles.SearchPlanAdapter;
 import org.moflon.compiler.sdm.democles.TemplateConfigurationProvider;
@@ -88,10 +90,13 @@ public class CMoflonCodeGenerator
    private List<String> blockDeclarations = null;
 
    private GenModel genModel;
+   
+   private DemoclesGeneratorAdapterFactory codeGenerationEngine;
 
-   public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel)
+   public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel, Descriptor codeGenerationEngine)
    {
-      this.templateProvider = getTemplateConfigurationProvider(genModel);
+	  this.codeGenerationEngine=(DemoclesGeneratorAdapterFactory)codeGenerationEngine;
+      this.templateProvider = this.codeGenerationEngine.getTemplateConfigurationProvider();
       this.ecore = ecore;
       this.project = project;
       this.genModel = genModel;
@@ -405,7 +410,7 @@ public class CMoflonCodeGenerator
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            //st.inspect();
+            st.inspect();
             code.append(st.render());
             code.append("\n\n");
          }
@@ -433,6 +438,7 @@ public class CMoflonCodeGenerator
          final ST template = group.getInstanceOf("/" + CMoflonTemplateConfiguration.CONTROL_FLOW_GENERATOR + "/" + scope.getClass().getSimpleName());
          template.add("scope", scope);
          template.add("importManager", null);
+         template.inspect();
          generatedMethodBody = template.render();
       }
       if (generatedMethodBody == null)
