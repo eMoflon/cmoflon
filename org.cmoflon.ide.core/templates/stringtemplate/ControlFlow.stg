@@ -30,7 +30,9 @@ CFNodeImplRegularPatternInvocationImpl(node, importManager) ::= <<
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
 match_t* result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 if (result<node.mainAction.id> == null) {
-	throw new RuntimeException("Pattern matching in node [<node.origin.name>] failed."<VariablesByFailedPatternMatching(node.mainAction)>);
+	printf("Pattern matching in node [<node.origin.name>] failed.");
+	<VariablesByFailedPatternMatching(node.mainAction)>
+	exit(EXIT_FAILURE);
 }
 <node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
 <if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
@@ -70,7 +72,7 @@ HeadControlledLoopImplRegularPatternInvocationImpl(node, importManager) ::= <<
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
 match_t* result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 <if (node.loopAlongTrue)>
-while (result<node.mainAction.id> != null) {
+while (result<node.mainAction.id> != NULL) {
 	<node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
 	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 
@@ -78,7 +80,7 @@ while (result<node.mainAction.id> != null) {
 	<if (!node.onlyShortcuts)><([(node.class.simpleName), "LoopEndTasks"])(node, importManager)><endif>
 }
 <else>
-while (result<node.mainAction.id> == null) {
+while (result<node.mainAction.id> == NULL) {
 	<first(node.scopes):ScopeImpl(importManager)>
 	<if (!node.onlyShortcuts)><([(node.class.simpleName), "LoopEndTasks"])(node, importManager)><endif>
 }
@@ -316,7 +318,7 @@ BoundOrFree(varRef) ::= <<
 >>
 
 VariablesByFailedPatternMatching(invocation) ::= <<
-<if(invocation.boundParameters)> + " Variables: " + <invocation.boundParameters:{ varRef | "[<VariableName(varRef)>] = " + <VariableName(varRef)>}; separator=" + \", \" + "> + "."<endif>
+<if(invocation.boundParameters)>printf("Variables: <invocation.boundParameters:{ varRef | [<VariableName(varRef)>]}; separator=" , ">");<endif>
 >>
 
 VariableName(varRef) ::= <<

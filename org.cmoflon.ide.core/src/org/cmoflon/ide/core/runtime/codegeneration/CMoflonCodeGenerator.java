@@ -244,6 +244,8 @@ public class CMoflonCodeGenerator
       source.registerRenderer(String.class, new CMoflonStringRenderer());
       for (String method : tcMethods)
       {
+    	 if(method.isEmpty())
+    		 continue;
          inProcessCode += "\t\t" + method.trim() + "("
                + getParameters(constantProperties.getProperty(method.trim()), component, genClasses.get(0).getEcoreClass().getEPackage().getName(),
                      source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT))

@@ -11,11 +11,11 @@ ParameterName(parameter, importManager, autoboxing=true, prefix=false) ::= <<
 >>
 
 ParameterType(parameter, importManager) ::= <<
-<parameter.specification.type.linkedElement.name;format="fulluppercase">_T*
+<if(parameter.specification.type.linkedElement.serializable)><parameter.specification.type.linkedElement.name><else><parameter.specification.type.linkedElement.name;format="fulluppercase">_T*<endif>
 >>
 
 ParameterTypeAndName(parameter, importManager, prefix=false) ::= <<
-<parameter:ParameterType(importManager)> <parameter:ParameterName(importManager, false, prefix)>
+<parameter:ParameterType(importManager)><parameter:ParameterName(importManager, false, prefix)>
 >>
 
 Name(variableOperation, importManager, prefix=false) ::= <<
