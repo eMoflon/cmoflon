@@ -95,19 +95,8 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                // Load Moca tree in read-only mode
                final URI mocaFileURI = URI.createURI(mocaFilePath, true).resolve(projectURI);
                final Resource mocaTreeResource = set.getResource(mocaFileURI, true);
-               Node node=(NodeImpl) mocaTreeResource.getContents().get(0);
-  	         Node root = (Node)((NodeImpl) node.getChildren().get(0));
-  	         for(Text child:root.getChildren())
-  	         if(!((Node) child).getAttribute().get(7).getValue().contains("eMoflon Languages")){
-  	             String oldValue=((Node) child).getAttribute().get(1).getValue();
-  	             String newValue=oldValue+"_C";
-  	             ((Node)child).getAttribute().get(1).setValue(((Node)child).getAttribute().get(1).getValue().replaceAll(oldValue, newValue));
-  	             ((Node)child).getAttribute().get(2).setValue(((Node)child).getAttribute().get(2).getValue().replaceAll(oldValue, newValue));
-  	             ((Node)child).getAttribute().get(3).setValue(((Node)child).getAttribute().get(3).getValue().replaceAll(oldValue, newValue));
-  	             ((Node)child).getAttribute().get(4).setValue(((Node)child).getAttribute().get(4).getValue().replaceAll(oldValue, newValue));
-  	         }
                final CMoflonMocaTreeEAPropertiesReader mocaTreeReader = new CMoflonMocaTreeEAPropertiesReader();
-               final Map<String, MetamodelProperties> properties = mocaTreeReader.getProperties(getProject());
+               final Map<String, MetamodelProperties> properties = mocaTreeReader.getProperties((Node) mocaTreeResource.getContents().get(0));
 
                final IProgressMonitor exporterSubMonitor = subMon.split(100);
                exporterSubMonitor.beginTask("Running MOCA-to-cMoflon transformation", properties.keySet().size());
@@ -215,10 +204,5 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
             }
          }
       }
-   }
-
-   protected Map<String, MetamodelProperties> readProjectProperties() throws CoreException
-   {
-      return mocaTreeReader.getProperties(getProject());
    }
 }

@@ -16,6 +16,8 @@ import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.core.utilities.eMoflonEMFUtil;
 import org.moflon.ide.core.CoreActivator;
 import org.moflon.ide.core.properties.MocaTreeEAPropertiesReader;
+import org.moflon.ide.core.runtime.BasicResourceFillingMocaToMoflonTransformation;
+import org.moflon.ide.core.runtime.builders.MetamodelBuilder;
 import org.moflon.util.plugins.MetamodelProperties;
 
 import MocaTree.Node;
@@ -24,38 +26,22 @@ import MocaTree.impl.NodeImpl;
 
 public class CMoflonMocaTreeEAPropertiesReader extends MocaTreeEAPropertiesReader {
 
+
+	
 	@Override
-	public Map<String, MetamodelProperties> getProperties(IProject metamodelProject) throws CoreException {
-
-	      IFile mocaFile = WorkspaceHelper.getExportedMocaTree(metamodelProject);
-
-	      if (mocaFile.exists())
-	      {
-	         // Create and initialize resource set
-	         set = CodeGeneratorPlugin.createDefaultResourceSet();
-	         eMoflonEMFUtil.installCrossReferencers(set);
-	         
-	         // Load Moca tree in read-only mode
-	         URI mocaFileURI = URI.createPlatformResourceURI(mocaFile.getFullPath().toString(), true);
-	         Resource mocaTreeResource = set.getResource(mocaFileURI, true);
-	         Node node=(NodeImpl) mocaTreeResource.getContents().get(0);
-	         Node root = (Node)((NodeImpl) node.getChildren().get(0));
-	         for(Text child:root.getChildren())
-	         if(!((Node) child).getAttribute().get(7).getValue().contains("eMoflon Languages")){
-	             String oldValue=((Node) child).getAttribute().get(1).getValue();
-	             String newValue=oldValue+"_C";
-	             ((Node)child).getAttribute().get(1).setValue(((Node)child).getAttribute().get(1).getValue().replaceAll(oldValue, newValue));
-	             ((Node)child).getAttribute().get(2).setValue(((Node)child).getAttribute().get(2).getValue().replaceAll(oldValue, newValue));
-	             ((Node)child).getAttribute().get(3).setValue(((Node)child).getAttribute().get(3).getValue().replaceAll(oldValue, newValue));
-	             ((Node)child).getAttribute().get(4).setValue(((Node)child).getAttribute().get(4).getValue().replaceAll(oldValue, newValue));
-	         }
-	         mocaTree = (Node) mocaTreeResource.getContents().get(0);
-	         Map<String, MetamodelProperties> properties = getProperties(mocaTree);
-	         properties.keySet().forEach(p->properties.get(p).setMetamodelProjectName(metamodelProject.getName()));
-	         return properties;
-	      } else
-	      {
-	         throw new CoreException(new Status(IStatus.ERROR, CoreActivator.getModuleID(), "Cannot extract project properties, since Moca tree is missing."));
-	      }
-	   }
+	public Map<String, MetamodelProperties> getProperties(Node mocaTree) throws CoreException {
+		Node root = (Node)((NodeImpl) mocaTree.getChildren().get(0));
+        for(Text child:root.getChildren())
+        //if(!((Node) child).getAttribute().get(7).getValue().contains("eMoflon Languages")){
+        if(!((Node) child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOCA_TREE_ATTRIBUTE_WORKINGSET).iterator().next().getValue().contains("eMoflon Languages")){
+            String oldValue=((Node) child).getAttribute().get(1).getValue();
+            String newValue=oldValue+"_C";
+            
+            ((Node)child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOFLON_TREE_ATTRIBUTE_NAME).iterator().next().setValue(((Node)child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOFLON_TREE_ATTRIBUTE_NAME).iterator().next().getValue().replaceAll(oldValue, newValue));
+            ((Node)child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOCA_TREE_ATTRIBUTE_NS_PREFIX).iterator().next().setValue(((Node)child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOCA_TREE_ATTRIBUTE_NS_PREFIX).iterator().next().getValue().replaceAll(oldValue, newValue));
+            ((Node)child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOCA_TREE_ATTRIBUTE_NS_URI).iterator().next().setValue(((Node)child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOCA_TREE_ATTRIBUTE_NS_URI).iterator().next().getValue().replaceAll(oldValue, newValue));
+            ((Node)child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOCA_TREE_ATTRIBUTE_PLUGINID).iterator().next().setValue(((Node)child).getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOCA_TREE_ATTRIBUTE_PLUGINID).iterator().next().getValue().replaceAll(oldValue, newValue));
+        }
+		return super.getProperties(mocaTree);
+	}
 }
