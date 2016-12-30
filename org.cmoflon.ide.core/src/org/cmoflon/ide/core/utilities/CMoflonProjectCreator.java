@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 
 import org.cmoflon.ide.core.CMoflonCoreActivator;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
-import org.cmoflon.ide.ui.CMoflonUIActivator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;

@@ -15,7 +15,7 @@ ParameterType(parameter, importManager) ::= <<
 >>
 
 ParameterTypeAndName(parameter, importManager, prefix=false) ::= <<
-<parameter:ParameterType(importManager)><parameter:ParameterName(importManager, false, prefix)>
+<parameter:ParameterType(importManager)> <parameter:ParameterName(importManager, false, prefix)>
 >>
 
 Name(variableOperation, importManager, prefix=false) ::= <<
