@@ -1,7 +1,12 @@
 package org.cmoflon.ide.core.utilities;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import org.cmoflon.ide.core.CMoflonCoreActivator;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
+import org.cmoflon.ide.ui.CMoflonUIActivator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -11,12 +16,14 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.gervarro.eclipse.workspace.autosetup.PluginProjectConfigurator;
 import org.gervarro.eclipse.workspace.util.WorkspaceTask;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 import org.moflon.core.propertycontainer.SDMCodeGeneratorIds;
+import org.moflon.core.utilities.MoflonUtilitiesActivator;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.core.runtime.MoflonProjectCreator;
 import org.moflon.ide.core.runtime.ProjectNatureAndBuilderConfiguratorTask;
@@ -91,6 +98,13 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       this.addFileIfNotExists(workspaceProject, workspaceProject.getName() + "Constants.properties", constantPropertiesContent, subMon.split(1));
 
       this.addFileIfNotExists(workspaceProject, workspaceProject.getName() + "EClassToStructs.properties", mapPropertiesContent, subMon.split(1));
+      try {
+		WorkspaceHelper.addFile(workspaceProject, "/lib/"+workspaceProject.getName()+"AttributeConstraintsLib.xmi", MoflonUtilitiesActivator.getPathRelToPlugIn("resources/AttributeConstraintsLib.xmi", CMoflonCoreActivator.getModuleID()), CMoflonCoreActivator.getModuleID(),
+		          subMon.split(1));
+	} catch (OperationCanceledException | URISyntaxException | IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
    }
 
    private void addFileIfNotExists(IProject workspaceProject, String fileName, String content, SubMonitor subMon) throws CoreException
