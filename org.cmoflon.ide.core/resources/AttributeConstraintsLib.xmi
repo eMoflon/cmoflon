@@ -10,7 +10,7 @@
       constraintSpecifications="//@constraintSpecifications.0"
       operationIdentifier="max">
     <operationSpecifications
-        specification="$a$=$a$&lt;$b$?$b$:$a$"
+        specification="$a$=$b$&lt;$c$?$c$:$b$"
         adornmentString="FBB"/>
     <parameterIDs
         identifier="a"/>

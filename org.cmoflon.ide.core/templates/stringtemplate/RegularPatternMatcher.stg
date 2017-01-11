@@ -11,9 +11,14 @@ else {
 
 SingleMatch(engine, importManager, body, chain) ::= <<
 match_t* _result;
-_result->match = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
-<body.header.internalSymbolicParameters:{x  |_result->match[<i0>]= <if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}> 
-return _result;
+if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL){
+	printf("ERROR[topologycontrol-ktc]: match-list is full\n"); 
+	return NULL;
+}else{
+	_result->match = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
+	<body.header.internalSymbolicParameters:{x  |_result->match[<i0>]= <if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}> 
+	return _result; 
+}
 >>
 
 MatchSingleMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain, alwaysSuccessful) ::= <<

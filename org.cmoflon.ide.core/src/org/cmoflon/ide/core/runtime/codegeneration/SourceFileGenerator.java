@@ -29,6 +29,10 @@ public class SourceFileGenerator
    public static final String LIST_DECLARATION = "listDeclaration";
 
    public static final String INIT = "init";
+   
+   public static final String GUARD_START = "guardStart";
+   
+   public static final String GUARD_END= "guardEnd";
 
    //TODO: contains general as well as specific parts, should be splitted later on
    public static String generateClosingPart(boolean dropUnidir, STGroup sourceGroup)

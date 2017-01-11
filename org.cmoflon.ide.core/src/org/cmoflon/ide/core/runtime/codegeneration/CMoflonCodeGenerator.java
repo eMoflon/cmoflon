@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.codegen.ecore.generator.GeneratorAdapterFactory.Descriptor;
 import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
 import org.eclipse.emf.codegen.ecore.genmodel.GenDataType;
+import org.eclipse.emf.codegen.ecore.genmodel.GenEnum;
 import org.eclipse.emf.codegen.ecore.genmodel.GenModel;
 import org.eclipse.emf.codegen.ecore.genmodel.GenOperation;
 import org.eclipse.emf.codegen.ecore.genmodel.GenPackage;
@@ -141,6 +142,10 @@ public class CMoflonCodeGenerator
             this.builtInTypes.add(obj.getEcoreDataType().getName());
          }
       }
+      EList<GenEnum> enums=this.genModel.getGenPackages().get(0).getGenEnums();
+      for(GenEnum eEnum:enums){
+    	  this.builtInTypes.add(eEnum.getName());
+      }
    }
 
    public IStatus generateCode(IProgressMonitor monitor)
@@ -171,10 +176,11 @@ public class CMoflonCodeGenerator
                // generate Method Header
                if (!generatedMethodBody.equals(MoflonUtil.DEFAULT_METHOD_BODY))
                {
-                  generatedCode += newline;
+            	  generatedCode += newline;
                   generatedCode += genOperation.getTypeParameters(genClass);
                   generatedCode += genOperation.getImportedType(genClass);
                   generatedCode += " ";
+                  generatedCode += genOperation.getEcoreOperation().getEContainingClass().getName().toLowerCase()+"_";
                   generatedCode += genOperation.getName();
                   generatedCode += ("(");
                   generatedCode += getParametersFromEcore(genOperation.getEcoreOperation());
@@ -203,7 +209,17 @@ public class CMoflonCodeGenerator
       return Status.OK_STATUS;
    }
 
-   /**
+   private boolean isSubclassOfTopologyControlAlgorithm(EClass eContainingClass) {
+	boolean result=false;
+	for(EClass superClass : eContainingClass.getEAllSuperTypes()){
+		if(superClass.getName().equals("TopologyControlAlgorithm"))
+			return true;
+		else  result|=isSubclassOfTopologyControlAlgorithm(superClass);
+	}
+	return result;
+}
+
+/**
     * This methods gets all Fields of a GenClass, including Reference fields as
     * FieldAttributes usable in the StringTemplates
     * 
@@ -251,17 +267,20 @@ public class CMoflonCodeGenerator
    protected void generateSourceFile(String component, String algorithmName, String generatedCode, List<GenClass> genClasses, IProgressMonitor monitor)
    {
       String inProcessCode = "";
-      String[] tcMethods = ((String) constantProperties.get("tcMethods")).split(",");
+      String[] tcClasses = ((String) constantProperties.get("tcMethods")).split(",");
       STGroup source = templateProvider.getTemplateGroup(CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR);
       source.registerRenderer(String.class, new CMoflonStringRenderer());
-      for (String method : tcMethods)
+      for (String tcClass : tcClasses)
       {
-    	 if(method.isEmpty())
+    	 if(tcClass.isEmpty())
     		 continue;
-         inProcessCode += "\t\t" + method.trim() + "("
-               + getParameters(constantProperties.getProperty(method.trim()), component, genClasses.get(0).getEcoreClass().getEPackage().getName(),
-                     source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT))
-               + ");\n";
+    	 inProcessCode += "\t\tprepareLinks();\n";
+    	 inProcessCode += "\t\t" + tcClass.trim().toUpperCase()+ "_T tc;\n";
+    	 inProcessCode += "\t\ttc.node =  networkaddr_node_addr();\n";
+    	 inProcessCode += "\t\t" +getParameters(constantProperties.getProperty(tcClass.trim()), component, genClasses.get(0).getEcoreClass().getEPackage().getName(),
+                 source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT))+";\n";
+         inProcessCode += "\t\t" + tcClass.trim()+"_run(&tc);\n";
+         inProcessCode += "\t\tfreeLinks();\n";
       }
       String filename = component + "-" + algorithmName;
       // Get PatternMatching code
@@ -282,6 +301,8 @@ public class CMoflonCodeGenerator
 
       ST membDecl = source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.MEMB_DECLARATION);
       contents += getListAndBlockDeclarations(membDecl, listDecl);
+      //Insert Helper Code
+      contents+=getHelperMethods();
       // PM code
       contents += allinjectedCode;
       // generated Code
@@ -320,10 +341,11 @@ public class CMoflonCodeGenerator
    private String getListAndBlockDeclarations(ST memb, ST list)
    {
       String result = "\n";
-      memb.add("name", "local");
+      memb.add("name", "local_links");
       memb.add("type", "LINK_T");
       memb.add("count", "MAX_MATCH_COUNT*3");
-      result += memb.render();
+      result+= memb.render();
+      result += "LIST(local_links);\n";
       for (String s : this.blockDeclarations)
       {
          //Make sure STS are clean
@@ -546,8 +568,6 @@ public class CMoflonCodeGenerator
       equals.add("types", getTypes(this.genModel));
       contents += compare.render();
       contents += equals.render();
-      //Insert Helper Code
-      contents+=getHelperMethods();
       // Create Header Tail
       ST end = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_END);
       end.add("comp", componentName.toUpperCase());

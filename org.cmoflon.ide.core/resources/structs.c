@@ -1,15 +1,12 @@
-typedef enum linkstate { UNCLASSIFIED, ACTIVE, INACTIVE, PROCESSED }LinkState;
-typedef struct KTCALGORITHM_T {
+typedef struct {
+	NODE_T* node;
+}TOPOLOGYCONTROLALGORITHM_T;
+
+typedef struct  {
 	double k;
 	NODE_T* node;
-};
+}KTCALGORITHM_T;
 
-typedef struct MAXPOWERALGORITHM_T {
-	EDouble k;
+typedef struct  {
 	NODE_T* node;
-};
-
-typedef struct {
-	neighbor_t* link;
-	LinkState state;
-}LINK_T;
+}MAXPOWERALGORITHM_T;

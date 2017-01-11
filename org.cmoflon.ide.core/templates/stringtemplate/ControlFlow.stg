@@ -15,7 +15,7 @@ IfStatementImplRegularPatternInvocationImpl(node, importManager) ::= <<
 // <node.origin.name>
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
 match_t* result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
-if (result<node.mainAction.id> != null) {
+if (result<node.mainAction.id> != NULL) {
 	<node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
 	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 	<first(node.scopes):ScopeImpl(importManager)>
@@ -29,13 +29,15 @@ CFNodeImplRegularPatternInvocationImpl(node, importManager) ::= <<
 <\n>// <node.origin.name>
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
 match_t* result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
-if (result<node.mainAction.id> == null) {
+if (result<node.mainAction.id> == NULL) {
 	printf("Pattern matching in node [<node.origin.name>] failed.");
 	<VariablesByFailedPatternMatching(node.mainAction)>
-	exit(EXIT_FAILURE);
+	exit(-1);
 }
 <node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
 <if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
+free(result<node.mainAction.id>->match);
+memb_free(&memb_<node.mainAction.pattern.name><node.mainAction.parameters:BoundOrFree()>, result<node.mainAction.id>);
 <if (node.next)><node.next:Node(importManager)><endif>
 >>
 
@@ -47,9 +49,9 @@ do {
 	
 	<if (!node.onlyShortcuts)><([(node.class.simpleName), "LoopEndTasks"])(node, importManager)><endif>
 <if (node.loopAlongTrue)>
-} while (result<node.mainAction.id> != null);
+} while (result<node.mainAction.id> != NULL);
 <else>
-} while (result<node.mainAction.id> == null);
+} while (result<node.mainAction.id> == NULL);
 <node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
 <if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 <endif>
@@ -60,7 +62,7 @@ TailControlledLoopImplLoopEndTasks(node, importManager) ::= <<
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
 result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 <if (node.loopAlongTrue)>
-if (result<node.mainAction.id> != null) {
+if (result<node.mainAction.id> != NULL) {
 	<node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
 	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 }
@@ -91,6 +93,8 @@ while (result<node.mainAction.id> == NULL) {
 >>
 
 HeadControlledLoopImplLoopEndTasks(node, importManager) ::= <<
+free(result<node.mainAction.id>->match);
+memb_free(&memb_<node.mainAction.pattern.name><node.mainAction.parameters:BoundOrFree()>, result<node.mainAction.id>);
 result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 >>
 
@@ -211,7 +215,7 @@ PerformAction(action, importManager) ::= <<
 
 BindingPatternInvocationImplInForEachImpl(action, importManager) ::= <<
 <if (action.referencedFreeParameters)> match_t* result<action.id> = <endif><InvokePattern(action, importManager)>;
-if (result<action.id> == null) {
+if (result<action.id> == NULL) {
 	throw new RuntimeException("Binding in node <action.cfNode.origin.name> failed."<VariablesByFailedPatternMatching(action)>);
 }
 <action.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
@@ -281,6 +285,7 @@ DefaultPerformAction(action, importManager) ::= <<
 match_t* result<action.id> = <InvokePattern(action, importManager)>;
 <action.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
 free(result<action.id>->match);
+memb_free(&memb_<action.pattern.name><action.parameters:BoundOrFree()>, result<action.id>);
 >>
 
 InvokePattern(action, importManager) ::= <<
@@ -293,7 +298,7 @@ NodeDeletionImpl(action, importManager) ::= <<
 
 DeleteNode(variable, importManager) ::= <<
 <("org.eclipse.emf.ecore.util.EcoreUtil")>.delete(<variable.name>);
-<variable.name> = null;
+<variable.name> = NULL;
 >>
 
 
