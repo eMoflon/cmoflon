@@ -446,7 +446,7 @@ public class CMoflonCodeGenerator
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            st.inspect();
+//            st.inspect();
             code.append(st.render());
             code.append("\n\n");
          }
@@ -474,7 +474,7 @@ public class CMoflonCodeGenerator
          final ST template = group.getInstanceOf("/" + CMoflonTemplateConfiguration.CONTROL_FLOW_GENERATOR + "/" + scope.getClass().getSimpleName());
          template.add("scope", scope);
          template.add("importManager", null);
-         template.inspect();
+//         template.inspect();
          generatedMethodBody = template.render();
       }
       if (generatedMethodBody == null)
