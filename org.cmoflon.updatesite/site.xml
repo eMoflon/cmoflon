@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.cmoflon.feature_0.0.1.201701181641.jar" id="org.cmoflon.feature" version="0.0.1.201701181641">
+      <category name="org.cmoflon.category.main"/>
+   </feature>
+   <category-def name="org.cmoflon.category.main" label="cMoflon">
+      <description>
+         All main components of cMoflon
+      </description>
+   </category-def>
+</site>
