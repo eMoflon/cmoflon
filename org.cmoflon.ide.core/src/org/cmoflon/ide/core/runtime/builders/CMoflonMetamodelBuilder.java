@@ -64,7 +64,6 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
    @Override
    public void clean(final IProgressMonitor monitor) throws CoreException
    {
-      //TODO: check if change needed
       MetamodelProjectUtil.cleanTempFolder(getProject(), monitor);
    }
 

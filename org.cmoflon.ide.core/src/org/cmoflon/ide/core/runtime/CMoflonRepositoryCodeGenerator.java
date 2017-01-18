@@ -43,7 +43,10 @@ public class CMoflonRepositoryCodeGenerator
       final SubMonitor subMon = SubMonitor.convert(monitor);
       IFile ecoreFile;
       try
-      {
+      {  
+         project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+         project.deleteMarkers(WorkspaceHelper.INJECTION_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+         
          ecoreFile = getEcoreFileAndHandleMissingFile();
          if (!ecoreFile.exists())
          {

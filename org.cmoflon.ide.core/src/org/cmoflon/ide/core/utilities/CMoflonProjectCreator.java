@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import org.apache.commons.io.IOUtils;
 import org.cmoflon.ide.core.CMoflonCoreActivator;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
 import org.eclipse.core.resources.IFile;
@@ -15,17 +16,15 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
-import org.gervarro.eclipse.workspace.autosetup.PluginProjectConfigurator;
-import org.gervarro.eclipse.workspace.util.WorkspaceTask;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 import org.moflon.core.propertycontainer.SDMCodeGeneratorIds;
 import org.moflon.core.utilities.MoflonUtilitiesActivator;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.core.runtime.MoflonProjectCreator;
-import org.moflon.ide.core.runtime.ProjectNatureAndBuilderConfiguratorTask;
 import org.moflon.util.plugins.BuildPropertiesFileBuilder;
 import org.moflon.util.plugins.MetamodelProperties;
 import org.moflon.util.plugins.PluginProducerWorkspaceRunnable;
@@ -39,28 +38,29 @@ import org.moflon.util.plugins.PluginProducerWorkspaceRunnable;
 public class CMoflonProjectCreator implements IWorkspaceRunnable
 {
 
-	private MetamodelProperties metamodelProperties;
-	
-	private String projectName;
+   private MetamodelProperties metamodelProperties;
 
-	private static String constantPropertiesContent = "#Set to True if dropping unidirectional edges is desired \n" + "dropUnidirectionalEdges = true\n"
+   private String projectName;
+
+   private static String constantPropertiesContent = "#Set to True if dropping unidirectional edges is desired \n" + "dropUnidirectionalEdges = true\n"
          + "#set number of matches allowed per PM method\n" + "MAX_MATCH_COUNT = 20\n"
          + "#place the Names of the tcMethods in the Metamodel here as CSV. Naming should be: tc_<name>\n" + "tcMethods = \n"
          + "#place the parameters for the tc method call here as CSV. should look like: tc_<name> = value, value\n"
          + "# it is also possible to use the constants from down here, for this the value should be const-<constname>\n"
          + "#Define your Constants here: Should look like const-<constname>=value\n";
 
-	private static String mapPropertiesContent = "#Define your Mapping here: \n"
+   private static String mapPropertiesContent = "#Define your Mapping here: \n"
          + "#the Key is the EClass, and the value is the C Struct you want it to be mapped to \n" + "Node = networkaddr_t\n" + "Link = neighbor_t\n";
 
-	private String metaModelProjectName;
+   private String metaModelProjectName;
 
-	public CMoflonProjectCreator(MetamodelProperties metamodelProperties) {
-		this.metamodelProperties = metamodelProperties;
-		this.projectName=metamodelProperties.getProjectName();
-		this.metaModelProjectName=metamodelProperties.getMetamodelProjectName();
-	}
-	
+   public CMoflonProjectCreator(MetamodelProperties metamodelProperties)
+   {
+      this.metamodelProperties = metamodelProperties;
+      this.projectName = metamodelProperties.getProjectName();
+      this.metaModelProjectName = metamodelProperties.getMetamodelProjectName();
+   }
+
    @Override
    public void run(final IProgressMonitor monitor) throws CoreException
    {
@@ -71,12 +71,12 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       {
          return;
       }
-      
+
       final SubMonitor subMon = SubMonitor.convert(monitor, "Creating project " + projectName, 12);
       final IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(projectName);
-      
-      workspaceProject.create(description,IWorkspace.AVOID_UPDATE, subMon.split(1));
-      workspaceProject.open(IWorkspace.AVOID_UPDATE,subMon.split(1));
+
+      workspaceProject.create(description, IWorkspace.AVOID_UPDATE, subMon.split(1));
+      workspaceProject.open(IWorkspace.AVOID_UPDATE, subMon.split(1));
 
       createFoldersIfNecessary(workspaceProject, subMon.split(4));
       addGitIgnoreFiles(workspaceProject, subMon.split(2));
@@ -84,6 +84,7 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       WorkspaceHelper.addNature(workspaceProject, CMoflonRepositoryNature.NATURE_ID, subMon);
       PluginProducerWorkspaceRunnable pluginProducer = new PluginProducerWorkspaceRunnable(workspaceProject, metamodelProperties);
       pluginProducer.run(subMon);
+      clearBuildProperties(workspaceProject);
       MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(workspaceProject.getName(),
             metaModelProjectName);
       final MoflonPropertiesContainer moflonProps = moflonProperties;
@@ -97,13 +98,28 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       this.addFileIfNotExists(workspaceProject, workspaceProject.getName() + "Constants.properties", constantPropertiesContent, subMon.split(1));
 
       this.addFileIfNotExists(workspaceProject, workspaceProject.getName() + "EClassToStructs.properties", mapPropertiesContent, subMon.split(1));
-      try {
-		WorkspaceHelper.addFile(workspaceProject, "/lib/"+workspaceProject.getName()+"AttributeConstraintsLib.xmi", MoflonUtilitiesActivator.getPathRelToPlugIn("resources/AttributeConstraintsLib.xmi", CMoflonCoreActivator.getModuleID()), CMoflonCoreActivator.getModuleID(),
-		          subMon.split(1));
-	} catch (OperationCanceledException | URISyntaxException | IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+      try
+      {
+         WorkspaceHelper.addFile(workspaceProject, "/lib/" + workspaceProject.getName() + "AttributeConstraintsLib.xmi",
+               MoflonUtilitiesActivator.getPathRelToPlugIn("resources/AttributeConstraintsLib.xmi", CMoflonCoreActivator.getModuleID()),
+               CMoflonCoreActivator.getModuleID(), subMon.split(1));
+      } catch (OperationCanceledException | URISyntaxException | IOException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
+
+   private void clearBuildProperties(final IProject workspaceProject) throws CoreException
+   {
+      final ByteArrayInputStream input = new ByteArrayInputStream("# Intentionally empty\n".getBytes());
+      try
+      {
+         workspaceProject.getFile("build.properties").setContents(input, true, true, new NullProgressMonitor());
+      } finally
+      {
+         IOUtils.closeQuietly(input);
+      }
    }
 
    private void addFileIfNotExists(IProject workspaceProject, String fileName, String content, SubMonitor subMon) throws CoreException
