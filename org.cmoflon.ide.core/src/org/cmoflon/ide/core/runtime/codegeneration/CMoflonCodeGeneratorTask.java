@@ -6,11 +6,15 @@ import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.utilities.CMoflonMonitoredMetamodelLoader;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.JobGroup;
 import org.eclipse.emf.codegen.ecore.generator.GeneratorAdapterFactory.Descriptor;
 import org.eclipse.emf.codegen.ecore.genmodel.GenModel;
 import org.eclipse.emf.common.util.URI;
@@ -24,15 +28,14 @@ import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
 import org.moflon.codegen.eclipse.GenericMoflonProcess;
 import org.moflon.codegen.eclipse.MonitoredGenModelBuilder;
 import org.moflon.codegen.eclipse.MonitoredMetamodelLoader;
-import org.moflon.compiler.sdm.democles.DefaultCodeGeneratorConfig;
 import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
-import org.moflon.compiler.sdm.democles.attributes.AttributeConstraintTemplateConfig;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 
 public class CMoflonCodeGeneratorTask implements ITask
 {
+   private int timeoutForValidationTaskInMillis = 0;
 
    private static final Logger logger = Logger.getLogger(CMoflonCodeGeneratorTask.class);
 
@@ -50,6 +53,11 @@ public class CMoflonCodeGeneratorTask implements ITask
    {
       this.ecoreFile = ecoreFile;
       this.resourceSet = resourceSet;
+   }
+
+   public void setValidationTimeout(final int timeoutInMillis)
+   {
+      this.timeoutForValidationTaskInMillis = timeoutInMillis;
    }
 
    /**
@@ -101,13 +109,23 @@ public class CMoflonCodeGeneratorTask implements ITask
       return this.processResource(subMon.split(7));
    }
 
+   @SuppressWarnings("deprecation")
    public IStatus processResource(IProgressMonitor monitor)
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Code generation task", 100);
       try
       {
          final MoflonPropertiesContainer moflonProperties = getMoflonProperties();
-         logger.info("Generating code for: " + moflonProperties.getMetaModelProject().getMetaModelProjectName() + "::" + moflonProperties.getProjectName());
+         final String metaModelProjectName = moflonProperties.getMetaModelProject().getMetaModelProjectName();
+         final String fullProjectName;
+         if ("NO_META_MODEL_PROJECT_NAME_SET_YET".equals(metaModelProjectName))
+         {
+            fullProjectName = moflonProperties.getProjectName();
+         } else
+         {
+            fullProjectName = metaModelProjectName + "::" + moflonProperties.getProjectName();
+         }
+         logger.info("Generating code for: " + fullProjectName);
 
          long toc = System.nanoTime();
 
@@ -115,14 +133,41 @@ public class CMoflonCodeGeneratorTask implements ITask
          final EPackage ePackage = (EPackage) resource.getContents().get(0);
 
          // (1) Instantiate code generation engine
-         final CMoflonAttributeConstraintCodeGeneratorConfig defaultCodeGeneratorConfig = new CMoflonAttributeConstraintCodeGeneratorConfig(resourceSet, ecoreFile.getProject());
+         final CMoflonAttributeConstraintCodeGeneratorConfig defaultCodeGeneratorConfig = new CMoflonAttributeConstraintCodeGeneratorConfig(resourceSet,
+               ecoreFile.getProject());
          MethodBodyHandler methodBodyHandler = new DemoclesMethodBodyHandler(resourceSet, defaultCodeGeneratorConfig);
          subMon.worked(5);
 
          // (2) Validate metamodel (including SDMs)
          final ITask validator = methodBodyHandler.createValidator(ePackage);
-         final IStatus validatorStatus = validator.run(subMon.split(10));
-         if (subMon.isCanceled())
+         final WorkspaceJob validationJob = new WorkspaceJob("cMoflon Validation") {
+            @Override
+            public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException
+            {
+               final SubMonitor subMon = SubMonitor.convert(monitor, "Validation job", 100);
+               return validator.run(subMon.split(100));
+            }
+         };
+         JobGroup jobGroup = new JobGroup("Validation job group", 1, 1);
+         validationJob.setJobGroup(jobGroup);
+         validationJob.schedule();
+         jobGroup.join(timeoutForValidationTaskInMillis, subMon.split(10));
+         final IStatus validatorStatus = validationJob.getResult();
+         // final IStatus validatorStatus = validationJob.runInWorkspace(subMon.split(10));
+
+         if (validatorStatus == null)
+         {
+            try
+            {
+               validationJob.getThread().stop();
+            } catch (ThreadDeath e)
+            {
+               // Simply ignore it
+            }
+            //TODO@rkluge: This is a really ugly hack that should be removed as soon as a more elegant solution is available
+            throw new OperationCanceledException("Validation took longer than " + (timeoutForValidationTaskInMillis / 1000)
+                  + " seconds. This could(!) mean that some of your patterns have no valid search plan. You may increase the timeout value using the eMoflon property page");
+         } else if (subMon.isCanceled())
          {
             return Status.CANCEL_STATUS;
          }
@@ -130,6 +175,7 @@ public class CMoflonCodeGeneratorTask implements ITask
          {
             return validatorStatus;
          }
+
          // (3) Build or load GenModel
          final MonitoredGenModelBuilder genModelBuilderJob = new MonitoredGenModelBuilder(getResourceSet(), getAllResources(), getEcoreFile(), true,
                getMoflonProperties());
@@ -175,7 +221,7 @@ public class CMoflonCodeGeneratorTask implements ITask
          // (6) Generate code
          subMon.subTask("Generating code for project " + project.getName());
          Descriptor codeGenerationEngine = new DemoclesGeneratorAdapterFactory(defaultCodeGeneratorConfig.createTemplateConfiguration(genModel), null);
-         final CMoflonCodeGenerator codeGenerator = new CMoflonCodeGenerator(resource, project, this.genModel,codeGenerationEngine);
+         final CMoflonCodeGenerator codeGenerator = new CMoflonCodeGenerator(resource, project, this.genModel, codeGenerationEngine);
          final IStatus codeGenerationStatus = codeGenerator.generateCode(subMon.split(30));
          if (subMon.isCanceled())
          {
@@ -217,7 +263,7 @@ public class CMoflonCodeGeneratorTask implements ITask
       } catch (final Exception e)
       {
          return new Status(IStatus.ERROR, CodeGeneratorPlugin.getModuleID(), IStatus.ERROR, e.getMessage(), e);
-      } 
+      }
    }
 
    private List<Resource> getAllResources()

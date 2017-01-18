@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.gervarro.eclipse.workspace.util.AntPatternCondition;
 import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
 import org.moflon.core.utilities.ErrorReporter;
@@ -68,20 +67,19 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
    @Override
    protected void processResource(IResource ecoreResource, int kind, Map<String, String> args, IProgressMonitor monitor)
    {
-      SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 1);
-      logger.info("Processing Resource CMoflonRepositoryBuilder");
-      CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
-      final IStatus status = generator.generateCode(subMon.split(1), CMoflonWorkspaceHelper.getConstantsPropertiesFile(getProject()));
       final IFile ecoreFile = Platform.getAdapterManager().getAdapter(ecoreResource, IFile.class);
-      if (status.matches(IStatus.ERROR))
+      
+      try
       {
-         try
-         {
-            handleErrorsAndWarnings(status, ecoreFile);
-         } catch (CoreException e)
-         {
-            logger.error("Problems while reporting errors and warnings: " + e);
-         }
+         SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 1);
+         logger.info("Processing Resource CMoflonRepositoryBuilder");
+         CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
+         final IStatus status = generator.generateCode(subMon.split(1), CMoflonWorkspaceHelper.getConstantsPropertiesFile(getProject()));
+         handleErrorsAndWarnings(status, ecoreFile);
+      } catch (final CoreException e)
+      {
+         final IStatus status = new Status(e.getStatus().getSeverity(), WorkspaceHelper.getPluginId(getClass()), e.getMessage(), e);
+         handleErrorsInEclipse(status, ecoreFile);
       }
    }
 
