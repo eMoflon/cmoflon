@@ -1,6 +1,9 @@
 # Documentation for cMoflon (UNDER CONSTRUCTION)
 Documentation for cMoflon, the eMoflon derivate for generating Contiki code
 ----
+
+<a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.
+
 ## How to set up a small case study (walkthrough)
 
 ### Setup: How to install cMoflon and all required software
