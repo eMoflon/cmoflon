@@ -91,17 +91,17 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
 				// Handling (creating/opening) projects in Eclipse workspace
 				IProject workspaceProject = workspace.getRoot().getProject(projectName);
 				if (!workspaceProject.exists()) {
-					handleOrReportMissingProject(node, workspaceProject);
+					handleMissingProject(node, workspaceProject);
 				}
 				assert workspaceProject != null && workspaceProject.exists();
 				if (!workspaceProject.isAccessible()) {
-					handleOrReportClosedProject(node, workspaceProject);
+					handleClosedProject(node, workspaceProject);
 				}
 				assert workspaceProject.isAccessible();
 				handleOpenProject(node, workspaceProject);
-				metamodelLoaderTasks.add(new MetamodelLoader(metamodelBuilder, set, node, outermostPackage));
-				projectDependencyAnalyzerTasks.add(
-						new ProjectDependencyAnalyzer(metamodelBuilder, metamodelProject, workspaceProject, outermostPackage));
+				getMetamodelLoaderTasks().add(new MetamodelLoader(getMetamodelBuilder(), set, node, outermostPackage));
+				getProjectDependencyAnalyzerTasks().add(
+						new ProjectDependencyAnalyzer(getMetamodelBuilder(), getMetamodelProject(), workspaceProject, outermostPackage));
 			} else {
 				reportError("Project " + getProjectName(node)
 						+ " has unknown type " + node.getName());
@@ -111,7 +111,7 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
 				reportError("Project " + getProjectName(node)
 						+ " must always be exported");
 			}
-			metamodelLoaderTasks.add(new MetamodelLoader(metamodelBuilder, set, node, outermostPackage));
+			getMetamodelLoaderTasks().add(new MetamodelLoader(getMetamodelBuilder(), set, node, outermostPackage));
 		}
 	}
 }
