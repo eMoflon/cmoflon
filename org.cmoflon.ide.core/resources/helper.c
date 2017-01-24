@@ -1,3 +1,6 @@
+#define min(a,b) (((a)<(b))?(a):(b))
+#define min(a,b) (((a)>(b))?(a):(b))
+
 void* list_head_pred(list_t list, void* _this, bool(*pred)(void*,void*)) {
 	void* item;
 	for (item = list_head(list); item != NULL;item=list_item_next(item)) {
@@ -43,11 +46,33 @@ void freeLinks(){
 }
 
 //Begin of non SDM implemented methods
-EDouble link_getScaledWeight(LINK_T* _this, EDouble k) {
-	double result = (link_getWeight(_this) == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) ? COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN : link_getWeight(_this)*k;
+EBoolean lstarktcalgorithm_evaluateHopcountConstraint(LSTARKTCALGORITHM_T* this, EInt hopCount1, EInt hopCount2, EInt hopCount3, EDouble stretchFactor) {
+	//!a&&b
+	if (min(hopCount1, min(hopCount2, hopCount3)) < 0)
+		return false;
+	bool result = true;
+	result &= (!(hopCount1 == hopCount2) && true);
+	result &= (!(hopCount1 > hopCount2) && ((hopCount3 + 1) * 1.0 / max(1, hopCount1) < stretchFactor));
+	result &= (!(hopCount1 > hopCount2) && ((hopCount3 + 1) * 1.0 / max(1, hopCount2) < stretchFactor));
 	return result;
 }
 //End of non SDM implemented methods
+
+//Begin of declarations for hopcount
+EInt node_getHopcount(NODE_T* _this){
+	if (networkaddr_equal(networkaddr_node_addr(), _this))
+		return my_hopcount;
+
+	hopcount_t *item;
+	for (item = list_head(list_hopcount); item != NULL; item = list_item_next(item)) {
+		if (networkaddr_equal(item->address, _this)) {
+			return item->hopcount;
+		}
+	}
+
+	return -1;
+}
+//End of declarations for hopcount
 
 //Begin of declarations for incomingLinks
 list_t node_getIncomingLinks(NODE_T* _this) {
@@ -154,6 +179,24 @@ NODE_T* ktcalgorithm_getNode(KTCALGORITHM_T* _this) {
 	return _this->node;
 };
 //End of declarations for node
+
+//Begin of declarations for k
+EDouble lstarktcalgorithm_getK(LSTARKTCALGORITHM_T* _this) {
+	return _this->k;
+};
+//End of declarations for k
+
+//Begin of declarations for node
+NODE_T* lstarktcalgorithm_getNode(LSTARKTCALGORITHM_T* _this) {
+	return _this->node;
+};
+//End of declarations for node
+
+//Begin of declarations for stretchFactor
+EDouble lstarktcalgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this) {
+	return _this->stretchFactor;
+};
+//End of declarations for stretchFactor
 
 //Begin of compare declarations
 int edouble_compare(EDouble _this, EDouble other) {

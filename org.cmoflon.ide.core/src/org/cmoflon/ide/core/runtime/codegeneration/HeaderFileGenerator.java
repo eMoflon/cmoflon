@@ -31,7 +31,7 @@ public class HeaderFileGenerator
 
    //TODO: extend this for all Built in Types
    public enum BuiltInTypes {
-      EBoolean, EDouble
+      EBoolean, EDouble, EInt
    }
 
    public static String generateConstant(Object key, Object value, String component, String algorithm, ST template)
@@ -70,6 +70,8 @@ public class HeaderFileGenerator
          return "double";
       case EBoolean:
          return "bool";
+      case EInt:
+    	  return "int";
       default:
          return "void";
       }

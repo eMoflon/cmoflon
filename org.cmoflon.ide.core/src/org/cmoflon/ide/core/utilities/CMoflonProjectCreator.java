@@ -43,7 +43,7 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 	
 	private String projectName;
 
-	private static String constantPropertiesContent = "#Set to True if dropping unidirectional edges is desired \n" + "dropUnidirectionalEdges = true\n"
+	private static String constantPropertiesContent = "#Set to True if dropping unidirectional edges is desired \n" + "dropUnidirectionalEdges = true\n#Set to True if you want to use hopcounts.\nuseHopcount = true"
          + "#set number of matches allowed per PM method\n" + "MAX_MATCH_COUNT = 20\n"
          + "#place the Names of the tcMethods in the Metamodel here as CSV. Naming should be: tc_<name>\n" + "tcMethods = \n"
          + "#place the parameters for the tc method call here as CSV. should look like: tc_<name> = value, value\n"

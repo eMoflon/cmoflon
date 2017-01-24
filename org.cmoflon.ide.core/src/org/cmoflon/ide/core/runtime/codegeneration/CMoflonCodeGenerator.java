@@ -97,6 +97,8 @@ public class CMoflonCodeGenerator
 
    // indicates whether unidirectional Edges should be dropped.
    private boolean dropUnidirectionalEdges;
+   
+   private boolean useHopcounts;
 
    private ImportManager democlesImportManager;
 
@@ -116,6 +118,7 @@ public class CMoflonCodeGenerator
       // remove the dropUniDirectionalEdges entry but store it elsewhere
       this.constantProperties = CMoflonWorkspaceHelper.getConstantsPropertiesFile(project);
       boolean setUniDir = false;
+      boolean setUseHopcounts =false;
       Set<Entry<Object, Object>> entrySet = constantProperties.entrySet();
       List<Object> removeables = new ArrayList<Object>();
       for (Entry<Object, Object> entry : entrySet)
@@ -124,6 +127,16 @@ public class CMoflonCodeGenerator
          {
             this.dropUnidirectionalEdges = Boolean.parseBoolean(entry.getValue().toString());
             setUniDir = true;
+            removeables.add(entry.getKey());
+
+         }
+      }
+      for (Entry<Object, Object> entry : entrySet)
+      {
+         if (!setUseHopcounts && entry.getKey().toString().equals("useHopcount"))
+         {
+            this.useHopcounts = Boolean.parseBoolean(entry.getValue().toString());
+            setUseHopcounts = true;
             removeables.add(entry.getKey());
 
          }
@@ -301,6 +314,9 @@ public class CMoflonCodeGenerator
 
       ST membDecl = source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.MEMB_DECLARATION);
       contents += getListAndBlockDeclarations(membDecl, listDecl);
+      ST hopcountCode = source.getInstanceOf("/"+ CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR+"/"+ SourceFileGenerator.HOPCOUNT);
+      if(this.useHopcounts)
+    	  contents+=hopcountCode.add("comp",component).add("algo", algorithmName).render();
       //Insert Helper Code
       contents+=getHelperMethods();
       // PM code
@@ -311,11 +327,11 @@ public class CMoflonCodeGenerator
       ST init = source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.INIT);
       contents += getInitMethod(init);
       //Upper Part of framework (PROCESS) Code
-      contents += (SourceFileGenerator.generateUpperPart(component, algorithmName, source));
+      contents += (SourceFileGenerator.generateUpperPart(component, algorithmName, source,this.useHopcounts));
       //Code to be executed as Process 
       contents += (inProcessCode);
       //Closing Part of the Framework code
-      contents += (SourceFileGenerator.generateClosingPart(dropUnidirectionalEdges, source));
+      contents += (SourceFileGenerator.generateClosingPart(dropUnidirectionalEdges, source,this.useHopcounts));
       try
       {
          String outputFileName = CMoflonWorkspaceHelper.GEN_FOLDER + "/" + filename + ".c";
@@ -406,12 +422,12 @@ public class CMoflonCodeGenerator
             {
                template.remove("name");
                template.add("name", p.trim().split("const-")[1]);
-               result += template.render() + ", ";
+               result += template.render() + ";\n\t\t";
             } else
-               result += p.trim() + ", ";
+               result += p.trim() + ";\n ";
          }
       }
-      return result.substring(0, result.lastIndexOf(", "));
+      return result.substring(0, result.lastIndexOf(";"));
    }
 
    /**
