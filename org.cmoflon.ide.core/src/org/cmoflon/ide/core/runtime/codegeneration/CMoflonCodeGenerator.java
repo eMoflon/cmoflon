@@ -9,15 +9,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.CMoflonCoreActivator;
 import org.cmoflon.ide.core.runtime.codegeneration.HeaderFileGenerator.BuiltInTypes;
-import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonStringRenderer;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes.Components;
+import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonStringRenderer;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.FieldAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.MethodAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.Type;
@@ -39,19 +39,13 @@ import org.eclipse.emf.codegen.ecore.genmodel.GenOperation;
 import org.eclipse.emf.codegen.ecore.genmodel.GenPackage;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EParameter;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.impl.EPackageImpl;
-import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.gervarro.democles.codegen.ImportManager;
 import org.gervarro.democles.codegen.OperationSequenceCompiler;
@@ -105,18 +99,25 @@ public class CMoflonCodeGenerator
    private List<String> blockDeclarations = null;
 
    private GenModel genModel;
-   
+
    private DemoclesGeneratorAdapterFactory codeGenerationEngine;
 
    public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel, Descriptor codeGenerationEngine)
    {
-	  this.codeGenerationEngine=(DemoclesGeneratorAdapterFactory)codeGenerationEngine;
+      this.codeGenerationEngine = (DemoclesGeneratorAdapterFactory) codeGenerationEngine;
       this.templateProvider = this.codeGenerationEngine.getTemplateConfigurationProvider();
       this.ecore = ecore;
       this.project = project;
       this.genModel = genModel;
       // remove the dropUniDirectionalEdges entry but store it elsewhere
-      this.constantProperties = CMoflonWorkspaceHelper.getConstantsPropertiesFile(project);
+      try
+      {
+         this.constantProperties = CMoflonWorkspaceHelper.getConstantsPropertiesFile(project);
+      } catch (final CoreException e)
+      {
+         throw new IllegalStateException(e);
+      }
+      
       boolean setUniDir = false;
       boolean setUseHopcounts =false;
       Set<Entry<Object, Object>> entrySet = constantProperties.entrySet();
@@ -144,10 +145,16 @@ public class CMoflonCodeGenerator
       // Could not do this inline, lead to Exceptions
       for (Object rem : removeables)
          this.constantProperties.remove(rem);
-      this.mapping = CMoflonWorkspaceHelper.getMappingPropertiesFile(project);
+      try
+      {
+         this.mapping = CMoflonWorkspaceHelper.getMappingPropertiesFile(project);
+      } catch (final CoreException e)
+      {
+         throw new IllegalStateException(e);
+      }
 
       this.builtInTypes = new ArrayList<String>();
-     EList<GenDataType> dataTypes= this.genModel.getEcoreGenPackage().getGenDataTypes();;
+      EList<GenDataType> dataTypes = this.genModel.getEcoreGenPackage().getGenDataTypes();
       for (GenDataType obj : dataTypes)
       {
          if (obj.getEcoreDataType() instanceof EDataType)
@@ -155,9 +162,10 @@ public class CMoflonCodeGenerator
             this.builtInTypes.add(obj.getEcoreDataType().getName());
          }
       }
-      EList<GenEnum> enums=this.genModel.getGenPackages().get(0).getGenEnums();
-      for(GenEnum eEnum:enums){
-    	  this.builtInTypes.add(eEnum.getName());
+      EList<GenEnum> enums = this.genModel.getGenPackages().get(0).getGenEnums();
+      for (GenEnum eEnum : enums)
+      {
+         this.builtInTypes.add(eEnum.getName());
       }
    }
 
@@ -179,8 +187,8 @@ public class CMoflonCodeGenerator
          for (final GenClass genClass : genPackage.getGenClasses())
          {
             logger.info("GenClass: " + genClass.getName());
-            if(genClass.isAbstract())
-            	continue;
+            if (genClass.isAbstract())
+               continue;
             genClassesForInjectedCode.add(genClass);
             fields.addAll(getFields(genClass));
             for (GenOperation genOperation : genClass.getGenOperations())
@@ -189,11 +197,11 @@ public class CMoflonCodeGenerator
                // generate Method Header
                if (!generatedMethodBody.equals(MoflonUtil.DEFAULT_METHOD_BODY))
                {
-            	  generatedCode += newline;
+                  generatedCode += newline;
                   generatedCode += genOperation.getTypeParameters(genClass);
                   generatedCode += genOperation.getImportedType(genClass);
                   generatedCode += " ";
-                  generatedCode += genOperation.getEcoreOperation().getEContainingClass().getName().toLowerCase()+"_";
+                  generatedCode += genOperation.getEcoreOperation().getEContainingClass().getName().toLowerCase() + "_";
                   generatedCode += genOperation.getName();
                   generatedCode += ("(");
                   generatedCode += getParametersFromEcore(genOperation.getEcoreOperation());
@@ -207,7 +215,10 @@ public class CMoflonCodeGenerator
                {
                   logger.info("No generated Method body for: " + genOperation.getName());
                   methods.add(new MethodAttribute(new Type(isBuiltInType(genOperation.getGenClass().getName()), genOperation.getGenClass().getName()),
-                        new Type(isBuiltInType(genOperation.getEcoreOperation().getEType()==null?"void":genOperation.getEcoreOperation().getEType().getName()), genOperation.getEcoreOperation().getEType()==null?"void":genOperation.getEcoreOperation().getEType().getName()),
+                        new Type(
+                              isBuiltInType(
+                                    genOperation.getEcoreOperation().getEType() == null ? "void" : genOperation.getEcoreOperation().getEType().getName()),
+                              genOperation.getEcoreOperation().getEType() == null ? "void" : genOperation.getEcoreOperation().getEType().getName()),
                         genOperation.getName(), getParametersFromEcore(genOperation.getEcoreOperation())));
                }
             }
@@ -222,17 +233,20 @@ public class CMoflonCodeGenerator
       return Status.OK_STATUS;
    }
 
-   private boolean isSubclassOfTopologyControlAlgorithm(EClass eContainingClass) {
-	boolean result=false;
-	for(EClass superClass : eContainingClass.getEAllSuperTypes()){
-		if(superClass.getName().equals("TopologyControlAlgorithm"))
-			return true;
-		else  result|=isSubclassOfTopologyControlAlgorithm(superClass);
-	}
-	return result;
-}
+   private boolean isSubclassOfTopologyControlAlgorithm(EClass eContainingClass)
+   {
+      boolean result = false;
+      for (EClass superClass : eContainingClass.getEAllSuperTypes())
+      {
+         if (superClass.getName().equals("TopologyControlAlgorithm"))
+            return true;
+         else
+            result |= isSubclassOfTopologyControlAlgorithm(superClass);
+      }
+      return result;
+   }
 
-/**
+   /**
     * This methods gets all Fields of a GenClass, including Reference fields as
     * FieldAttributes usable in the StringTemplates
     * 
@@ -285,14 +299,16 @@ public class CMoflonCodeGenerator
       source.registerRenderer(String.class, new CMoflonStringRenderer());
       for (String tcClass : tcClasses)
       {
-    	 if(tcClass.isEmpty())
-    		 continue;
-    	 inProcessCode += "\t\tprepareLinks();\n";
-    	 inProcessCode += "\t\t" + tcClass.trim().toUpperCase()+ "_T tc;\n";
-    	 inProcessCode += "\t\ttc.node =  networkaddr_node_addr();\n";
-    	 inProcessCode += "\t\t" +getParameters(constantProperties.getProperty(tcClass.trim()), component, genClasses.get(0).getEcoreClass().getEPackage().getName(),
-                 source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT))+";\n";
-         inProcessCode += "\t\t" + tcClass.trim()+"_run(&tc);\n";
+         if (tcClass.isEmpty())
+            continue;
+         inProcessCode += "\t\tprepareLinks();\n";
+         inProcessCode += "\t\t" + tcClass.trim().toUpperCase() + "_T tc;\n";
+         inProcessCode += "\t\ttc.node =  networkaddr_node_addr();\n";
+         inProcessCode += "\t\t"
+               + getParameters(constantProperties.getProperty(tcClass.trim()), component, genClasses.get(0).getEcoreClass().getEPackage().getName(),
+                     source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT))
+               + ";\n";
+         inProcessCode += "\t\t" + tcClass.trim() + "_run(&tc);\n";
          inProcessCode += "\t\tfreeLinks();\n";
       }
       String filename = component + "-" + algorithmName;
@@ -318,7 +334,7 @@ public class CMoflonCodeGenerator
       if(this.useHopcounts)
     	  contents+=hopcountCode.add("comp",component).add("algo", algorithmName).render();
       //Insert Helper Code
-      contents+=getHelperMethods();
+      contents += getHelperMethods();
       // PM code
       contents += allinjectedCode;
       // generated Code
@@ -360,7 +376,7 @@ public class CMoflonCodeGenerator
       memb.add("name", "local_links");
       memb.add("type", "LINK_T");
       memb.add("count", "MAX_MATCH_COUNT*3");
-      result+= memb.render();
+      result += memb.render();
       result += "LIST(local_links);\n";
       for (String s : this.blockDeclarations)
       {
@@ -462,7 +478,7 @@ public class CMoflonCodeGenerator
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            st.inspect();
+            //            st.inspect();
             code.append(st.render());
             code.append("\n\n");
          }
@@ -490,7 +506,7 @@ public class CMoflonCodeGenerator
          final ST template = group.getInstanceOf("/" + CMoflonTemplateConfiguration.CONTROL_FLOW_GENERATOR + "/" + scope.getClass().getSimpleName());
          template.add("scope", scope);
          template.add("importManager", null);
-         template.inspect();
+         //         template.inspect();
          generatedMethodBody = template.render();
       }
       if (generatedMethodBody == null)
@@ -588,7 +604,7 @@ public class CMoflonCodeGenerator
       ST end = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_END);
       end.add("comp", componentName.toUpperCase());
       end.add("algo", algorithmName.toUpperCase());
-      contents += end.render()+"\n";
+      contents += end.render() + "\n";
       try
       {
          String outputFileName = CMoflonWorkspaceHelper.GEN_FOLDER + "/" + componentName + "-" + algorithmName + ".h";
@@ -669,29 +685,37 @@ public class CMoflonCodeGenerator
       }
       return result.substring(0, result.lastIndexOf(","));
    }
-   
-   private String getHelperMethods(){
-	   String result = null;
-	try(BufferedReader reader= new BufferedReader(new InputStreamReader(new URL("platform:/plugin/" + CMoflonCoreActivator.getModuleID() + "/resources/helper.c").openConnection().getInputStream()))) {
-		result = reader.lines().collect(Collectors.joining("\n"));
-	} catch (IOException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
-	   return result+="\n";
-	   
+
+   private String getHelperMethods()
+   {
+      String result = null;
+      try (BufferedReader reader = new BufferedReader(
+            new InputStreamReader(new URL("platform:/plugin/" + CMoflonCoreActivator.getModuleID() + "/resources/helper.c").openConnection().getInputStream())))
+      {
+         result = reader.lines().collect(Collectors.joining("\n"));
+      } catch (IOException e1)
+      {
+         // TODO Auto-generated catch block
+         e1.printStackTrace();
+      }
+      return result += "\n";
+
    }
-   
-   private String getTypedefs(){
-	   String result = null;
-	try(BufferedReader reader= new BufferedReader(new InputStreamReader(new URL("platform:/plugin/" + CMoflonCoreActivator.getModuleID() + "/resources/structs.c").openConnection().getInputStream()))) {
-		result = reader.lines().collect(Collectors.joining("\n"));
-	} catch (IOException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
-	   return result+="\n";
-	   
+
+   private String getTypedefs()
+   {
+      String result = null;
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+            new URL("platform:/plugin/" + CMoflonCoreActivator.getModuleID() + "/resources/structs.c").openConnection().getInputStream())))
+      {
+         result = reader.lines().collect(Collectors.joining("\n"));
+      } catch (IOException e1)
+      {
+         // TODO Auto-generated catch block
+         e1.printStackTrace();
+      }
+      return result += "\n";
+
    }
 
 }

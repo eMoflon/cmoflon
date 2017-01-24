@@ -20,10 +20,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.gervarro.eclipse.task.ITask;
@@ -36,15 +33,12 @@ import org.moflon.eclipse.resource.SDMEnhancedEcoreResource;
 import org.moflon.ide.core.CoreActivator;
 import org.moflon.ide.core.properties.MetamodelProjectUtil;
 import org.moflon.ide.core.properties.MocaTreeEAPropertiesReader;
-import org.moflon.ide.core.runtime.BasicResourceFillingMocaToMoflonTransformation;
 import org.moflon.ide.core.runtime.ProjectDependencyAnalyzer;
 import org.moflon.ide.core.runtime.builders.MetamodelBuilder;
 import org.moflon.sdm.compiler.democles.validation.result.ErrorMessage;
 import org.moflon.util.plugins.MetamodelProperties;
 
 import MocaTree.Node;
-import MocaTree.Text;
-import MocaTree.impl.NodeImpl;
 
 /**
  * Builder for Projects with {@link CMoflonMetamodelNature}. Similar to {@link MetamodelBuilder}. Triggers the {@link ResourceFillingMocaCMoflonTransformation}.
@@ -64,7 +58,6 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
    @Override
    public void clean(final IProgressMonitor monitor) throws CoreException
    {
-      //TODO: check if change needed
       MetamodelProjectUtil.cleanTempFolder(getProject(), monitor);
    }
 

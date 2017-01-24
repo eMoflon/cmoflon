@@ -2,22 +2,9 @@ package org.cmoflon.ide.core.runtime.builders;
 
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
-import org.moflon.core.utilities.WorkspaceHelper;
-import org.moflon.core.utilities.eMoflonEMFUtil;
-import org.moflon.ide.core.CoreActivator;
 import org.moflon.ide.core.properties.MocaTreeEAPropertiesReader;
 import org.moflon.ide.core.runtime.BasicResourceFillingMocaToMoflonTransformation;
-import org.moflon.ide.core.runtime.builders.MetamodelBuilder;
 import org.moflon.util.plugins.MetamodelProperties;
 
 import MocaTree.Node;

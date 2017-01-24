@@ -96,13 +96,16 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		}
 #endif
 
-		// ignore every node which is not directly connected in the spanning tree
+		/**
+		 * We ignore every node(!!) in in the LMST entry list that
+		 */
 		node_t *node;
 		for(node = list_head(list_nodelist); node != NULL; node = list_item_next(node)) {
-			if(!networkaddr_equal(node->address, networkaddr_node_addr()) && 
-         !networkaddr_equal(node->edge->node1, networkaddr_node_addr()) && 
-         !networkaddr_equal(node->edge->node2, networkaddr_node_addr())) {
-				component_network_ignoredlinks_add(node->address);
+			if(!networkaddr_equal(node->address, networkaddr_node_addr()) && 		// The node is not the self-node
+                !networkaddr_equal(node->edge->node1, networkaddr_node_addr()) &&	// edge->node1 is not the self-node
+                !networkaddr_equal(node->edge->node2, networkaddr_node_addr())) 	// edge->node2 is not the self-node
+			{
+			  component_network_ignoredlinks_add(node->address);					// ==> Do not receive messages from this node anymore, which means disabling the link TO node->address
 			}
 		}
 
@@ -117,6 +120,9 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 	PROCESS_END();
 }
 
+/**
+ * Fills the LMST entry list with an LMST entry for each node
+ */
 void _lmst_nodelist_reconstruct() {
 	// clean list
 	while(list_length(list_nodelist) > 0) {
@@ -169,7 +175,9 @@ void _lmst_nodelist_reconstruct() {
 	}
 }
 
-// every node connected except "/me" because it's the graph's root node
+/**
+ * Identifies a node for which "_lmst_nodelist_isconnected" would return false
+ */
 bool _lmst_nodelist_hasunconnected() {
 	node_t *item_node;
 	for(item_node = list_head(list_nodelist); item_node != NULL; item_node = list_item_next(item_node)) {
@@ -180,10 +188,18 @@ bool _lmst_nodelist_hasunconnected() {
 	return false;
 }
 
+/**
+ * Returns whether the given node has an edge in the (tentative) LMST
+ *
+ * A node is connected if its LMST entry has a non-null edge
+ *
+ * By default, the self-node is always connected.
+ */
 bool _lmst_nodelist_isconnected(networkaddr_t *address) {
 	node_t *item_node;
 	for(item_node = list_head(list_nodelist); item_node != NULL; item_node = list_item_next(item_node)) {
-		if(networkaddr_equal(item_node->address, address) && (item_node->edge != NULL || networkaddr_equal(networkaddr_node_addr(), item_node->address)))
+		if(networkaddr_equal(item_node->address, address) &&
+				(item_node->edge != NULL || networkaddr_equal(networkaddr_node_addr(), item_node->address)))
 			return true;
 	}
 
@@ -192,11 +208,22 @@ bool _lmst_nodelist_isconnected(networkaddr_t *address) {
 
 void _lmst_nodelist_connect(neighbor_t *edge) {
 	node_t *item_node;
+	/*
+	 * Iterate over all LMST entries,
+	 * check which of the entries correspond to the source and
+	 * target node of the to-be-connected edge and connect the edge to the source and target node entries.
+	 *
+	 * Exception: The self-node (cf. networkadd_node_add()) should not be connected to any edge
+	 */
 	for(item_node = list_head(list_nodelist); item_node != NULL; item_node = list_item_next(item_node)) {
-		if(networkaddr_equal(item_node->address, edge->node1) && item_node->edge == NULL && !networkaddr_equal(networkaddr_node_addr(), edge->node1))
-			item_node->edge = edge;
-		if(networkaddr_equal(item_node->address, edge->node2) && item_node->edge == NULL && !networkaddr_equal(networkaddr_node_addr(), edge->node2))
-			item_node->edge = edge;
+		if (item_node->edge == NULL)
+		{
+			if(networkaddr_equal(item_node->address, edge->node1) && !networkaddr_equal(networkaddr_node_addr(), edge->node1))
+				item_node->edge = edge;
+
+			if(networkaddr_equal(item_node->address, edge->node2) && !networkaddr_equal(networkaddr_node_addr(), edge->node2))
+				item_node->edge = edge;
+		}
 	}
 }
 

@@ -3,6 +3,7 @@ package org.cmoflon.ide.core.runtime;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.cmoflon.ide.core.runtime.codegeneration.CMoflonCodeGenerator;
 import org.cmoflon.ide.core.runtime.codegeneration.CMoflonCodeGeneratorTask;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -18,6 +19,7 @@ import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
 import org.moflon.core.utilities.MoflonUtil;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.core.utilities.eMoflonEMFUtil;
+import org.moflon.ide.core.preferences.EMoflonPreferencesStorage;
 import org.osgi.framework.FrameworkUtil;
 
 /**
@@ -42,7 +44,10 @@ public class CMoflonRepositoryCodeGenerator
       final SubMonitor subMon = SubMonitor.convert(monitor);
       IFile ecoreFile;
       try
-      {
+      {  
+         project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+         project.deleteMarkers(WorkspaceHelper.INJECTION_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+         
          ecoreFile = getEcoreFileAndHandleMissingFile();
          if (!ecoreFile.exists())
          {
@@ -54,6 +59,7 @@ public class CMoflonRepositoryCodeGenerator
          eMoflonEMFUtil.installCrossReferencers(resourceSet);
          subMon.worked(1);
          final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet);
+         gen.setValidationTimeout(EMoflonPreferencesStorage.getInstance().getValidationTimeout());
          final IStatus status = gen.run(subMon.split(1));
          if (status.matches(IStatus.ERROR))
          {

@@ -45,8 +45,7 @@ public class CMoflonMonitoredMetamodelLoader extends GenericMonitoredResourceLoa
       }
    }
    
-   @Override
-   protected boolean isAccessible(IProject project)
+   private boolean isAccessible(IProject project)
    {
       try
       {

@@ -3,6 +3,7 @@ package org.cmoflon.ide.ui.admin.handlers;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -45,22 +46,22 @@ public class BuildHandler extends AbstractCommandHandler
          final IProject project = file.getProject();
          projects.add(project);
       }
-      //Only allow CMoflonRepoProjects to be build
-      for (IProject p : projects)
-      {
-         try
-         {
-            if (!p.hasNature(CMoflonRepositoryNature.class.getName()))
-               projects.remove(p);
-         } catch (CoreException e)
-         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
-      }
-      cleanAndBuild(projects);
+      final List<IProject> cMoflonProjects = projects.stream().filter(p -> hasNatureNoThrow(p, CMoflonRepositoryNature.class.getName()))
+            .collect(Collectors.toList());
+      cleanAndBuild(cMoflonProjects);
 
       return null;
+   }
+
+   private static boolean hasNatureNoThrow(final IProject p, final String natureId)
+   {
+      try
+      {
+         return p.hasNature(natureId);
+      } catch (final CoreException e)
+      {
+         return false;
+      }
    }
 
    private void cleanAndBuild(List<IProject> projects)
