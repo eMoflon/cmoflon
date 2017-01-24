@@ -11,13 +11,15 @@ This version of cMoflon has been tested with Eclipse Neon.2 Release (4.6.1) and 
 1. Install *Eclipse with Modeling Components*, available here: https://eclipse.org/downloads/
 1. Install a 30-days trial version of Enterprise Architect from here: https://www.sparxsystems.de/uml/download-trial/
 1. **Install eMoflon**
-  * To install eMoflon in Eclipse use the following update site: https://emoflon.github.io/eclipse-plugin/emoflon_2.24.0/update-site2/
+  * To install eMoflon in Eclipse use the following update site: http://emoflon.github.io/eclipse-plugin/emoflon_2.24.0/update-site2/
   * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.github.io/eclipse-plugin/emoflon_2.24.0/update-site2/ea-ecore-addin.zip
-1. Install the cMoflon feature
+1. **Install cMoflon**
   * Update Site: http://emoflon.github.io/cmoflon/update-site/
   * You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.
-1. Download the Instant Contiki 3.0 VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
-1. Clone the Contiki evaluation framework from here (non-public): https://git.tk.informatik.tu-darmstadt.de/michael.stein/topology-control-evaluation
+1. **Get Contiki**
+ * Download the Instant Contiki 3.0 VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
+1. **Get ConMEF**
+ * Clone the Contiki evaluation framework from here (non-public): https://git.tk.informatik.tu-darmstadt.de/michael.stein/topology-control-evaluation
  * A snapshot of the proper version will be made available later.
  * The root folder of the working copy will be refered to as *TCEval* in the following.
  
