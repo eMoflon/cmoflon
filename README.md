@@ -8,13 +8,15 @@ Documentation for cMoflon, the eMoflon derivate for generating Contiki code
 
 ### Setup: How to install cMoflon and all required software
 The currently requires a mixed environment with a Windows system (for cMoflon/eMoflon and Enterprise Architect) and a Linux VM (provided as Instant Contiki).
-This version of cMoflon has been tested with Eclipse Neon.1a Release (4.6.1) and eMoflon 2.24.0 (RC) and Enterprise Architect 12
+This version of cMoflon has been tested with Eclipse Neon.2 Release (4.6.1) and eMoflon 2.26.0 and Enterprise Architect 12
 
 1. Install *Eclipse with Modeling Components*, available here: https://eclipse.org/downloads/
 1. Install a 30-days trial version of Enterprise Architect from here: https://www.sparxsystems.de/uml/download-trial/
 1. To install eMoflon in Eclipse use the following update site: https://emoflon.github.io/eclipse-plugin/emoflon_2.24.0/update-site2/
 1. You will also need to install an addin for Enterprise Architect from here: https://emoflon.github.io/eclipse-plugin/emoflon_2.24.0/update-site2/ea-ecore-addin.zip
-1. Install the cMoflon feature (Update Site: http://emoflon.github.io/cmoflon/update-site/)
+1. Install the cMoflon feature
+  * Update Site: http://emoflon.github.io/cmoflon/update-site/
+  * You may also use the Install button at the beginning of this document.
 1. Download the Instant Contiki 3.0 VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download and 
 1. Clone the Contiki evaluation framework from here (non-public): https://git.tk.informatik.tu-darmstadt.de/michael.stein/topology-control-evaluation
  * A snapshot of the proper version will be made available later.
