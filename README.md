@@ -22,14 +22,15 @@ This version of cMoflon has been tested with Eclipse Neon.2 (4.6.2) and eMoflon 
 1. **Get Contiki**
  * Download the *Instant Contiki 3.0* VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
  * You will need Virtual Box to run the VM (https://www.virtualbox.org/)
-1. **Get ConMEF**
+1. **Get ConMEF framework**
  * A snapshot of the proper version will be made available later.
  * Clone the Contiki evaluation framework from here (non-public): https://git.tk.informatik.tu-darmstadt.de/michael.stein/topology-control-evaluation
  * The root folder of the working copy will be refered to as *TCEval* in the following.
  
 ## How to specify a sample TC algorithm/test the existing TC algorithms
-1. Start Eclipse and navigate to *File->New->Other->eMoflon* and select *New cMoflon Metamodel Wizard* add a name and finish
-1. This will create a new project, a so-called metamodel project. Open it and double-click the *.eap file
+1. Open a fresh workspace in Eclipse.
+1. Navigate to *File->New->Other->eMoflon*, select *New cMoflon Metamodel Wizard* add a name (e.g., *cMoflonTestSpecification*), and press *Finish*.
+1. This will create a new project, a so-called metamodel project. Open it and double-click the .eap file
 1. Specify your TC algorithm or algorithms according to the pre-implemented ones.
 1. Hit the *Validate* button and select your project in eclipse and refresh it. This will create two new projects, named after the corresponding ECore Package in Enterprise Architect.
  * The project ending with _C contains the Contiki code
