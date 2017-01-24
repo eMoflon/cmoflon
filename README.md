@@ -6,21 +6,25 @@ Documentation for cMoflon, the eMoflon derivate for generating Contiki code
 
 ### Setup: How to install cMoflon and all required software
 The currently requires a mixed environment with a Windows system (for cMoflon/eMoflon and Enterprise Architect) and a Linux VM (provided as Instant Contiki).
-This version of cMoflon has been tested with Eclipse Neon.2 Release (4.6.1) and eMoflon 2.26.0 and Enterprise Architect 12
+This version of cMoflon has been tested with Eclipse Neon.2 (4.6.2) and eMoflon 2.26.0 and Enterprise Architect 12
 
-1. Install *Eclipse with Modeling Components*, available here: https://eclipse.org/downloads/
-1. Install a 30-days trial version of Enterprise Architect from here: https://www.sparxsystems.de/uml/download-trial/
-1. **Install eMoflon**
-  * To install eMoflon in Eclipse use the following update site: http://emoflon.github.io/eclipse-plugin/emoflon_2.24.0/update-site2/
-  * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.github.io/eclipse-plugin/emoflon_2.24.0/update-site2/ea-ecore-addin.zip
-1. **Install cMoflon**
+1. **Install Eclipse with Modeling Components Neon.2 (or newer)**
+  * All Eclipse packages are available here: https://eclipse.org/downloads/
+1. **Install Enterprise Architect 12 (or newer)**
+  * A 30-days trial version of Enterprise Architect is available here: https://www.sparxsystems.de/uml/download-trial/
+1. **Install eMoflon 2.26.0**
+  * To install eMoflon in Eclipse use the following update site: http://emoflon.github.io/eclipse-plugin/emoflon_2.26.0/update-site2/
+  * You only need to install the feature *eMoflon Core*
+  * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.github.io/eclipse-plugin/emoflon_2.26.0/update-site2/ea-ecore-addin.zip
+1. **Install cMoflon 0.0.1**
   * Update Site: http://emoflon.github.io/cmoflon/update-site/
   * You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.
 1. **Get Contiki**
- * Download the Instant Contiki 3.0 VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
+ * Download the *Instant Contiki 3.0* VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
+ * You will need Virtual Box to run the VM (https://www.virtualbox.org/)
 1. **Get ConMEF**
- * Clone the Contiki evaluation framework from here (non-public): https://git.tk.informatik.tu-darmstadt.de/michael.stein/topology-control-evaluation
  * A snapshot of the proper version will be made available later.
+ * Clone the Contiki evaluation framework from here (non-public): https://git.tk.informatik.tu-darmstadt.de/michael.stein/topology-control-evaluation
  * The root folder of the working copy will be refered to as *TCEval* in the following.
  
 ## How to specify a sample TC algorithm/test the existing TC algorithms
