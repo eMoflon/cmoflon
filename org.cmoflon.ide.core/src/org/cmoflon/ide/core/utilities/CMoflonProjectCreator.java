@@ -52,6 +52,8 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 
    private String metaModelProjectName;
 
+private String projectName;
+
    public CMoflonProjectCreator(MetamodelProperties metamodelProperties)
    {
       this.metamodelProperties = metamodelProperties;
