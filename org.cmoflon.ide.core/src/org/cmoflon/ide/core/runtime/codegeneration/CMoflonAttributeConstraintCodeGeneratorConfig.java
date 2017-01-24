@@ -18,7 +18,6 @@ import org.gervarro.democles.plan.common.DefaultAlgorithm;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
 import org.moflon.compiler.sdm.democles.PatternMatcherCompiler;
 import org.moflon.compiler.sdm.democles.TemplateConfigurationProvider;
-import org.moflon.compiler.sdm.democles.attributes.AttributeConstraintTemplateConfig;
 import org.moflon.compiler.sdm.democles.attributes.AttributeConstraintsOperationBuilder;
 import org.moflon.compiler.sdm.democles.attributes.AttributeEnabledWeightedOperationBuilder;
 import org.moflon.sdm.compiler.democles.pattern.BindingPatternTransformer;

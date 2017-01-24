@@ -3,6 +3,7 @@ package org.cmoflon.ide.core.runtime;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.cmoflon.ide.core.runtime.codegeneration.CMoflonCodeGenerator;
 import org.cmoflon.ide.core.runtime.codegeneration.CMoflonCodeGeneratorTask;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
