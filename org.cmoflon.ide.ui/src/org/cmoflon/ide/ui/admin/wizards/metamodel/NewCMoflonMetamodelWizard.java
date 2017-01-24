@@ -4,13 +4,17 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.natures.CMoflonMetamodelNature;
-import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.cmoflon.ide.ui.CMoflonUIActivator;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -18,6 +22,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
+import org.moflon.core.utilities.LogUtils;
 import org.moflon.core.utilities.MoflonUtilitiesActivator;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.ui.admin.wizards.metamodel.NewMetamodelProjectInfoPage;
@@ -70,13 +75,16 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
       try
       {
          getContainer().run(true, false, op);
-      } catch (InterruptedException e)
+      } catch (final InterruptedException e)
       {
+         MessageDialog.openError(getShell(), "Error while finishing wizard", e.getMessage());
+         LogUtils.error(Logger.getLogger(getClass()), WorkspaceHelper.printStacktraceToString(e));
          return false;
-      } catch (InvocationTargetException e)
+      } catch (final InvocationTargetException e)
       {
-         Throwable realException = e.getTargetException();
-         MessageDialog.openError(getShell(), "Error", realException.getMessage());
+         final Throwable targetException = e.getTargetException();
+         MessageDialog.openError(getShell(), "Error while finishing wizard", targetException.getMessage());
+         LogUtils.error(Logger.getLogger(getClass()), WorkspaceHelper.printStacktraceToString(targetException));
          return false;
       }
 
@@ -93,21 +101,18 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
          IPath location = projectInfo.getProjectLocation();
 
          // Create project
-         IProject newProjectHandle = CMoflonWorkspaceHelper.createProject(projectName, CMoflonUIActivator.getModuleID(), location, subMon.split(1));
+         IProject newProjectHandle = createProject(projectName, CMoflonUIActivator.getModuleID(), location, subMon.split(1));
 
          // generate default files
-         CMoflonWorkspaceHelper.addFile(newProjectHandle, projectName + ".eap",
+         WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap",
                MoflonUtilitiesActivator.getPathRelToPlugIn("resources/kTC.eap", CMoflonUIActivator.getModuleID()), CMoflonUIActivator.getModuleID(),
                subMon.split(1));
 
-         CMoflonWorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp", subMon.split(1));
+         WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp", subMon.split(1));
 
          // Add Nature and Builders
-         CMoflonWorkspaceHelper.addNature(newProjectHandle, CMoflonMetamodelNature.NATURE_ID, subMon.split(1));
-         CMoflonWorkspaceHelper.addNature(newProjectHandle, WorkspaceHelper.METAMODEL_NATURE_ID, subMon.split(1));
-         //CMoflonWorkspaceHelper.addNature(newProjectHandle, CoreActivator.JAVA_NATURE_ID, subMon.split(1));
-
-         CMoflonWorkspaceHelper.moveProjectToWorkingSet(newProjectHandle, SPECIFICATION_WORKINGSET_NAME);
+         WorkspaceHelper.addNature(newProjectHandle, CMoflonMetamodelNature.NATURE_ID, subMon.split(1));
+         WorkspaceHelper.addNature(newProjectHandle, WorkspaceHelper.METAMODEL_NATURE_ID, subMon.split(1));
 
          newProjectHandle.refreshLocal(IResource.DEPTH_INFINITE, subMon.split(1));
 
@@ -119,6 +124,44 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
       {
          monitor.done();
       }
+   }
+   
+   /**
+    * Creates a new project in current workspace
+    * 
+    * @param projectName
+    *           name of the new project
+    * @param monitor
+    *           a progress monitor, or null if progress reporting is not desired
+    * @param location
+    *           the file system location where the project should be placed
+    * @return handle to newly created project
+    * @throws CoreException
+    */
+   private static IProject createProject(final String projectName, final String pluginId, final IPath location, final IProgressMonitor monitor)
+         throws CoreException
+   {
+      SubMonitor subMon = SubMonitor.convert(monitor, "", 2);
+
+      // Get project handle
+      IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+      IProject newProject = root.getProject(projectName);
+
+      // Use default location (in workspace)
+      final IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(newProject.getName());
+      description.setLocation(location);
+
+      // Complain if project already exists
+      if (newProject.exists())
+      {
+         throw new CoreException(new Status(IStatus.ERROR, pluginId, projectName + " exists already!"));
+      }
+
+      // Create project
+      newProject.create(description, subMon.split(1));
+      newProject.open(subMon.split(1));
+
+      return newProject;
    }
 
    @Override

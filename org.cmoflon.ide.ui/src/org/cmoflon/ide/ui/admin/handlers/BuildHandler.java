@@ -10,12 +10,12 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.ui.admin.handlers.AbstractCommandHandler;
 
 /**
@@ -46,11 +46,22 @@ public class BuildHandler extends AbstractCommandHandler
          final IProject project = file.getProject();
          projects.add(project);
       }
-      final List<IProject> cMoflonProjects = projects.stream().filter(p -> WorkspaceHelper.hasNatureSafe(p, CMoflonRepositoryNature.class.getName()))
+      final List<IProject> cMoflonProjects = projects.stream().filter(p -> hasNatureNoThrow(p, CMoflonRepositoryNature.class.getName()))
             .collect(Collectors.toList());
       cleanAndBuild(cMoflonProjects);
 
       return null;
+   }
+
+   private static boolean hasNatureNoThrow(final IProject p, final String natureId)
+   {
+      try
+      {
+         return p.hasNature(natureId);
+      } catch (final CoreException e)
+      {
+         return false;
+      }
    }
 
    private void cleanAndBuild(List<IProject> projects)
