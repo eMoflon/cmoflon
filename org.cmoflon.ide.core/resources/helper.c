@@ -1,5 +1,5 @@
 #define min(a,b) (((a)<(b))?(a):(b))
-#define min(a,b) (((a)>(b))?(a):(b))
+#define max(a,b) (((a)>(b))?(a):(b))
 
 void* list_head_pred(list_t list, void* _this, bool(*pred)(void*,void*)) {
 	void* item;
@@ -124,7 +124,6 @@ LinkState link_getMarked(LINK_T* _this) {
 	return _this->state;
 }
 void link_setMarked(LINK_T* _this, LinkState value) {
-	printf("MARKING\n"); \
 	_this->state = value;
 	if (value==INACTIVE) {
 		if (node_equals(networkaddr_node_addr(), _this->node1)) {
