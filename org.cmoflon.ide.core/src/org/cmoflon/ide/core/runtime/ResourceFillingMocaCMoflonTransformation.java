@@ -14,6 +14,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.moflon.core.utilities.UncheckedCoreException;
+import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.core.CoreActivator;
 import org.moflon.ide.core.runtime.BasicResourceFillingMocaToMoflonTransformation;
 import org.moflon.ide.core.runtime.MetamodelLoader;
@@ -51,7 +52,7 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
 
    protected final void reportError(final String errorMessage)
    {
-      throw new UncheckedCoreException(errorMessage, CoreActivator.getModuleID());
+      throw new UncheckedCoreException(errorMessage, WorkspaceHelper.getPluginId(getClass()));
    }
 
    protected void handleOpenProject(final Node node, final IProject project, final Resource resource)

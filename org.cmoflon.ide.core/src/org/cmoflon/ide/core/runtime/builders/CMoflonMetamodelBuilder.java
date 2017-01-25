@@ -64,7 +64,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
    @Override
    protected void processResource(IResource mocaFile, int kind, Map<String, String> args, IProgressMonitor monitor)
    {
-      final MultiStatus mocaToMoflonStatus = new MultiStatus(CoreActivator.getModuleID(), 0, getClass().getName() + " failed", null);
+      final MultiStatus mocaToMoflonStatus = new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, getClass().getName() + " failed", null);
 
       final String mocaFilePath = WorkspaceHelper.TEMP_FOLDER + "/" + getProject().getName() + WorkspaceHelper.MOCA_XMI_FILE_EXTENSION;
       if (mocaFile instanceof IFile && mocaFilePath.equals(mocaFile.getProjectRelativePath().toString()) && mocaFile.isAccessible())
@@ -120,7 +120,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                ITask[] taskArray = new ITask[exporter.getMetamodelLoaderTasks().size()];
                taskArray = exporter.getMetamodelLoaderTasks().toArray(taskArray);
                final IStatus metamodelLoaderStatus = ProgressMonitoringJob.executeSyncSubTasks(taskArray,
-                     new MultiStatus(CoreActivator.getModuleID(), 0, "Resource loading failed", null), subMon.newChild(5));
+                     new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, "Resource loading failed", null), subMon.newChild(5));
                CoreActivator.checkCancellation(subMon);
                if (!metamodelLoaderStatus.isOK())
                {
@@ -141,7 +141,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                }
                triggerProjects.clear();
                final IStatus projectDependencyAnalyzerStatus = ProgressMonitoringJob.executeSyncSubTasks(dependencyAnalyzers,
-                     new MultiStatus(CoreActivator.getModuleID(), 0, "Dependency analysis failed", null), subMon.newChild(5));
+                     new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, "Dependency analysis failed", null), subMon.newChild(5));
                CoreActivator.checkCancellation(subMon);
                if (!projectDependencyAnalyzerStatus.isOK())
                {
