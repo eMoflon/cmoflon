@@ -23,7 +23,7 @@ This version of cMoflon has been tested with Eclipse Neon.2 (4.6.2) and eMoflon 
  * Download the *Instant Contiki 3.0* VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
  * You will need Virtual Box to run the VM (https://www.virtualbox.org/)
 1. **Get ConMEF framework**
- * A snapshot of the proper version will be made available later.
+ * A snapshot of the proper version will be made available later here: https://github.com/steinmic/TopologyControl
  * Clone the Contiki evaluation framework from here (non-public): https://git.tk.informatik.tu-darmstadt.de/michael.stein/topology-control-evaluation
  * The root folder of the working copy will be refered to as *TCEval* in the following.
  
