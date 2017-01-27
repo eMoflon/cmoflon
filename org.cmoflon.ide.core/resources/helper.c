@@ -51,9 +51,9 @@ EBoolean lstarktcalgorithm_evaluateHopcountConstraint(LSTARKTCALGORITHM_T* this,
 	if (min(hopCount1, min(hopCount2, hopCount3)) < 0)
 		return false;
 	bool result = true;
-	result &= (!(hopCount1 == hopCount2) && true);
-	result &= (!(hopCount1 > hopCount2) && ((hopCount3 + 1) * 1.0 / max(1, hopCount1) < stretchFactor));
-	result &= (!(hopCount1 > hopCount2) && ((hopCount3 + 1) * 1.0 / max(1, hopCount2) < stretchFactor));
+	result &= (!(hopCount1 == hopCount2) || true);
+	result &= (!(hopCount1 > hopCount2) || ((hopCount3 + 1) * 1.0 / max(1, hopCount1) < stretchFactor));
+	result &= (!(hopCount1 < hopCount2) || ((hopCount3 + 1) * 1.0 / max(1, hopCount2) < stretchFactor));
 	return result;
 }
 //End of non SDM implemented methods
