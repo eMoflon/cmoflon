@@ -16,3 +16,7 @@ typedef struct {
 	EDouble stretchFactor;
 	NODE_T* node;
 }LSTARKTCALGORITHM_T;
+
+typedef struct {
+	NODE_T* node;
+}LMSTALGORITHM_T;

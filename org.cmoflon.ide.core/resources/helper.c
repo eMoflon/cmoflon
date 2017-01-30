@@ -197,6 +197,12 @@ EDouble lstarktcalgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this) {
 };
 //End of declarations for stretchFactor
 
+//Begin of declarations for node
+NODE_T* lmstalgorithm_getNode(LMSTALGORITHM_T* _this) {
+	return _this->node;
+};
+//End of declarations for node
+
 //Begin of compare declarations
 int edouble_compare(EDouble _this, EDouble other) {
 	if (_this == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
