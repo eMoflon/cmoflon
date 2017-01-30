@@ -3,7 +3,7 @@ Variable(variable, importManager, autoboxing, prefix=false) ::= <<
 >>
 
 Constant(constant, importManager, autoboxing, prefix=false) ::= <<
-<if(constant.value)><constant.value:(constant.value.class.simpleName)(importManager, autoboxing)><else><constant.value; null="null"><endif>
+<if(constant.value)><constant.value:(constant.value.class.simpleName)(importManager, autoboxing)><else><constant.value; null="NULL"><endif>
 >>
 
 ParameterName(parameter, importManager, autoboxing=true, prefix=false) ::= <<
