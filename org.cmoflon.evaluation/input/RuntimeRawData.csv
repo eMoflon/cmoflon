@@ -1,0 +1,13 @@
+Algorithm,Run,RuntimeInMillis
+kTC-man,1,40
+kTC-man,2,45
+kTC-man,3,50
+kTC-gen,4,45
+kTC-gen,5,50
+kTC-gen,6,65
+l*-kTC-man,7,100
+l*-kTC-man,8,150
+l*-kTC-gen,9,200
+l*-kTC-gen,10,300
+LMST-man,11,110
+LMST-gen,11,120
