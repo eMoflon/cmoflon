@@ -56,6 +56,26 @@ EBoolean lstarktcalgorithm_evaluateHopcountConstraint(LSTARKTCALGORITHM_T* this,
 	result &= (!(hopCount1 < hopCount2) || ((hopCount3 + 1) * 1.0 / max(1, hopCount2) < stretchFactor));
 	return result;
 }
+
+void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
+	list_t neighbors = component_neighbordiscovery_neighbors();
+	list_init(lmst_entries);
+	LINK_T* link;
+	for (link = list_head_pred(neighbors,networkaddr_node_addr(),&node_isOutgoingLinks); link != NULL; link = list_item_next_pred(link,networkaddr_node_addr(),&node_isOutgoingLinks)) {
+		LINK_T* temp;
+		if ((temp = memb_alloc(&memb_local_links)) == NULL)
+			printf("[topologycontrol]:Status Error: memb_local is full\n");
+		temp->node1 = link->node1;
+		temp->node2 = link->node2;
+		temp->weight_node1_to_node2 = link->weight_node1_to_node2;
+		temp->weight_node2_to_node1 = link->weight_node2_to_node1;
+		temp->ttl_node1_to_node2 = link->ttl_node1_to_node2;
+		temp->ttl_node2_to_node1 = link->ttl_node2_to_node1;
+		temp->state = UNCLASSIFIED;
+		list_add(local_links, temp);
+	}
+};
+
 //End of non SDM implemented methods
 
 //Begin of declarations for hopcount
@@ -119,6 +139,31 @@ bool node_isOutgoingLinks(void* candidate, void* _this) {
 
 //End of declarations for outgoingLinks
 
+//Begin of declarations for neighborhood
+list_t node_getNeighborhood(NODE_T* _this) {
+	return local_links;
+}
+bool node_isNeighborhood(void* candidate, void* _this) {
+	return true;
+}
+//End of declarations for neighborhood
+
+//Begin of declarations for incidentLinks
+list_t node_getIncidentLinks(NODE_T* _this) {
+	return local_links;
+}
+bool node_containsIncidentLinks(NODE_T* _this, LINK_T* value) {
+	if (node_equals(_this, value->node1) || node_equals(_this, value->node2))
+		return true;
+	else return false;
+}
+bool node_isIncidentLinks(void* candidate, void* _this) {
+	if (node_equals((NODE_T*)_this, ((LINK_T*)value)->node1) || node_equals((NODE_T*)_this, ((LINK_T*)value)->node2))
+		return true;
+	else return false;
+};
+//End of declarations for incidentLinks
+
 //Begin of declarations for marked
 LinkState link_getMarked(LINK_T* _this) {
 	return _this->state;
@@ -161,6 +206,37 @@ NODE_T* link_getSource(LINK_T* _this) {
 }
 //End of declarations for source
 
+//Begin of declarations for lmst
+LMST_T* lmstentry_getLmst(LMSTENTRY_T* _this) {
+	return _this->algorithm;
+}
+//End of declarations for lmst
+
+//Begin of declarations for node
+NODE_T* lmstentry_getNode(LMSTENTRY_T* _this) {
+	return this->node;
+}
+void lmstentry_setNode(LMSTENTRY_T* _this, NODE_T* value) {
+	_this->node = value;
+	return;
+}
+//End of declarations for node
+
+//Begin of declarations for selectedLink
+LINK_T* lmstentry_getSelectedLink(LMSTENTRY_T* _this) {
+	return _this->link;
+}
+//End of declarations for selectedLink
+
+//Begin of declarations for lmstEntries
+list_t lmst_getLmstEntries(LMST_T* _this) {
+	return(lmst_entries;)
+}
+bool lmst_isLmstEntries(void* candidate, void* _this) {
+	return true;
+}
+//End of declarations for lmstEntries
+
 //Begin of declarations for node
 NODE_T* maxpoweralgorithm_getNode(MAXPOWERALGORITHM_T* _this) {
 	return _this->node;
@@ -202,6 +278,12 @@ NODE_T* lmstalgorithm_getNode(LMSTALGORITHM_T* _this) {
 	return _this->node;
 };
 //End of declarations for node
+
+//Begin of declarations for lmst
+LMST_T* lmstalgorithm_getLmst(LMSTALGORITHM_T* _this) {
+	return _this;
+}
+//End of declarations for lmst
 
 //Begin of compare declarations
 int edouble_compare(EDouble _this, EDouble other) {

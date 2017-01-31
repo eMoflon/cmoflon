@@ -199,7 +199,14 @@ public class CMoflonCodeGenerator
                {
                   generatedCode += newline;
                   generatedCode += genOperation.getTypeParameters(genClass);
-                  generatedCode += genOperation.getImportedType(genClass);
+                  String[] typechain= genOperation.getImportedType(genClass).split("\\.");
+                  String type="";
+                  if(typechain.length==0)
+                	  type=genOperation.getImportedType(genClass);
+                  else type= typechain[typechain.length-1];
+                  if(!isBuiltInType(type)&&!type.equalsIgnoreCase("void"))
+                	  type=type.toUpperCase()+"_T*";
+                  generatedCode +=type;
                   generatedCode += " ";
                   generatedCode += genOperation.getEcoreOperation().getEContainingClass().getName().toLowerCase() + "_";
                   generatedCode += genOperation.getName();
@@ -210,12 +217,12 @@ public class CMoflonCodeGenerator
                   {
                      generatedCode += "\t" + line;
                   }
-                  generatedCode += ("}" + newline);
+                  generatedCode += (newline+"}" + newline);
                } else
                {
                   logger.info("No generated Method body for: " + genOperation.getName());
                   methods.add(new MethodAttribute(new Type(isBuiltInType(genOperation.getGenClass().getName()), genOperation.getGenClass().getName()),
-                        new Type(
+                        new Type(genOperation.getEcoreOperation().getEType() == null ? true :
                               isBuiltInType(
                                     genOperation.getEcoreOperation().getEType() == null ? "void" : genOperation.getEcoreOperation().getEType().getName()),
                               genOperation.getEcoreOperation().getEType() == null ? "void" : genOperation.getEcoreOperation().getEType().getName()),
