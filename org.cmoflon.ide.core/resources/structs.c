@@ -19,12 +19,18 @@ typedef struct {
 
 typedef struct {
 	NODE_T* node;
+	LMST_T* lmst;
 }LMSTALGORITHM_T;
 
-typedef LMSTALGORITHM_T LMST_T;
+typedef struct {
+	LMSTALGORITHM_T* algo;
+	list_t lmstEntries;
+	struct memb* mem;
+}LMST_T;
 
 typedef struct {
+	struct LMSTENTRY_T* next;
 	NODE_T* node;
 	LINK_T* selectedLink;
-	LMST_T algorithm;
+	LMST_T* algorithm;
 }LMSTENTRY_T;

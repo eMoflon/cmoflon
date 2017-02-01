@@ -58,24 +58,76 @@ EBoolean lstarktcalgorithm_evaluateHopcountConstraint(LSTARKTCALGORITHM_T* this,
 }
 
 void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
-	list_t neighbors = component_neighbordiscovery_neighbors();
-	list_init(lmst_entries);
-	LINK_T* link;
-	for (link = list_head_pred(neighbors,networkaddr_node_addr(),&node_isOutgoingLinks); link != NULL; link = list_item_next_pred(link,networkaddr_node_addr(),&node_isOutgoingLinks)) {
-		LINK_T* temp;
-		if ((temp = memb_alloc(&memb_local_links)) == NULL)
-			printf("[topologycontrol]:Status Error: memb_local is full\n");
-		temp->node1 = link->node1;
-		temp->node2 = link->node2;
-		temp->weight_node1_to_node2 = link->weight_node1_to_node2;
-		temp->weight_node2_to_node1 = link->weight_node2_to_node1;
-		temp->ttl_node1_to_node2 = link->ttl_node1_to_node2;
-		temp->ttl_node2_to_node1 = link->ttl_node2_to_node1;
-		temp->state = UNCLASSIFIED;
-		list_add(local_links, temp);
+	LMST_T* lmst= (LMST_T*)malloc(sizeof(LMST_T*));
+	lmst->algo = this;
+	MEMB(memb_lmstEntries, LMSTENTRY_T, MAX_MATCH_COUNT);
+	memb_init(&memb_lmstEntries);
+	lmst->mem = &memb_lmstEntries;
+	LIST(list_lmst_entries);
+	list_init(list_lmst_entries);
+
+	// add all nodes to list
+	LINK_T* item_neighbor;
+	for (item_neighbor = list_head(component_neighbordiscovery_neighbors()); item_neighbor != NULL; item_neighbor = list_item_next(item_neighbor)) {
+		LMSTENTRY_T *item_node;
+		bool found;
+
+		// check for node1
+		found = false;
+		for (item_node = list_head(list_lmst_entries); item_node != NULL; item_node = list_item_next(item_node)) {
+			if (networkaddr_equal(item_neighbor->node1, item_node->node)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			if ((item_node = memb_alloc(&memb_lmstEntries)) == NULL) {
+				printf("ERROR[topologycontrol-lmst]: nodelist is full\n");
+			}
+			else {
+				item_node->node = item_neighbor->node1;
+				item_node->selectedLink = NULL;
+				item_node->algorithm = this;
+				list_add(list_lmst_entries, item_node);
+			}
+		}
+
+		// check for node2
+		found = false;
+		for (item_node = list_head(list_lmst_entries); item_node != NULL; item_node = list_item_next(item_node)) {
+			if (networkaddr_equal(item_neighbor->node2, item_node->node)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			if ((item_node = memb_alloc(&memb_lmstEntries)) == NULL) {
+				printf("ERROR[topologycontrol-lmst]: nodelist is full\n");
+			}
+			else {
+				item_node->node = item_neighbor->node2;
+				item_node->selectedLink = NULL;
+				item_node->algorithm = this;
+				list_add(list_nodelist, item_node);
+			}
+		}
 	}
+
+	lmst->lmstEntries = list_lmst_entries;
+	this->lmst = lmst;
 };
 
+
+void lmstalgorithm_cleanupLMST(LMSTALGORITHM_T* this) {
+	list_t lmst = this->lmst;
+	// add all nodes to list
+	LMSTENTRY_T* item_neighbor;
+	for (item_neighbor = list_head(lmst); item_neighbor != NULL; item_neighbor = list_item_next(item_neighbor)) {
+		free(item_neighbor);
+		memb_free(this->lmst->mem, list_pop(lmst));
+	}
+	free(lmst);
+}
 //End of non SDM implemented methods
 
 //Begin of declarations for hopcount
@@ -178,6 +230,14 @@ void link_setMarked(LINK_T* _this, LinkState value) {
 			if (node_equals(networkaddr_node_addr(), _this->node2))
 				component_network_ignoredlinks_add(_this->node1);
 	}
+	if (value == ACTIVE) {
+		if (node_equals(networkaddr_node_addr(), _this->node1)) {
+			component_network_ignoredlinks_remove(_this->node2);
+		}
+		else
+			if (node_equals(networkaddr_node_addr(), _this->node2))
+				component_network_ignoredlinks_remove(_this->node1);
+	}
 	//IF this node is not part of the edge don't ignore any of the nodes
 }
 //End of declarations for marked
@@ -226,11 +286,14 @@ void lmstentry_setNode(LMSTENTRY_T* _this, NODE_T* value) {
 LINK_T* lmstentry_getSelectedLink(LMSTENTRY_T* _this) {
 	return _this->link;
 }
+void lmstentry_getSelectedLink(LMSTENTRY_T* _this, LINK_T* value) {
+	_this->selectedLink=value;
+}
 //End of declarations for selectedLink
 
 //Begin of declarations for lmstEntries
 list_t lmst_getLmstEntries(LMST_T* _this) {
-	return(lmst_entries;)
+	return _this->lmst_entries;
 }
 bool lmst_isLmstEntries(void* candidate, void* _this) {
 	return true;
@@ -281,7 +344,7 @@ NODE_T* lmstalgorithm_getNode(LMSTALGORITHM_T* _this) {
 
 //Begin of declarations for lmst
 LMST_T* lmstalgorithm_getLmst(LMSTALGORITHM_T* _this) {
-	return _this;
+	return _this->lmst;
 }
 //End of declarations for lmst
 
