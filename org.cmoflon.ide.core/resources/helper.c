@@ -58,7 +58,7 @@ EBoolean lstarktcalgorithm_evaluateHopcountConstraint(LSTARKTCALGORITHM_T* this,
 }
 
 void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
-	LMST_T* lmst= (LMST_T*)malloc(sizeof(LMST_T*));
+	LMST_T* lmst= (LMST_T*)malloc(sizeof(LMST_T));
 	lmst->algo = this;
 	MEMB(memb_lmstEntries, LMSTENTRY_T, MAX_MATCH_COUNT);
 	memb_init(&memb_lmstEntries);
@@ -69,7 +69,7 @@ void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
 	// add all nodes to list
 	LINK_T* item_neighbor;
 	for (item_neighbor = list_head(component_neighbordiscovery_neighbors()); item_neighbor != NULL; item_neighbor = list_item_next(item_neighbor)) {
-		LMSTENTRY_T *item_node;
+		LMSTENTRY_T *item_node = (LMSTENTRY_T*)malloc(sizeof(LMSTENTRY_T));
 		bool found;
 
 		// check for node1
@@ -87,7 +87,10 @@ void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
 			else {
 				item_node->node = item_neighbor->node1;
 				item_node->selectedLink = NULL;
-				item_node->algorithm = this;
+				item_node->algorithm = lmst;
+				if (networkaddr_equal(networkaddr_node_addr(), item_neighbor->node1))
+					item_node->isInTree = true;
+				else item_node->isInTree = false;
 				list_add(list_lmst_entries, item_node);
 			}
 		}
@@ -107,19 +110,21 @@ void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
 			else {
 				item_node->node = item_neighbor->node2;
 				item_node->selectedLink = NULL;
-				item_node->algorithm = this;
-				list_add(list_nodelist, item_node);
+				item_node->algorithm = lmst;
+				if (networkaddr_equal(networkaddr_node_addr(), item_neighbor->node2))
+					item_node->isInTree = true;
+				else item_node->isInTree = false;
+				list_add(list_lmst_entries, item_node);
 			}
 		}
 	}
-
 	lmst->lmstEntries = list_lmst_entries;
 	this->lmst = lmst;
 };
 
 
 void lmstalgorithm_cleanupLMST(LMSTALGORITHM_T* this) {
-	list_t lmst = this->lmst;
+	list_t lmst = this->lmst->lmstEntries;
 	// add all nodes to list
 	LMSTENTRY_T* item_neighbor;
 	for (item_neighbor = list_head(lmst); item_neighbor != NULL; item_neighbor = list_item_next(item_neighbor)) {
@@ -210,7 +215,7 @@ bool node_containsIncidentLinks(NODE_T* _this, LINK_T* value) {
 	else return false;
 }
 bool node_isIncidentLinks(void* candidate, void* _this) {
-	if (node_equals((NODE_T*)_this, ((LINK_T*)value)->node1) || node_equals((NODE_T*)_this, ((LINK_T*)value)->node2))
+	if (node_equals((NODE_T*)_this, ((LINK_T*)candidate)->node1) || node_equals((NODE_T*)_this, ((LINK_T*)candidate)->node2))
 		return true;
 	else return false;
 };
@@ -274,7 +279,7 @@ LMST_T* lmstentry_getLmst(LMSTENTRY_T* _this) {
 
 //Begin of declarations for node
 NODE_T* lmstentry_getNode(LMSTENTRY_T* _this) {
-	return this->node;
+	return _this->node;
 }
 void lmstentry_setNode(LMSTENTRY_T* _this, NODE_T* value) {
 	_this->node = value;
@@ -284,16 +289,26 @@ void lmstentry_setNode(LMSTENTRY_T* _this, NODE_T* value) {
 
 //Begin of declarations for selectedLink
 LINK_T* lmstentry_getSelectedLink(LMSTENTRY_T* _this) {
-	return _this->link;
+	return _this->selectedLink;
 }
-void lmstentry_getSelectedLink(LMSTENTRY_T* _this, LINK_T* value) {
+void lmstentry_setSelectedLink(LMSTENTRY_T* _this, LINK_T* value) {
 	_this->selectedLink=value;
 }
 //End of declarations for selectedLink
 
+//Begin of declarations for isInTree
+bool lmstentry_isIsInTree(LMSTENTRY_T* _this) {
+	return _this->isInTree;
+}
+void lmstentry_setIsInTree(LMSTENTRY_T* _this, EBoolean value) {
+	_this->isInTree = value;
+}
+//End of declarations for isInTree
+
+
 //Begin of declarations for lmstEntries
 list_t lmst_getLmstEntries(LMST_T* _this) {
-	return _this->lmst_entries;
+	return _this->lmstEntries;
 }
 bool lmst_isLmstEntries(void* candidate, void* _this) {
 	return true;
@@ -366,5 +381,19 @@ bool node_equals(NODE_T* _this, NODE_T* other) {
 bool link_equals(LINK_T* _this, LINK_T* other) {
 	return((node_equals(_this->node1, other->node1) && node_equals(_this->node2, other->node2)) || (node_equals(_this->node1, other->node2) && node_equals(_this->node2, other->node1)));
 
+}
+bool linkstate_equals(LinkState s1, LinkState s2) {
+	return s1 == s2;
+}
+
+bool lmstentry_equals(LMSTENTRY_T* _this, LMSTENTRY_T* other) {
+	bool result = true;
+	result&=node_equals(_this->node, other->node);
+	result&=link_equals(_this->selectedLink, other->selectedLink);
+	return result;
+}
+
+bool eboolean_equals(EBoolean b1, EBoolean b2) {
+	return b1 == b2;
 }
 //End of equals declarations

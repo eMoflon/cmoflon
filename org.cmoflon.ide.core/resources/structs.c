@@ -17,12 +17,14 @@ typedef struct {
 	NODE_T* node;
 }LSTARKTCALGORITHM_T;
 
-typedef struct {
-	NODE_T* node;
-	LMST_T* lmst;
-}LMSTALGORITHM_T;
+struct lmst_t;
 
 typedef struct {
+	NODE_T* node;
+	struct lmst_t* lmst;
+}LMSTALGORITHM_T;
+
+typedef struct lmst_t{
 	LMSTALGORITHM_T* algo;
 	list_t lmstEntries;
 	struct memb* mem;
@@ -33,4 +35,5 @@ typedef struct {
 	NODE_T* node;
 	LINK_T* selectedLink;
 	LMST_T* algorithm;
+	bool isInTree;
 }LMSTENTRY_T;

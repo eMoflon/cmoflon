@@ -218,8 +218,7 @@ public class CMoflonCodeGenerator
                      generatedCode += "\t" + line;
                   }
                   generatedCode += (newline+"}" + newline);
-               } else
-               {
+               }
                   logger.info("No generated Method body for: " + genOperation.getName());
                   methods.add(new MethodAttribute(new Type(isBuiltInType(genOperation.getGenClass().getName()), genOperation.getGenClass().getName()),
                         new Type(genOperation.getEcoreOperation().getEType() == null ? true :
@@ -227,7 +226,6 @@ public class CMoflonCodeGenerator
                                     genOperation.getEcoreOperation().getEType() == null ? "void" : genOperation.getEcoreOperation().getEType().getName()),
                               genOperation.getEcoreOperation().getEType() == null ? "void" : genOperation.getEcoreOperation().getEType().getName()),
                         genOperation.getName(), getParametersFromEcore(genOperation.getEcoreOperation())));
-               }
             }
          }
       }
@@ -276,7 +274,7 @@ public class CMoflonCodeGenerator
       for (EReference ref : clazz.getEAllReferences())
       {
          fields.add(new FieldAttribute(new Type(isBuiltInType(clazz.getName()), clazz.getName()),
-               new Type(isBuiltInType(ref.getEReferenceType().getName()), ref.getEReferenceType().getName()), ref.getName(), ref.getUpperBound() < 0));
+               new Type(isBuiltInType(ref.getEReferenceType().getName()), ref.getEReferenceType().getName()), ref.getName(), ref.getUpperBound()!=1));
       }
 
       return fields;
@@ -311,10 +309,8 @@ public class CMoflonCodeGenerator
          inProcessCode += "\t\tprepareLinks();\n";
          inProcessCode += "\t\t" + tcClass.trim().toUpperCase() + "_T tc;\n";
          inProcessCode += "\t\ttc.node =  networkaddr_node_addr();\n";
-         inProcessCode += "\t\t"
-               + getParameters(constantProperties.getProperty(tcClass.trim()), component, genClasses.get(0).getEcoreClass().getEPackage().getName(),
-                     source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT))
-               + ";\n";
+         inProcessCode +=  getParameters(constantProperties.getProperty(tcClass.trim()), component, genClasses.get(0).getEcoreClass().getEPackage().getName(),
+                     source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT));
          inProcessCode += "\t\t" + tcClass.trim() + "_run(&tc);\n";
          inProcessCode += "\t\tfreeLinks();\n";
       }
@@ -450,7 +446,11 @@ public class CMoflonCodeGenerator
                result += p.trim() + ";\n ";
          }
       }
-      return result.substring(0, result.lastIndexOf(";"));
+      String returnValue = result.substring(0, result.lastIndexOf(";"));
+      if(!returnValue.isEmpty())
+    	  returnValue="\t\t"
+                  +returnValue+";\n";
+      return returnValue;
    }
 
    /**
@@ -480,12 +480,13 @@ public class CMoflonCodeGenerator
 
             ST st = templateProvider.getTemplateGroup(patternType).getInstanceOf(template.getTemplateName());
             Map<String, Object> attributes = template.getAttributes();
-            this.blockDeclarations.add(((CompilerPatternBody) attributes.get("body")).getHeader().getName() + attributes.get("adornment"));
+            if(searchPlanAdapter.isMultiMatch())
+            	this.blockDeclarations.add(((CompilerPatternBody) attributes.get("body")).getHeader().getName() + attributes.get("adornment"));
             for (Entry<String, Object> entry : attributes.entrySet())
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            //            st.inspect();
+            //st.inspect();
             code.append(st.render());
             code.append("\n\n");
          }
@@ -513,7 +514,7 @@ public class CMoflonCodeGenerator
          final ST template = group.getInstanceOf("/" + CMoflonTemplateConfiguration.CONTROL_FLOW_GENERATOR + "/" + scope.getClass().getSimpleName());
          template.add("scope", scope);
          template.add("importManager", null);
-         //         template.inspect();
+         //template.inspect();
          generatedMethodBody = template.render();
       }
       if (generatedMethodBody == null)

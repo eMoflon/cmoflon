@@ -1,5 +1,5 @@
 PatternCall(engine, importManager, body, chain) ::= <<
-match_t* result_<chain.value.operation.origin.type.invokedPattern.name> = <chain.value.operation.origin.type.invokedPattern.name><chain.value.operation.precondition>(<chain.value.operation.boundParameters:/democles/ParameterName(importManager); separator=", ">);
+void** result_<chain.value.operation.origin.type.invokedPattern.name> = <chain.value.operation.origin.type.invokedPattern.name><chain.value.operation.precondition>(<chain.value.operation.boundParameters:/democles/ParameterName(importManager); separator=", ">);
 if (result_<chain.value.operation.origin.type.invokedPattern.name> != NULL) {
 	<chain.value.operation:WriteFreeVariables(importManager)>
 	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>

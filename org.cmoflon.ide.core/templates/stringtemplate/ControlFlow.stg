@@ -14,9 +14,10 @@ Node(node, importManager) ::= <<
 IfStatementImplRegularPatternInvocationImpl(node, importManager) ::= <<
 // <node.origin.name>
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
-match_t* result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
+void** result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 if (result<node.mainAction.id> != NULL) {
 	<node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
+	free(result<node.mainAction.id>);
 	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 	<first(node.scopes):ScopeImpl(importManager)>
 } else {
@@ -28,22 +29,21 @@ if (result<node.mainAction.id> != NULL) {
 CFNodeImplRegularPatternInvocationImpl(node, importManager) ::= <<
 <\n>// <node.origin.name>
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
-match_t* result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
+void** result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 if (result<node.mainAction.id> == NULL) {
 	printf("Pattern matching in node [<node.origin.name>] failed.");
 	<VariablesByFailedPatternMatching(node.mainAction)>
 	exit(-1);
 }
 <node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
+free(result<node.mainAction.id>);
 <if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
-free(result<node.mainAction.id>->match);
-memb_free(&memb_<node.mainAction.pattern.name><node.mainAction.parameters:BoundOrFree()>, result<node.mainAction.id>);
 <if (node.next)><node.next:Node(importManager)><endif>
 >>
 
 TailControlledLoopImplRegularPatternInvocationImpl(node, importManager) ::= <<
 // <node.origin.name>
-match_t* result<node.mainAction.id>;
+void** result<node.mainAction.id>;
 do {
 	<first(node.scopes):ScopeImpl(importManager)>
 	
@@ -53,6 +53,7 @@ do {
 <else>
 } while (result<node.mainAction.id> == NULL);
 <node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
+free(result<node.mainAction.id>);
 <if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 <endif>
 <if (node.next)><node.next:Node(importManager)><endif>
@@ -60,10 +61,12 @@ do {
 
 TailControlledLoopImplLoopEndTasks(node, importManager) ::= <<
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
+free(result<node.mainAction.id>->match);
 result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 <if (node.loopAlongTrue)>
 if (result<node.mainAction.id> != NULL) {
 	<node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
+	free(result<node.mainAction.id>);
 	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 }
 <endif>
@@ -72,12 +75,12 @@ if (result<node.mainAction.id> != NULL) {
 HeadControlledLoopImplRegularPatternInvocationImpl(node, importManager) ::= <<
 // <node.origin.name>
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
-match_t* result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
+void** result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 <if (node.loopAlongTrue)>
 while (result<node.mainAction.id> != NULL) {
 	<node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
+	free(result<node.mainAction.id>);
 	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
-
 	<first(node.scopes):ScopeImpl(importManager)>
 	<if (!node.onlyShortcuts)><([(node.class.simpleName), "LoopEndTasks"])(node, importManager)><endif>
 }
@@ -87,14 +90,14 @@ while (result<node.mainAction.id> == NULL) {
 	<if (!node.onlyShortcuts)><([(node.class.simpleName), "LoopEndTasks"])(node, importManager)><endif>
 }
 <node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
+free(result<node.mainAction.id>);
 <if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 <endif>
 <if (node.next)><node.next:Node(importManager)><endif>
 >>
 
 HeadControlledLoopImplLoopEndTasks(node, importManager) ::= <<
-free(result<node.mainAction.id>->match);
-memb_free(&memb_<node.mainAction.pattern.name><node.mainAction.parameters:BoundOrFree()>, result<node.mainAction.id>);
+free(result<node.mainAction.id>);
 result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 >>
 
@@ -103,7 +106,7 @@ ForEachImplRegularPatternInvocationImpl(node, importManager) ::= <<
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
 match_t* result<node.mainAction.id>;
 for (result<node.mainAction.id> = list_head(<node.mainAction:InvokePattern(importManager)>); result<node.mainAction.id>!=NULL; result<node.mainAction.id>=list_item_next(result<node.mainAction.id>)) {
-	<node.mainAction.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
+	<node.mainAction.freeParameters:{ varRef | <WriteVariableMulti(varRef, i0, importManager)>}; separator="\n">
 	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
 	<first(node.scopes):ScopeImpl(importManager)>
 	free(result<node.mainAction.id>->match);
@@ -282,10 +285,9 @@ NodeDeletionImplInForEachImpl(action, importManager) ::= <<
 >>
 
 DefaultPerformAction(action, importManager) ::= <<
-match_t* result<action.id> = <InvokePattern(action, importManager)>;
+void** result<action.id> = <InvokePattern(action, importManager)>;
 <action.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
-free(result<action.id>->match);
-memb_free(&memb_<action.pattern.name><action.parameters:BoundOrFree()>, result<action.id>);
+free(result<action.id>);
 >>
 
 InvokePattern(action, importManager) ::= <<
@@ -315,6 +317,10 @@ SingleResultPatternInvocationImpl(invocation, importManager) ::= <<
 >>
 
 WriteVariable(varRef, index, importManager) ::= <<
+<if(varRef.from.onlyDefined)>// <endif><if(varRef.constructed)><varRef.from.type.name; format="fulluppercase">_T* <endif><varRef.from.name> = (<varRef.from.type.name; format="fulluppercase">_T*) result<varRef.invocation.id>[<varRef.index>];
+>>
+
+WriteVariableMulti(varRef, index, importManager) ::= <<
 <if(varRef.from.onlyDefined)>// <endif><if(varRef.constructed)><varRef.from.type.name; format="fulluppercase">_T* <endif><varRef.from.name> = (<varRef.from.type.name; format="fulluppercase">_T*) result<varRef.invocation.id>->match[<varRef.index>];
 >>
 

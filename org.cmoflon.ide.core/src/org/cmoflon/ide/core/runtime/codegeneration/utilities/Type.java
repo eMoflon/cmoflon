@@ -27,4 +27,10 @@ public class Type
    {
       return name;
    }
+   
+   public boolean isBoolean(){
+	   if(name.toLowerCase().contains("boolean"))
+		   return true;
+	   else return false;
+   }
 }
