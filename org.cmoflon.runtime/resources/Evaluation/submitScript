@@ -1,0 +1,30 @@
+for((i=0;i<10;i++))
+do
+	./flocklab -v test1.xml
+	./flocklab -c test1.xml
+done
+for((i=0;i<10;i++))
+do
+	./flocklab -v test2.xml
+	./flocklab -c test2.xml
+done
+for((i=0;i<10;i++))
+do
+	./flocklab -v test3.xml
+	./flocklab -c test3.xml
+done
+for((i=0;i<10;i++))
+do
+	./flocklab -v test4.xml
+	./flocklab -c test4.xml
+done
+for((i=0;i<10;i++))
+do
+	./flocklab -v test5.xml
+	./flocklab -c test5.xml
+done
+for((i=0;i<10;i++))
+do
+	./flocklab -v test6.xml
+	./flocklab -c test6.xml
+done

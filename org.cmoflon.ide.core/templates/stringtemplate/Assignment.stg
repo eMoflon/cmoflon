@@ -11,7 +11,7 @@ if (<first(chain.value.operation.parameters):/democles/ParameterName(importManag
 >>
 
 Assign(engine, importManager, body, chain) ::= <<
-<first(chain.value.operation.parameters):{x|<if(x.Specification.Type.LinkedElement.serializable)><x.Specification.type.LinkedElement.name><else><x.Specification.type.LinkedElement.name; format="fulluppercase">_T*<endif>}> <first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> = <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>;
+<first(chain.value.operation.parameters):{x|<if(x.Specification.Type.LinkedElement.EClassIsBuiltIn)><x.Specification.type.LinkedElement.name><else><x.Specification.type.LinkedElement.name; format="fulluppercase">_T*<endif>}> <first(chain.value.operation.parameters):/democles/ParameterName(importManager, false, false)> = <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>;
 <if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
 >>
 

@@ -11,7 +11,7 @@ ParameterName(parameter, importManager, autoboxing=true, prefix=false) ::= <<
 >>
 
 ParameterType(parameter, importManager) ::= <<
-<if(parameter.specification.type.linkedElement.serializable)><parameter.specification.type.linkedElement.name><else><parameter.specification.type.linkedElement.name;format="fulluppercase">_T*<endif>
+<if(parameter.specification.type.linkedElement.EClassIsBuiltIn)><parameter.specification.type.linkedElement.name><else><parameter.specification.type.linkedElement.name;format="fulluppercase">_T*<endif>
 >>
 
 ParameterTypeAndName(parameter, importManager, prefix=false) ::= <<

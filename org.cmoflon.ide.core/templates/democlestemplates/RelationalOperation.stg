@@ -1,5 +1,5 @@
 Equal(engine, importManager, body, chain) ::= <<
-if(<if (first(chain.value.operation.parameters).Specification.Type.LinkedElement.eLiterals)><first(chain.value.operation.parameters):/democles/ParameterName(importManager)> == <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)><else><first(chain.value.operation.parameters):{x| <x.Specification.Type.LinkedElement.Name; format="fulllowercase">}>_equals(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>)<endif>){
+if(<first(chain.value.operation.parameters):{x| <x.Specification.Type.LinkedElement.Name; format="fulllowercase">}>_equals(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>)){
 	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
 }	
 >>
