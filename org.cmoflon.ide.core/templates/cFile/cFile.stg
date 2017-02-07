@@ -37,7 +37,7 @@ processEnd()::=<<
 
 >>
 
-bootCompWait(component, hopcount)::=<<
+bootCompWait(component, hopcount,algo)::=<<
 	BOOT_COMPONENT_WAIT(component_<component>);
 	<if(hopcount)>messagetype_hopcount = uniqueid_assign();
 	component_network_packet_subscribe(messagetype_hopcount, _hopcount_recv);
@@ -51,7 +51,7 @@ bootCompWait(component, hopcount)::=<<
 	static struct etimer etimer_hopcountupdate;
 	etimer_set(&etimer_hopcountupdate, CLOCK_SECOND * 30);<endif>
 	static struct etimer waittime;
-	etimer_set(&waittime, CLOCK_SECOND * 300);
+	etimer_set(&waittime, CLOCK_SECOND * COMPONENT<component;format="fulluppercase">_<algo;format="fulluppercase">_UPDATEINTERVAL);
 
 >>
 

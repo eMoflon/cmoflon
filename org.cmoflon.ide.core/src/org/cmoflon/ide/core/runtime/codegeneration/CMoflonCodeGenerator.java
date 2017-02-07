@@ -568,6 +568,9 @@ public class CMoflonCodeGenerator
       // For Each Entry in the Constants Properties we need to generate one
       // Entry
       ST constant;
+      constant = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_DEFINTION);
+      contents += HeaderFileGenerator.generateConstant("updateinterval", 300, componentName, algorithmName,
+              constant);
       for (Entry<Object, Object> pair : constantProperties.entrySet())
       {
          if (pair.getKey().toString().contains("const-"))

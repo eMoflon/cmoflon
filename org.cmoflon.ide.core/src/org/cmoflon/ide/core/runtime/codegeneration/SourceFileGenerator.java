@@ -67,6 +67,7 @@ public class SourceFileGenerator
       ST bootComp = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + BOOT_COMP_WAIT);
       bootComp.add("component", component);
       bootComp.add("hopcount", hopcount);
+      bootComp.add("algo", algorithmName);
       result += bootComp.render();
 
       ST mainLoop = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + MAIN_LOOP);
