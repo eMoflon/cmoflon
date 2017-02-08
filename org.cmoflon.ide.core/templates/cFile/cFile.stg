@@ -51,7 +51,7 @@ bootCompWait(component, hopcount,algo)::=<<
 	static struct etimer etimer_hopcountupdate;
 	etimer_set(&etimer_hopcountupdate, CLOCK_SECOND * 30);<endif>
 	static struct etimer waittime;
-	etimer_set(&waittime, CLOCK_SECOND * COMPONENT<component;format="fulluppercase">_<algo;format="fulluppercase">_UPDATEINTERVAL);
+	etimer_set(&waittime, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_UPDATEINTERVAL);
 
 >>
 
