@@ -312,7 +312,6 @@ public class CMoflonCodeGenerator
          inProcessCode +=  getParameters(constantProperties.getProperty(tcClass.trim()), component, genClasses.get(0).getEcoreClass().getEPackage().getName(),
                      source.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT));
          inProcessCode += "\t\t" + tcClass.trim() + "_run(&tc);\n";
-         inProcessCode += "\t\tfreeLinks();\n";
       }
       String filename = component + "-" + algorithmName;
       // Get PatternMatching code
@@ -376,11 +375,6 @@ public class CMoflonCodeGenerator
    private String getListAndBlockDeclarations(ST memb, ST list)
    {
       String result = "\n";
-      memb.add("name", "local_links");
-      memb.add("type", "LINK_T");
-      memb.add("count", "MAX_MATCH_COUNT*3");
-      result += memb.render();
-      result += "LIST(local_links);\n";
       for (String s : this.blockDeclarations)
       {
          //Make sure STS are clean

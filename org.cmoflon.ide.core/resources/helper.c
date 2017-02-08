@@ -19,29 +19,10 @@ void* list_item_next_pred(void* item, void* _this, bool(*pred)(void*, void*)) {
 	return NULL;
 }
 
-void prepareLinks() {
-	list_t neighbors = component_neighbordiscovery_neighbors();
-	list_init(local_links);
+void prepareLinks(){
 	LINK_T* link;
-	for (link = list_head(neighbors); link != NULL; link = list_item_next(link)) {
-		LINK_T* temp;
-		if ((temp = memb_alloc(&memb_local_links)) == NULL)
-			printf("[topologycontrol]:Status Error: memb_local is full\n");
-		temp->node1 = link->node1;
-		temp->node2 = link->node2;
-		temp->weight_node1_to_node2 = link->weight_node1_to_node2;
-		temp->weight_node2_to_node1 = link->weight_node2_to_node1;
-		temp->ttl_node1_to_node2 = link->ttl_node1_to_node2;
-		temp->ttl_node2_to_node1 = link->ttl_node2_to_node1;
-		temp->state = UNCLASSIFIED;
-		list_add(local_links, temp);
-	}
-}
-
-void freeLinks(){
-	LINK_T* link;
-	for (link = list_head(local_links); link != NULL; link = list_item_next(link)) {
-		memb_free(&memb_local_links, list_pop(local_links));
+	for (link = list_head(component_neighbordiscovery_neighbors()); link != NULL; link = list_item_next(link)) {
+		link->state = UNCLASSIFIED;
 	}
 }
 
@@ -153,12 +134,12 @@ EInt node_getHopcount(NODE_T* _this){
 
 //Begin of declarations for incomingLinks
 list_t node_getIncomingLinks(NODE_T* _this) {
-	return local_links;
+	return component_neighbordiscovery_neighbors();
 }
 
 bool node_containsIncomingLinks(NODE_T* _this, LINK_T* value) {
 	LINK_T* link;
-	for (link = list_head_pred(local_links,_this,&node_isIncomingLinks); link != NULL; link = list_item_next_pred(link,_this,&node_isIncomingLinks)) {
+	for (link = list_head_pred(component_neighbordiscovery_neighbors(),_this,&node_isIncomingLinks); link != NULL; link = list_item_next_pred(link,_this,&node_isIncomingLinks)) {
 		if (link_equals(value, link))
 			return true;
 	}
@@ -175,12 +156,12 @@ bool node_isIncomingLinks(void* candidate, void* _this) {
 
 //Begin of declarations for outgoingLinks
 list_t node_getOutgoingLinks(NODE_T* _this) {
-	return local_links;
+	return component_neighbordiscovery_neighbors();
 }
 
 bool node_containsOutgoingLinks(NODE_T* _this, LINK_T* value) {
 	LINK_T* link;
-	for (link = list_head_pred(local_links,_this,&node_isOutgoingLinks); link != NULL; link = list_item_next_pred(link, _this, &node_isOutgoingLinks)) {
+	for (link = list_head_pred(component_neighbordiscovery_neighbors(),_this,&node_isOutgoingLinks); link != NULL; link = list_item_next_pred(link, _this, &node_isOutgoingLinks)) {
 		if (link_equals(value, link))
 			return true;
 	}
@@ -198,7 +179,7 @@ bool node_isOutgoingLinks(void* candidate, void* _this) {
 
 //Begin of declarations for neighborhood
 list_t node_getNeighborhood(NODE_T* _this) {
-	return local_links;
+	return component_neighbordiscovery_neighbors();
 }
 bool node_isNeighborhood(void* candidate, void* _this) {
 	return true;
@@ -207,7 +188,7 @@ bool node_isNeighborhood(void* candidate, void* _this) {
 
 //Begin of declarations for incidentLinks
 list_t node_getIncidentLinks(NODE_T* _this) {
-	return local_links;
+	return component_neighbordiscovery_neighbors();
 }
 bool node_containsIncidentLinks(NODE_T* _this, LINK_T* value) {
 	if (node_equals(_this, value->node1) || node_equals(_this, value->node2))

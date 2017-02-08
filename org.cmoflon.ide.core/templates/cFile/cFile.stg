@@ -128,7 +128,6 @@ LIST(list_matches_<name>);<\n>
 init(blocks)::=<<
 void init(){
 	<blocks:{x| memb_init(&memb_<x>);<\n>list_init(list_matches_<x>);};separator="\n">
-	memb_init(&memb_local_links);
 }
 
 
