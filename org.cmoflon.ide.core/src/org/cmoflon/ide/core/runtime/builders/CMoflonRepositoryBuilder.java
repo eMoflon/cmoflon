@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.CMoflonRepositoryCodeGenerator;
+import org.cmoflon.ide.core.utilities.CMoflonProjectCreator;
 import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -37,8 +38,6 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
       super(new AntPatternCondition(new String[] { "model/*.ecore" }));
    }
 
-   protected boolean generateSDMs = true;
-
    public static final String BUILDER_ID = CMoflonRepositoryBuilder.class.getName();
 
    @Override
@@ -57,7 +56,6 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
       // Remove all problem markers
       project.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_INFINITE);
       project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
-      project.deleteMarkers(WorkspaceHelper.INJECTION_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
       subMon.worked(1);
 
       // Remove generated code
@@ -71,15 +69,18 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
       
       try
       {
-         SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 1);
-         logger.info("Processing Resource CMoflonRepositoryBuilder");
-         CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
-         final IStatus status = generator.generateCode(subMon.split(1), CMoflonWorkspaceHelper.getConstantsPropertiesFile(getProject()));
+         final SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 52);
+         
+         CMoflonProjectCreator.createFoldersIfNecessary(getProject(), subMon.split(1));
+         CMoflonProjectCreator.createFilesIfNecessary(getProject(), subMon.split(1));
+         
+         logger.info("Generating code for " + this.getProject());
+         final CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
+         final IStatus status = generator.generateCode(subMon.split(50), CMoflonWorkspaceHelper.getConstantsPropertiesFile(getProject()));
          handleErrorsAndWarnings(status, ecoreFile);
       } catch (final CoreException e)
       {
-         final IStatus status = new Status(e.getStatus().getSeverity(), WorkspaceHelper.getPluginId(getClass()), e.getMessage(), e);
-         handleErrorsInEclipse(status, ecoreFile);
+         handleErrorsInEclipse(new Status(e.getStatus().getSeverity(), WorkspaceHelper.getPluginId(getClass()), e.getMessage(), e), ecoreFile);
       }
    }
 

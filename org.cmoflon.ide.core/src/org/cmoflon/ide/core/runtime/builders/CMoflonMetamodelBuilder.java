@@ -32,7 +32,6 @@ import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.eclipse.resource.SDMEnhancedEcoreResource;
 import org.moflon.ide.core.CoreActivator;
 import org.moflon.ide.core.properties.MetamodelProjectUtil;
-import org.moflon.ide.core.properties.MocaTreeEAPropertiesReader;
 import org.moflon.ide.core.runtime.ProjectDependencyAnalyzer;
 import org.moflon.ide.core.runtime.builders.MetamodelBuilder;
 import org.moflon.sdm.compiler.democles.validation.result.ErrorMessage;
@@ -52,8 +51,6 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
    public static final Logger logger = Logger.getLogger(CMoflonMetamodelBuilder.class);
 
    public static final String BUILDER_ID = CMoflonMetamodelBuilder.class.getName();
-
-   private MocaTreeEAPropertiesReader mocaTreeReader = new MocaTreeEAPropertiesReader();
 
    @Override
    public void clean(final IProgressMonitor monitor) throws CoreException

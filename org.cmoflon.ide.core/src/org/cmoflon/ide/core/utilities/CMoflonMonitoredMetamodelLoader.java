@@ -13,7 +13,6 @@ import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
 import org.moflon.codegen.eclipse.GenericMonitoredResourceLoader;
 import org.moflon.codegen.eclipse.MonitoredMetamodelLoader;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
-import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.dependency.PackageRemappingDependency;
 
 /**
@@ -49,7 +48,7 @@ public class CMoflonMonitoredMetamodelLoader extends GenericMonitoredResourceLoa
    {
       try
       {
-         return project.isAccessible() && (project.hasNature(CMoflonRepositoryNature.NATURE_ID) || project.hasNature(WorkspaceHelper.INTEGRATION_NATURE_ID));
+         return project.isAccessible() && project.hasNature(CMoflonRepositoryNature.NATURE_ID);
       } catch (final CoreException e)
       {
          return false;
