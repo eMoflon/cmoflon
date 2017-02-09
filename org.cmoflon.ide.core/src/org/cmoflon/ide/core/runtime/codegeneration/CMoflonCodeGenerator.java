@@ -22,8 +22,8 @@ import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonStringRender
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.FieldAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.MethodAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.Type;
-import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.cmoflon.ide.core.utilities.CMoflonProperties;
+import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -132,31 +132,31 @@ public class CMoflonCodeGenerator
          {
             final String key = entry.getKey().toString();
             final String value = entry.getValue().toString();
-            if (key.equals(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_TC_DROP_UNIDIRECTIONAL_EDGES))
+            if (key.equals(CMoflonProperties.PROPERTY_TC_DROP_UNIDIRECTIONAL_EDGES))
             {
                this.dropUnidirectionalEdges = Boolean.parseBoolean(value);
-            } else if (key.equals(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_TC_USE_HOPCOUNT))
+            } else if (key.equals(CMoflonProperties.PROPERTY_TC_USE_HOPCOUNT))
             {
                this.useHopcounts = Boolean.parseBoolean(value);
-            } else if (key.equals(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_TC_ALGORITHMS))
+            } else if (key.equals(CMoflonProperties.PROPERTY_TC_ALGORITHMS))
             {
                this.tcClasses.addAll(Arrays.asList(value.split(",")).stream().map(s -> s.trim()).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
-            } else if (key.equals(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_PM_MAX_MATCH_COUNT))
+            } else if (key.equals(CMoflonProperties.PROPERTY_PM_MAX_MATCH_COUNT))
             {
                this.maximumMatchCount = Integer.parseInt(value);
             }
 
-            else if (key.startsWith(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_PREFIX_PARAMETERS))
+            else if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_PARAMETERS))
             {
-               tcAlgorithmParameters.put(key.replaceAll(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_PREFIX_PARAMETERS, ""), value);
+               tcAlgorithmParameters.put(key.replaceAll(CMoflonProperties.PROPERTY_PREFIX_PARAMETERS, ""), value);
             }
 
-            else if (key.startsWith(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS))
+            else if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS))
             {
-               typeMappings.put(key.trim(), value.trim());
-            } else if (key.startsWith(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS))
+               typeMappings.put(key.replaceAll(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS, ""), value.trim());
+            } else if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS))
             {
-               constantsMapping.put(key.replace(org.cmoflon.ide.core.utilities.CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS, ""), value);
+               constantsMapping.put(key.replace(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS, ""), value);
             }
          }
 
@@ -187,9 +187,11 @@ public class CMoflonCodeGenerator
             logger.info("GenClass: " + genClass.getName());
             if (genClass.isAbstract())
                continue;
+            
             genClassesForInjectedCode.add(genClass);
             fields.addAll(getFields(genClass));
-            for (GenOperation genOperation : genClass.getGenOperations())
+            
+            for (final GenOperation genOperation : genClass.getGenOperations())
             {
                String generatedMethodBody = getGeneratedMethodBody(genOperation.getEcoreOperation());
                // generate Method Header
@@ -553,7 +555,7 @@ public class CMoflonCodeGenerator
     * @param monitor
     * @throws CoreException 
     */
-   protected void generateHeader(String componentName, String algorithmName, EList<EOperation> operations, List<FieldAttribute> fields,
+   private void generateHeader(String componentName, String algorithmName, EList<EOperation> operations, List<FieldAttribute> fields,
          List<MethodAttribute> methods, IProgressMonitor monitor) throws CoreException
    {
       final SubMonitor subMon = SubMonitor.convert(monitor);

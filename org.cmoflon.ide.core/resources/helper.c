@@ -39,9 +39,9 @@ EBoolean lstarktcalgorithm_evaluateHopcountConstraint(LSTARKTCALGORITHM_T* this,
 }
 
 void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
-	LMST_T* lmst= (LMST_T*)malloc(sizeof(LMST_T));
+	TREE_T* lmst= (TREE_T*)malloc(sizeof(TREE_T));
 	lmst->algo = this;
-	MEMB(memb_lmstEntries, LMSTENTRY_T, MAX_MATCH_COUNT);
+	MEMB(memb_lmstEntries, TREEENTRY_T, MAX_MATCH_COUNT);
 	memb_init(&memb_lmstEntries);
 	lmst->mem = &memb_lmstEntries;
 	LIST(list_lmst_entries);
@@ -50,7 +50,7 @@ void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
 	// add all nodes to list
 	LINK_T* item_neighbor;
 	for (item_neighbor = list_head(component_neighbordiscovery_neighbors()); item_neighbor != NULL; item_neighbor = list_item_next(item_neighbor)) {
-		LMSTENTRY_T *item_node = (LMSTENTRY_T*)malloc(sizeof(LMSTENTRY_T));
+		TREEENTRY_T *item_node = (TREEENTRY_T*)malloc(sizeof(TREEENTRY_T));
 		bool found;
 
 		// check for node1
@@ -107,7 +107,7 @@ void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this){
 void lmstalgorithm_cleanupLMST(LMSTALGORITHM_T* this) {
 	list_t lmst = this->lmst->lmstEntries;
 	// add all nodes to list
-	LMSTENTRY_T* item_neighbor;
+	TREEENTRY_T* item_neighbor;
 	for (item_neighbor = list_head(lmst); item_neighbor != NULL; item_neighbor = list_item_next(item_neighbor)) {
 		free(item_neighbor);
 		memb_free(this->lmst->mem, list_pop(lmst));
@@ -253,42 +253,42 @@ NODE_T* link_getSource(LINK_T* _this) {
 //End of declarations for source
 
 //Begin of declarations for lmst
-LMST_T* lmstentry_getLmst(LMSTENTRY_T* _this) {
+TREE_T* lmstentry_getLmst(TREEENTRY_T* _this) {
 	return _this->algorithm;
 }
 //End of declarations for lmst
 
 //Begin of declarations for node
-NODE_T* lmstentry_getNode(LMSTENTRY_T* _this) {
+NODE_T* lmstentry_getNode(TREEENTRY_T* _this) {
 	return _this->node;
 }
-void lmstentry_setNode(LMSTENTRY_T* _this, NODE_T* value) {
+void lmstentry_setNode(TREEENTRY_T* _this, NODE_T* value) {
 	_this->node = value;
 	return;
 }
 //End of declarations for node
 
 //Begin of declarations for selectedLink
-LINK_T* lmstentry_getSelectedLink(LMSTENTRY_T* _this) {
+LINK_T* lmstentry_getSelectedLink(TREEENTRY_T* _this) {
 	return _this->selectedLink;
 }
-void lmstentry_setSelectedLink(LMSTENTRY_T* _this, LINK_T* value) {
+void lmstentry_setSelectedLink(TREEENTRY_T* _this, LINK_T* value) {
 	_this->selectedLink=value;
 }
 //End of declarations for selectedLink
 
 //Begin of declarations for isInTree
-bool lmstentry_isIsInTree(LMSTENTRY_T* _this) {
+bool lmstentry_isIsInTree(TREEENTRY_T* _this) {
 	return _this->isInTree;
 }
-void lmstentry_setIsInTree(LMSTENTRY_T* _this, EBoolean value) {
+void lmstentry_setIsInTree(TREEENTRY_T* _this, EBoolean value) {
 	_this->isInTree = value;
 }
 //End of declarations for isInTree
 
 
 //Begin of declarations for lmstEntries
-list_t lmst_getLmstEntries(LMST_T* _this) {
+list_t lmst_getLmstEntries(TREE_T* _this) {
 	return _this->lmstEntries;
 }
 bool lmst_isLmstEntries(void* candidate, void* _this) {
@@ -339,7 +339,7 @@ NODE_T* lmstalgorithm_getNode(LMSTALGORITHM_T* _this) {
 //End of declarations for node
 
 //Begin of declarations for lmst
-LMST_T* lmstalgorithm_getLmst(LMSTALGORITHM_T* _this) {
+TREE_T* lmstalgorithm_getLmst(LMSTALGORITHM_T* _this) {
 	return _this->lmst;
 }
 //End of declarations for lmst
@@ -367,7 +367,7 @@ bool linkstate_equals(LinkState s1, LinkState s2) {
 	return s1 == s2;
 }
 
-bool lmstentry_equals(LMSTENTRY_T* _this, LMSTENTRY_T* other) {
+bool lmstentry_equals(TREEENTRY_T* _this, TREEENTRY_T* other) {
 	bool result = true;
 	result&=node_equals(_this->node, other->node);
 	result&=link_equals(_this->selectedLink, other->selectedLink);
