@@ -40,14 +40,15 @@ import org.moflon.util.plugins.MetamodelProperties;
 import MocaTree.Node;
 
 /**
- * Builder for Projects with {@link CMoflonMetamodelNature}. Similar to {@link MetamodelBuilder}. Triggers the {@link ResourceFillingMocaCMoflonTransformation}.
+ * Builder for projects with {@link CMoflonMetamodelNature}. 
+ * Similar to eMoflon's {@link MetamodelBuilder}.
+ * Triggers the {@link ResourceFillingMocaCMoflonTransformation}.
+ * 
  * @author David Giessing
  * @author Roland Kluge
- *
  */
 public class CMoflonMetamodelBuilder extends MetamodelBuilder
 {
-
    public static final Logger logger = Logger.getLogger(CMoflonMetamodelBuilder.class);
 
    public static final String BUILDER_ID = CMoflonMetamodelBuilder.class.getName();
@@ -59,7 +60,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
    }
 
    @Override
-   protected void processResource(IResource mocaFile, int kind, Map<String, String> args, IProgressMonitor monitor)
+   protected void processResource(final IResource mocaFile, final int kind, Map<String, String> args, final IProgressMonitor monitor)
    {
       final MultiStatus mocaToMoflonStatus = new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, getClass().getName() + " failed", null);
 
@@ -80,7 +81,6 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
 
                // Create and initialize resource set
                final ResourceSet set = CodeGeneratorPlugin.createDefaultResourceSet();
-               // eMoflonEMFUtil.installCrossReferencers(set);
 
                // Load Moca tree in read-only mode
                final URI mocaFileURI = URI.createURI(mocaFilePath, true).resolve(projectURI);
@@ -176,10 +176,13 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
       }
    }
 
+   /**
+    * Reports problems/errors/... in Eclipse
+    */
    private void handleErrorsInEclipse(final IStatus validationStatus)
    {
-      IProject metamodelProject = getProject();
-      IFile eapFile = metamodelProject.getFile(metamodelProject.getName() + ".eap");
+      final IProject metamodelProject = getProject();
+      final IFile eapFile = metamodelProject.getFile(metamodelProject.getName() + ".eap");
 
       if (eapFile.exists())
       {

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.CMoflonRepositoryCodeGenerator;
+import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
 import org.cmoflon.ide.core.utilities.CMoflonProjectCreator;
 import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.eclipse.core.resources.IFile;
@@ -25,7 +26,10 @@ import org.moflon.ide.core.runtime.builders.AbstractVisitorBuilder;
 import org.moflon.ide.core.runtime.builders.RepositoryBuilder;
 
 /**
- * Builder for projects with CMoflonRepositoryNature. Similar to {@link RepositoryBuilder}. Triggers {@link CMoflonRepositoryCodeGenerator}.
+ * Builder for projects with {@link CMoflonRepositoryNature}. 
+ * Similar to {@link RepositoryBuilder}.#
+ * Triggers {@link CMoflonRepositoryCodeGenerator}.
+ * 
  * @author David Giessing
  * @author Roland Kluge
  */
@@ -33,12 +37,12 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
 {
    public static final Logger logger = Logger.getLogger(CMoflonRepositoryBuilder.class);
 
+   public static final String BUILDER_ID = CMoflonRepositoryBuilder.class.getName();
+
    public CMoflonRepositoryBuilder()
    {
       super(new AntPatternCondition(new String[] { "model/*.ecore" }));
    }
-
-   public static final String BUILDER_ID = CMoflonRepositoryBuilder.class.getName();
 
    @Override
    protected final AntPatternCondition getTriggerCondition(final IProject project)
@@ -66,17 +70,20 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
    protected void processResource(IResource ecoreResource, int kind, Map<String, String> args, IProgressMonitor monitor)
    {
       final IFile ecoreFile = Platform.getAdapterManager().getAdapter(ecoreResource, IFile.class);
-      
+
       try
       {
          final SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 52);
-         
+
          CMoflonProjectCreator.createFoldersIfNecessary(getProject(), subMon.split(1));
          CMoflonProjectCreator.createFilesIfNecessary(getProject(), subMon.split(1));
-         
+
          logger.info("Generating code for " + this.getProject());
+         
          final CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
-         final IStatus status = generator.generateCode(subMon.split(50), CMoflonWorkspaceHelper.getConstantsPropertiesFile(getProject()));
+         
+         final IStatus status = generator.generateCode(subMon.split(50), CMoflonWorkspaceHelper.getCMoflonPropertiesFile(getProject()));
+         
          handleErrorsAndWarnings(status, ecoreFile);
       } catch (final CoreException e)
       {
@@ -159,7 +166,6 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
 
       for (final IResource resource : folder.members())
       {
-         // keep SVN data
          if (!resource.getName().startsWith("."))
          {
             if (WorkspaceHelper.isFolder(resource))

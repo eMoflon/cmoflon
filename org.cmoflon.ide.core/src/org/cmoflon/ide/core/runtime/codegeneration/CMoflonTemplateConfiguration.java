@@ -3,7 +3,6 @@ package org.cmoflon.ide.core.runtime.codegeneration;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
-import org.cmoflon.ide.core.CMoflonCoreActivator;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonEcoreModelAdaptor;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonStringRenderer;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.ControlFlowModelAdaptor;
@@ -35,6 +34,7 @@ import org.moflon.compiler.sdm.democles.EMFGreenTemplateProvider;
 import org.moflon.compiler.sdm.democles.EMFRedTemplateProvider;
 import org.moflon.compiler.sdm.democles.TemplateConfigurationProvider;
 import org.moflon.compiler.sdm.democles.stringtemplate.LoggingSTErrorListener;
+import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.sdm.runtime.democles.CFNode;
 import org.moflon.sdm.runtime.democles.CFVariable;
 import org.moflon.sdm.runtime.democles.PatternInvocation;
@@ -346,6 +346,6 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 
    private static String getTemplateUriPrefix()
    {
-      return "platform:/plugin/" + CMoflonCoreActivator.getModuleID() + "/templates/";
+      return String.format("platform:/plugin/%s/templates/", WorkspaceHelper.getPluginId(CMoflonTemplateConfiguration.class));
    }
 }

@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: org.cmoflon.ide.core
 Bundle-SymbolicName: org.cmoflon.ide.core;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.cmoflon.ide.core.CMoflonCoreActivator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -41,7 +40,7 @@ Require-Bundle: org.eclipse.ui,
  org.gervarro.eclipse.workspace.autosetup
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: org.cmoflon.ide.core,
+Export-Package: 
  org.cmoflon.ide.core.runtime.builders,
  org.cmoflon.ide.core.runtime.codegeneration,
  org.cmoflon.ide.core.runtime.natures,

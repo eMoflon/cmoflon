@@ -1,10 +1,12 @@
 package org.cmoflon.ide.core.utilities;
 
+import java.io.InputStream;
 import java.util.Arrays;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.cmoflon.ide.core.CMoflonCoreActivator;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
@@ -23,40 +25,22 @@ import org.moflon.core.propertycontainer.SDMCodeGeneratorIds;
 import org.moflon.core.utilities.MoflonUtilitiesActivator;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.core.runtime.MoflonProjectCreator;
-import org.moflon.util.plugins.BuildPropertiesFileBuilder;
 import org.moflon.util.plugins.MetamodelProperties;
 import org.moflon.util.plugins.PluginProducerWorkspaceRunnable;
 
 /**
  * Replaces {@link MoflonProjectCreator}. Replacement was necessary as addNatureAndBuilders is declared private and can therefore not be overriden.
  * Also adds the default property files needed for code generation.
+ * 
  * @author David Giessing
- *
+ * @author Roland Kluge
  */
 public class CMoflonProjectCreator implements IWorkspaceRunnable
 {
 
+   private static final String PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY = "resources/DefaultCMoflonAttributeConstraintsLib.xmi";
+
    private static final String DEFAULT_GITIGNORE_CONTENT = StringUtils.join(Arrays.asList("/gen", "/model/*.ecore", "/model/*.genmodel"), "\n");
-
-   private static final int DEFAULT_MAX_MATCH_COUNT = 20;
-
-   private static String constantPropertiesContent = //
-         "#Set to 'true' if dropping unidirectional edges is desired \n" //
-               + "dropUnidirectionalEdges = true\n" //
-               + "#Set to True if you want to use hopcounts.\n" //
-               + "useHopcount = false\n" //
-               + "#set number of matches allowed per PM method\n" //
-               + "MAX_MATCH_COUNT = " + DEFAULT_MAX_MATCH_COUNT + "\n" //
-               + "#Place the names of the topology control algorithms to use as CSV (e.g., tcMethods=KtcAlgorithm,LStarKtcAlgorithm)\n" //
-               + "tcMethods = \n" //
-               + "#Place the parameters for the topology control algorithm call here as CSV (e.g., LStarKtcAlgorithm = k,a)\n" //
-               + "#It is also possible to use the constants from down here. For this, the value should be const-<constname>\n" //
-               + "#(e.g., LStarKtcAlgorithm.const-k=3.0\n";
-
-   private static String mapPropertiesContent = //
-         "#Define your Mapping here: \n" + "# The Key is the EClass, and the value is the C Struct you want it to be mapped to.\n"
-               + "# Default: Node = networkaddr_t and Link = neighbor_t\n" // 
-               + "Node = networkaddr_t\n" + "Link = neighbor_t\n";
 
    private final MetamodelProperties metamodelProperties;
 
@@ -78,27 +62,24 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
    @Override
    public void run(final IProgressMonitor monitor) throws CoreException
    {
-      final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-      final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-      final IProject workspaceProject = workspaceRoot.getProject(getProjectName());
-      if (workspaceProject.exists())
-      {
+      final IProject project = getProject();
+      if (project.exists())
          return;
-      }
 
       final SubMonitor subMon = SubMonitor.convert(monitor, "Creating project " + getProjectName(), 7);
       final IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(getProjectName());
 
-      workspaceProject.create(description, IWorkspace.AVOID_UPDATE, subMon.split(1));
-      workspaceProject.open(IWorkspace.AVOID_UPDATE, subMon.split(1));
+      project.create(description, IWorkspace.AVOID_UPDATE, subMon.split(1));
+      project.open(IWorkspace.AVOID_UPDATE, subMon.split(1));
 
-      createFoldersIfNecessary(workspaceProject, subMon.split(4));
-      createFilesIfNecessary(workspaceProject, subMon);
+      createFoldersIfNecessary(project, subMon.split(4));
+      createFilesIfNecessary(project, subMon);
 
-      WorkspaceHelper.addNature(workspaceProject, CMoflonRepositoryNature.NATURE_ID, subMon);
-      final PluginProducerWorkspaceRunnable pluginProducer = new PluginProducerWorkspaceRunnable(workspaceProject, metamodelProperties);
+      WorkspaceHelper.addNature(project, CMoflonRepositoryNature.NATURE_ID, subMon);
+      final PluginProducerWorkspaceRunnable pluginProducer = new PluginProducerWorkspaceRunnable(project, metamodelProperties);
       pluginProducer.run(subMon);
-      final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(workspaceProject.getName(),
+      clearBuildProperties(project);
+      final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(project.getName(),
             getMetaModelProjectName());
       moflonProperties.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES);
       subMon.worked(1);
@@ -107,27 +88,45 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 
    }
 
-   public static void createFilesIfNecessary(final IProject workspaceProject, final IProgressMonitor monitor) throws CoreException
+   public static void createFilesIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException
    {
-      final SubMonitor subMon = SubMonitor.convert(monitor, 5);
-      addFileIfNotExists(workspaceProject, ".gitignore", DEFAULT_GITIGNORE_CONTENT, subMon.split(1));
-      clearBuildProperties(workspaceProject);
-      new BuildPropertiesFileBuilder().createBuildProperties(workspaceProject, subMon.split(1));
-      addFileIfNotExists(workspaceProject, workspaceProject.getName() + "Constants.properties", constantPropertiesContent, subMon.split(1));
-      addFileIfNotExists(workspaceProject, workspaceProject.getName() + "EClassToStructs.properties", mapPropertiesContent, subMon.split(1));
-      try
+      final SubMonitor subMon = SubMonitor.convert(monitor, 4);
+      
+      if (!project.getFile(".gitignore").exists())
+         WorkspaceHelper.addFile(project, ".gitignore", DEFAULT_GITIGNORE_CONTENT, subMon.split(1));
+      
+      if (!project.getFile("model/.keepmodel").exists())
+         WorkspaceHelper.addFile(project, "model/.keepmodel", "# Dummy file versioning /model", subMon.split(1));
+      
+      if (!project.getFile(CMoflonProperties.CMOFLON_PROPERTIES_FILENAME).exists())
+         WorkspaceHelper.addFile(project, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME, CMoflonProperties.DEFAULT_CMOFLON_PROPERTIES_CONTENT, subMon.split(1));
+      
+      initializeConstraintsLibrary(project, subMon.split(1));
+   }
+
+   private static void initializeConstraintsLibrary(final IProject project, final SubMonitor monitor) throws CoreException
+   {
+      final SubMonitor subMon = SubMonitor.convert(monitor, 1);
+      final String constraintsLibraryFileName = "/lib/" + project.getName() + "AttributeConstraintsLib.xmi";
+      final IFile file = project.getFile(constraintsLibraryFileName);
+      if (!file.exists())
       {
-         final String constraintsLibraryFileName = "/lib/" + workspaceProject.getName() + "AttributeConstraintsLib.xmi";
-         if (!workspaceProject.getFile(constraintsLibraryFileName).exists())
+         try
          {
-            WorkspaceHelper.addFile(workspaceProject, constraintsLibraryFileName,
-                  MoflonUtilitiesActivator.getPathRelToPlugIn("resources/AttributeConstraintsLib.xmi", CMoflonCoreActivator.getModuleID()),
-                  CMoflonCoreActivator.getModuleID(), subMon.split(1));
+            final String pluginId = WorkspaceHelper.getPluginId(CMoflonProjectCreator.class);
+            final InputStream stream = MoflonUtilitiesActivator.getPathRelToPlugIn(PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY, pluginId).openStream();
+            try
+            {
+               file.setContents(stream, true, true, subMon.split(1));
+            } finally
+            {
+               IOUtils.closeQuietly(stream);
+            }
+         } catch (final Exception e)
+         {
+            throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(CMoflonProjectCreator.class),
+                  "Failed to create constraints library: " + e.getMessage(), e));
          }
-      } catch (final Exception e)
-      {
-         throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(CMoflonProjectCreator.class),
-               "Failed to create constraints library: " + e.getMessage(), e));
       }
    }
 
@@ -144,10 +143,15 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n", new NullProgressMonitor());
    }
 
-   private static void addFileIfNotExists(IProject workspaceProject, String fileName, String content, SubMonitor subMon) throws CoreException
+   /**
+    * Returns a handle to the project to create
+    * @return
+    */
+   private IProject getProject()
    {
-      if (!workspaceProject.getFile(fileName).exists())
-         WorkspaceHelper.addFile(workspaceProject, fileName, content, subMon);
+      final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+      final IWorkspaceRoot workspaceRoot = workspace.getRoot();
+      final IProject workspaceProject = workspaceRoot.getProject(getProjectName());
+      return workspaceProject;
    }
-
 }

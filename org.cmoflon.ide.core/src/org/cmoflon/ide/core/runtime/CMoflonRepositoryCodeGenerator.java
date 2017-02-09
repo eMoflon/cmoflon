@@ -24,8 +24,8 @@ import org.osgi.framework.FrameworkUtil;
 
 /**
  * Mimics {@link RepositoryCodeGenerator}. Needed to invoke {@link CMoflonCodeGenerator}
+ * 
  * @author David Giessing
- *
  */
 public class CMoflonRepositoryCodeGenerator
 {
@@ -42,13 +42,11 @@ public class CMoflonRepositoryCodeGenerator
    public IStatus generateCode(final IProgressMonitor monitor, Properties cMoflonProperties)
    {
       final SubMonitor subMon = SubMonitor.convert(monitor);
-      IFile ecoreFile;
       try
       {  
          project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
-         project.deleteMarkers(WorkspaceHelper.INJECTION_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
          
-         ecoreFile = getEcoreFileAndHandleMissingFile();
+         final IFile ecoreFile = getEcoreFileAndHandleMissingFile();
          if (!ecoreFile.exists())
          {
             return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Unable to generate code for " + project.getName()

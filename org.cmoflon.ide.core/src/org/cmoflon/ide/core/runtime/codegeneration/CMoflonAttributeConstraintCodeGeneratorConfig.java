@@ -77,6 +77,12 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
    protected AttributeConstraintLibUtilImpl attributeConstraintLibUtil = (AttributeConstraintLibUtilImpl) ConstraintstodemoclesFactory.eINSTANCE
          .createAttributeConstraintLibUtil();
 
+
+   public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet)
+   {
+      this(resourceSet, null);
+   }
+   
    public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet, final IProject project)
    {
       super(resourceSet);
@@ -98,12 +104,6 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 
       this.attributeVariableConstraintsModule = new AttributeVariableConstraintsModule(attributeVariableConstraintsTypeModule);
       this.bindingAndBlackPatternBuilder.addConstraintTypeSwitch(attributeVariableConstraintsModule.getConstraintTypeSwitch());
-   }
-
-   public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet)
-   {
-      this(resourceSet, null);
-
    }
 
    @Override

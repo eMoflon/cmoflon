@@ -32,7 +32,14 @@ import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
+import org.moflon.core.utilities.LogUtils;
 
+/**
+ * The task that controls the cMoflon code generation process
+ * 
+ * @author David Giessing
+ * @author Roland Kluge
+ */
 public class CMoflonCodeGeneratorTask implements ITask
 {
    private int timeoutForValidationTaskInMillis = 0;
@@ -49,15 +56,15 @@ public class CMoflonCodeGeneratorTask implements ITask
 
    private GenModel genModel;
 
-   public CMoflonCodeGeneratorTask(IFile ecoreFile, ResourceSet resourceSet)
+   /**
+    * Initializes the code generation task
+    * @param ecoreFile the ECore file to generate code for
+    * @param resourceSet the {@link ResourceSet} of the running build process
+    */
+   public CMoflonCodeGeneratorTask(final IFile ecoreFile, final ResourceSet resourceSet)
    {
       this.ecoreFile = ecoreFile;
       this.resourceSet = resourceSet;
-   }
-
-   public void setValidationTimeout(final int timeoutInMillis)
-   {
-      this.timeoutForValidationTaskInMillis = timeoutInMillis;
    }
 
    /**
@@ -67,7 +74,7 @@ public class CMoflonCodeGeneratorTask implements ITask
     * {@link MonitoredMetamodelLoader}
     */
    @Override
-   public IStatus run(IProgressMonitor monitor)
+   public IStatus run(final IProgressMonitor monitor)
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, getTaskName(), 10);
       try
@@ -153,7 +160,6 @@ public class CMoflonCodeGeneratorTask implements ITask
          validationJob.schedule();
          jobGroup.join(timeoutForValidationTaskInMillis, subMon.split(10));
          final IStatus validatorStatus = validationJob.getResult();
-         // final IStatus validatorStatus = validationJob.runInWorkspace(subMon.split(10));
 
          if (validatorStatus == null)
          {
@@ -164,7 +170,6 @@ public class CMoflonCodeGeneratorTask implements ITask
             {
                // Simply ignore it
             }
-            //TODO@rkluge: This is a really ugly hack that should be removed as soon as a more elegant solution is available
             throw new OperationCanceledException("Validation took longer than " + (timeoutForValidationTaskInMillis / 1000)
                   + " seconds. This could(!) mean that some of your patterns have no valid search plan. You may increase the timeout value using the eMoflon property page");
          } else if (subMon.isCanceled())
@@ -191,31 +196,6 @@ public class CMoflonCodeGeneratorTask implements ITask
          this.genModel = genModelBuilderJob.getGenModel();
 
          final IProject project = getEcoreFile().getProject();
-         // (4) Load injections SKIPPED
-         //
-         //         final IStatus injectionStatus = createInjections(project, genModel);
-         //         if (subMon.isCanceled())
-         //         {
-         //            return Status.CANCEL_STATUS;
-         //         }
-         //         if (injectionStatus.matches(IStatus.ERROR))
-         //         {
-         //            return injectionStatus;
-         //         }
-
-         // (5) Process GenModel ORIGINAL IMPLEMENTATION DOES NOTHING
-         // subMon.subTask("Processing SDMs for project " +
-         // project.getName());
-         // final IMonitoredJob genModelProcessor =
-         // methodBodyHandler.createGenModelProcessor(this, resource);
-         // final IStatus genModelProcessorStatus = genModelProcessor
-         // .run(WorkspaceHelper.createSubMonitor(monitor, 35));
-         // if (monitor.isCanceled()) {
-         // return Status.CANCEL_STATUS;
-         // }
-         // if (genModelProcessorStatus.matches(IStatus.ERROR)) {
-         // return genModelProcessorStatus;
-         // }
 
          System.out.println("Entering Code Generation in CMoflonCodeGenerator");
          // (6) Generate code
@@ -233,37 +213,31 @@ public class CMoflonCodeGeneratorTask implements ITask
          }
          subMon.worked(5);
 
-         // ORIGINAL eMoflon code
-         // final TemplateConfigurationProvider templateConfig =
-         // defaultCodeGeneratorConfig
-         // .createTemplateConfiguration(this.genModel);
-         // final DemoclesGeneratorAdapterFactory codeGenerationEngine = new
-         // DemoclesGeneratorAdapterFactory(
-         // templateConfig, this.injectionManager);
-         // final CodeGenerator codeGenerator = new
-         // CodeGenerator(codeGenerationEngine);
-         // final IStatus codeGenerationStatus =
-         // codeGenerator.generateCode(genModel,
-         // new BasicMonitor.EclipseSubProgress(subMon, 30));
-         // if (subMon.isCanceled()) {
-         // return Status.CANCEL_STATUS;
-         // }
-         // if (codeGenerationStatus.matches(IStatus.ERROR)) {
-         // return codeGenerationStatus;
-         // }
-         // subMon.worked(5);
-
          long tic = System.nanoTime();
 
-         logger.info("Completed in " + (tic - toc) / 1e9 + "s");
+         final double timeInSeconds = (tic - toc) / 1e9;
+         LogUtils.info(logger, "Completed in %.3fs", timeInSeconds);
 
          return validatorStatus.isOK() ? new Status(IStatus.OK, CodeGeneratorPlugin.getModuleID(), "Code generation succeeded")
                : new MultiStatus(CodeGeneratorPlugin.getModuleID(), validatorStatus.getCode(), new IStatus[] { validatorStatus },
                      "Code generation warnings/errors", null);
       } catch (final Exception e)
       {
-         return new Status(IStatus.ERROR, CodeGeneratorPlugin.getModuleID(), IStatus.ERROR, e.getMessage(), e);
+         if (e instanceof NullPointerException)
+            LogUtils.error(logger, e);
+         return new Status(IStatus.ERROR, CodeGeneratorPlugin.getModuleID(), IStatus.ERROR, e.getClass().getName() + ": " + e.getMessage(), e);
       }
+   }
+
+   @Override
+   public String getTaskName()
+   {
+      return "CMoflonCodeGeneration";
+   }
+
+   public void setValidationTimeout(final int timeoutInMillis)
+   {
+      this.timeoutForValidationTaskInMillis = timeoutInMillis;
    }
 
    private List<Resource> getAllResources()
@@ -276,39 +250,18 @@ public class CMoflonCodeGeneratorTask implements ITask
       return this.resourceSet;
    }
 
-   @Override
-   public String getTaskName()
-   {
-      return "CMoflonCodeGeneration";
-   }
-
-   public final IFile getEcoreFile()
+   private final IFile getEcoreFile()
    {
       return ecoreFile;
    }
 
-   public final MoflonPropertiesContainer getMoflonProperties()
+   private final MoflonPropertiesContainer getMoflonProperties()
    {
       return moflonProperties;
    }
 
-   public final Resource getEcoreResource()
+   private final Resource getEcoreResource()
    {
       return resources.get(0);
    }
-
-   /**
-    * Loads the injections from the /injection folder
-    */
-   //   private IStatus createInjections(final IProject project, final GenModel genModel) throws CoreException
-   //   {
-   //      IFolder injectionFolder = WorkspaceHelper.addFolder(project, WorkspaceHelper.INJECTION_FOLDER, new NullProgressMonitor());
-   //      CodeInjector injector = new CodeInjectorImpl(project.getLocation().toOSString());
-   //
-   //      UserInjectionExtractorImpl injectionExtractor = new UserInjectionExtractorImpl(injectionFolder.getLocation().toString(), genModel);
-   //      CompilerInjectionExtractorImpl compilerInjectionExtractor = new CompilerInjectionExtractorImpl(project, genModel);
-   //
-   //      injectionManager = new InjectionManager(injectionExtractor, compilerInjectionExtractor, injector);
-   //      return injectionManager.extractInjections();
-   //   }
 }

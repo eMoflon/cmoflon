@@ -38,8 +38,6 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 
    private static Logger logger = Logger.getLogger(CMoflonUIActivator.class);
 
-   private static final String SPECIFICATION_WORKINGSET_NAME = "Specifications";
-
    public NewCMoflonMetamodelWizard()
    {
       setNeedsProgressMonitor(true);
