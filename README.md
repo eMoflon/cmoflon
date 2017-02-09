@@ -2,6 +2,8 @@
 Documentation for cMoflon, the eMoflon derivate for generating Contiki code
 ----
 
+If you encounter any problems, please post an issue (https://github.com/eMoflon/cmoflon/issues) or send me (Roland Kluge) a message
+
 ## How to set up a small case study (walkthrough)
 
 ### Setup: How to install cMoflon and all required software
