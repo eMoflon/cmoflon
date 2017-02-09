@@ -42,7 +42,7 @@ import org.moflon.sdm.runtime.democles.VariableReference;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * Mimics behaviour of {@link DefaultTemplateConfiguration}. <br>
+ * Mimics behavior of {@link DefaultTemplateConfiguration}. <br>
  * Includes the changed StringTemplates as well as the {@link CMoflonStringRenderer}
  * @author David Giessing
  *
