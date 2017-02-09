@@ -184,7 +184,7 @@ static void _hopcount_recv(const networkaddr_t *source, buffer_t *data, int8_t r
 	
 	if(item == NULL) {
 		if((item = memb_alloc(&memb_hopcount)) == NULL) {
-			printf("ERROR[topologycontrol-lktc]: hopcount-list is full\n");
+			printf("ERROR[topologycontrol]: hopcount-list is full\n");
 			return;
 		}
 			item->address = networkaddr_reference_alloc(source);

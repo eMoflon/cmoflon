@@ -1,7 +1,7 @@
 AllMatches(engine, importManager, body, chain) ::= <<
 match_t* _result;
 if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL)
-	printf("ERROR[topologycontrol-ktc]: match-list is full\n");
+	printf("ERROR[topologycontrol]: match-list is full\n");
 else {
 	_result->match = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
 	<body.header.internalSymbolicParameters:{x  |_result->match[<i0>]=<if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}> 
@@ -28,7 +28,7 @@ MatchAllMethod(engine, importManager, body, adornment, boundSymbolicParameters, 
 list_t <body.header.name><adornment>(<boundSymbolicParameters:{x| <if(x.Type.LinkedElement.EClassIsBuiltIn)><x.Type.LinkedElement.name><else><x.Type.LinkedElement.Name;format="fulluppercase">_T*<endif> <x:/democles/Name(importManager)>};separator=", ">) {
 	<if (chain)><(chain.value.template)(engine, importManager, body, chain)>
 	<else>if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL)
-	printf("ERROR[topologycontrol-ktc]: match-list is full\n");)
+	printf("ERROR[topologycontrol]: match-list is full\n");)
 	else {
 		_result->match = malloc(<length((boundSymbolicParameters))>*sizeof(void*));
 		<boundSymbolicParameters:{x  |_result->match[<i0>]= <x:/democles/Name(importManager)>;<\n>}> 
