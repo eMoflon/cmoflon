@@ -51,6 +51,10 @@ public class PatternMatcherModelAdaptor extends ParameterHandler
             return boundParameters;
          }
       }
+      if (object instanceof GeneratorVariable && "Type".equals(propertyName))
+      {
+         return null;
+      }
       Object result = super.getProperty(interpreter, template, object, property, propertyName);
       if (object instanceof Variable && "name".equals(propertyName))
       {
