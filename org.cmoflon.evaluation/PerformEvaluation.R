@@ -19,6 +19,11 @@ COL_TEXT= "Text [B]"
 COL_BSS = "BSS [B]"
 COL_TOTAL = "Total [B]"
 
+# Derived columns
+COL_SIZE = "\\MetricCodeMemorySize{A}"
+COL_SIZE_DIFF_TO_NOTC = "$\\Delta\\MetricCodeMemorySize{A}$"
+
+
 source("./_SoSyMTemplate/utilities.R")
 
 parentDir="."
@@ -38,13 +43,21 @@ main <- function()
 	log("Read input data: %d lines for code size, %d lines for runtime.", nrow(codeSizeData), nrow(runtimeData))
 	
 ## Process code size data
-	names(codeSizeData) = c(COL_FILE, COL_ALGORITHM, COL_TEXT, COL_DATA, COL_BSS)	
+	names(codeSizeData) = c(COL_FILE, COL_ALGORITHM, COL_TEXT, COL_DATA, COL_BSS, COL_TOTAL)	
 	
 	
 	rowOfNoTC = grep("NoTC", codeSizeData[[COL_ALGORITHM]])
+	
+	if (length(rowOfNoTC) == 0)
+		stop("Missing line for NoTC")
 		
-	# Calculate total size of image
-	codeSizeData[[COL_TOTAL]] = codeSizeData[[COL_DATA]] + codeSizeData[[COL_TEXT]] + codeSizeData[[COL_BSS]]
+	# Calculate Ms(A)
+	codeSizeData[[COL_SIZE]] = codeSizeData[[COL_DATA]] + codeSizeData[[COL_TEXT]]
+	
+	# Calculate abs. increase compared to NoTC
+	sizeOfNoTC = codeSizeData[[rowOfNoTC, COL_SIZE]]
+	print(sizeOfNoTC)
+	codeSizeData[[COL_SIZE_DIFF_TO_NOTC]] = codeSizeData[[COL_SIZE]] - sizeOfNoTC
 	
 	# Compare gen vs. man for each algorithm
 	codeSizeData[[COL_GEN_VS_MAN]] = codeSizeData[[COL_TEXT]]
@@ -61,11 +74,14 @@ main <- function()
 	codeSizeData[[COL_A_VS_NOTC]] = codeSizeData[[COL_TEXT]] / textSizeOfNoTC * 100.0
 	#codeSizeData[rowOfNoTC,][[COL_A_VS_NOTC]] = NA
 	
+	print("--- RQ1: Raw data ---")
+	print(codeSizeData)
 	
-	printedDataHeader = c(COL_ALGORITHM, COL_TEXT, COL_A_VS_NOTC, COL_GEN_VS_MAN)
+	printedDataHeader = c(COL_ALGORITHM, COL_SIZE, COL_A_VS_NOTC, COL_GEN_VS_MAN)
 	intermediateLinePositions = c(2, 4, 6) # stores the pos. of the \toprule,\midrule,\bottomrule lines
 	digitsSpec = c(0, 0, 0, 1, 1)
 	printedData = codeSizeData[,printedDataHeader]
+	print("--- RQ1: LaTeX ---")
 	print(printedData)
 	formattedCodeSizeTable = xtable(
 		printedData,
