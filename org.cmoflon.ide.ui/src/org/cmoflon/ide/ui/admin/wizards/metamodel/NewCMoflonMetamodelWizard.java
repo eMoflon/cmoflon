@@ -33,6 +33,8 @@ import org.moflon.ide.ui.admin.wizards.metamodel.NewMetamodelProjectInfoPage;
  */
 public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizard
 {
+   private static final String PATH_TO_DEFAULT_SPECIFICATION = "resources/defaultCMoflonSpecification.eap";
+
    // Page containing controls for taking user input
    private NewMetamodelProjectInfoPage projectInfo;
 
@@ -102,7 +104,7 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
          IProject newProjectHandle = createProject(projectName, WorkspaceHelper.getPluginId(getClass()), location, subMon.split(1));
 
          // generate default files
-         final URL pathToDefaultEapFile = MoflonUtilitiesActivator.getPathRelToPlugIn("resources/kTC.eap", WorkspaceHelper.getPluginId(getClass()));
+         final URL pathToDefaultEapFile = MoflonUtilitiesActivator.getPathRelToPlugIn(PATH_TO_DEFAULT_SPECIFICATION, WorkspaceHelper.getPluginId(getClass()));
          WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap", pathToDefaultEapFile, WorkspaceHelper.getPluginId(getClass()), subMon.split(1));
 
          WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp", subMon.split(1));
