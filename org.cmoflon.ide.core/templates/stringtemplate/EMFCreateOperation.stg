@@ -4,7 +4,7 @@ CreateToManyLink(engine, importManager, body, chain) ::= <<
 >>
 
 CreateToOneLink(engine, importManager, body, chain) ::= <<
-<first(chain.value.operation.parameters):{x|<x.Specification.type.LinkedElement.Name; format="fulllowercase">}>_set<chain.value.operation.type.linkedElement.genModelElement.accessorName; format="uppercase"><if (chain.value.operation.type.linkedElement.genModelElement.collidingSetAccessorOperation)>_<endif>(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>);
+<first(chain.value.operation.parameters):{x|<x.Specification.type.LinkedElement.Name; format="firstlowercase">}>_set<chain.value.operation.type.linkedElement.genModelElement.accessorName; format="uppercase"><if (chain.value.operation.type.linkedElement.genModelElement.collidingSetAccessorOperation)>_<endif>(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>);
 <if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
 >>
 
@@ -14,7 +14,7 @@ CreateObject(engine, importManager, body, chain) ::= <<
 >>
 
 ReverseCreateToOneEReference(engine, importManager, body, chain) ::= <<
-<first(rest(chain.value.operation.parameters)):{x|<x.Specification.type.LinkedElement.Name; format="fulllowercase">}>_set<chain.value.operation.type.linkedElement.eOpposite.genModelElement.accessorName; format="uppercase"><if (chain.value.operation.type.linkedElement.genModelElement.collidingSetAccessorOperation)>_<endif>(<first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>, <first(chain.value.operation.parameters):/democles/ParameterName(importManager)>);
+<first(rest(chain.value.operation.parameters)):{x|<x.Specification.type.LinkedElement.Name; format="firstlowercase">}>_set<chain.value.operation.type.linkedElement.eOpposite.genModelElement.accessorName; format="uppercase"><if (chain.value.operation.type.linkedElement.genModelElement.collidingSetAccessorOperation)>_<endif>(<first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>, <first(chain.value.operation.parameters):/democles/ParameterName(importManager)>);
 <if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
 >>
 

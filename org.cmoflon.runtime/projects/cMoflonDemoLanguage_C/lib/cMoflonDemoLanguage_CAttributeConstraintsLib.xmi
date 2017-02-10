@@ -36,7 +36,7 @@
       constraintSpecifications="//@constraintSpecifications.2"
       operationIdentifier="evalHopcountConstr">
     <operationSpecifications
-        specification="lstarktcalgorithm_evaluateHopcountConstraint($a$, $b$, $c$, $d$)"
+        specification="lStarKtcAlgorithm_evaluateHopcountConstraint($a$, $b$, $c$, $d$)"
         adornmentString="BBBB"
         alwaysSuccessful="false"/>
     <parameterIDs

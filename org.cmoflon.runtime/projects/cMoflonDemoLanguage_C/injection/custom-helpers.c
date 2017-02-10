@@ -1,9 +1,9 @@
 // --- Begin of kTC-specific methods
-EDouble ktcalgorithm_getK(KTCALGORITHM_T* _this) {
+EDouble ktcAlgorithm_getK(KTCALGORITHM_T* _this) {
 	return _this->k;
 }
 
-NODE_T* ktcalgorithm_getNode(KTCALGORITHM_T* _this) {
+NODE_T* ktcAlgorithm_getNode(KTCALGORITHM_T* _this) {
 	return _this->node;
 }
 // --- End of kTC-specific methods
@@ -13,7 +13,7 @@ NODE_T* ktcalgorithm_getNode(KTCALGORITHM_T* _this) {
 /**
  * Returns whether the given hop counts fulfill the l*-kTC predicate
  */
-EBoolean lstarktcalgorithm_evaluateHopcountConstraint(EInt hopCount1,
+EBoolean lStarKtcAlgorithm_evaluateHopcountConstraint(EInt hopCount1,
 		EInt hopCount2, EInt hopCount3, EDouble stretchFactor) {
 	if (min(hopCount1, min(hopCount2, hopCount3)) < 0)
 		return false;
@@ -41,15 +41,15 @@ EInt node_getHopcount(NODE_T* _this) {
 	return -1;
 }
 
-NODE_T* lstarktcalgorithm_getNode(LSTARKTCALGORITHM_T* _this) {
+NODE_T* lStarKtcAlgorithm_getNode(LSTARKTCALGORITHM_T* _this) {
 	return _this->node;
 }
 
-EDouble lstarktcalgorithm_getK(LSTARKTCALGORITHM_T* _this) {
+EDouble lStarKtcAlgorithm_getK(LSTARKTCALGORITHM_T* _this) {
 	return _this->k;
 }
 
-EDouble lstarktcalgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this) {
+EDouble lStarKtcAlgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this) {
 	return _this->stretchFactor;
 }
 
@@ -60,7 +60,7 @@ EDouble lstarktcalgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this) {
 /**
  * Initializes the auxiliary data structures required by LMST
  */
-void lmstalgorithm_init(LMSTALGORITHM_T* this) {
+void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 	TREE_T* tree = (TREE_T*) malloc(sizeof(TREE_T));
 	tree->algo = this;
 	MEMB(memb_entries, TREEENTRY_T, MAX_MATCH_COUNT);
@@ -135,7 +135,7 @@ void lmstalgorithm_init(LMSTALGORITHM_T* this) {
 /**
  * Clears the auxiliary data structures required by LMST
  */
-void lmstalgorithm_cleanup(LMSTALGORITHM_T* this) {
+void lmstAlgorithm_cleanup(LMSTALGORITHM_T* this) {
 	list_t entryList = this->tree->entries;
 	// add all nodes to list
 	TREEENTRY_T* item_neighbor;
@@ -147,11 +147,11 @@ void lmstalgorithm_cleanup(LMSTALGORITHM_T* this) {
 	free(entryList);
 }
 
-NODE_T* lmstalgorithm_getNode(LMSTALGORITHM_T* _this) {
+NODE_T* lmstAlgorithm_getNode(LMSTALGORITHM_T* _this) {
 	return _this->node;
 }
 
-TREE_T* lmstalgorithm_getTree(LMSTALGORITHM_T* _this) {
+TREE_T* lmstAlgorithm_getTree(LMSTALGORITHM_T* _this) {
 	return _this->tree;
 }
 list_t tree_getEntries(TREE_T* _this) {
@@ -161,33 +161,32 @@ bool tree_isEntries(void* candidate, void* _this) {
 	return true;
 }
 
-TREE_T* treeentry_getTree(TREEENTRY_T* _this) {
+TREE_T* treeEntry_getTree(TREEENTRY_T* _this) {
 	return _this->tree;
 }
 
-NODE_T* treeentry_getNode(TREEENTRY_T* _this) {
+NODE_T* treeEntry_getNode(TREEENTRY_T* _this) {
 	return _this->node;
 }
-void treeentry_setNode(TREEENTRY_T* _this, NODE_T* value) {
+void treeEntry_setNode(TREEENTRY_T* _this, NODE_T* value) {
 	_this->node = value;
-	return;
 }
 
-LINK_T* treeentry_getSelectedLink(TREEENTRY_T* _this) {
+LINK_T* treeEntry_getSelectedLink(TREEENTRY_T* _this) {
 	return _this->parent;
 }
-void treeentry_setSelectedLink(TREEENTRY_T* _this, LINK_T* value) {
+void treeEntry_setSelectedLink(TREEENTRY_T* _this, LINK_T* value) {
 	_this->parent = value;
 }
 
-bool treeentry_isIsInTree(TREEENTRY_T* _this) {
+bool treeEntry_isIsInTree(TREEENTRY_T* _this) {
 	return _this->isInTree;
 }
-void treeentry_setIsInTree(TREEENTRY_T* _this, EBoolean value) {
+void treeEntry_setIsInTree(TREEENTRY_T* _this, EBoolean value) {
 	_this->isInTree = value;
 }
 
-bool treeentry_equals(TREEENTRY_T* _this, TREEENTRY_T* other) {
+bool treeEntry_equals(TREEENTRY_T* _this, TREEENTRY_T* other) {
 	bool result = true;
 	result &= node_equals(_this->node, other->node);
 	result &= link_equals(_this->parent, other->parent);

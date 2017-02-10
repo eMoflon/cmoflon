@@ -204,14 +204,11 @@ public class CMoflonCodeGenerator
       String algorithmName = "";
       String generatedCode = "";
       List<GenClass> genClassesForInjectedCode = new ArrayList<GenClass>();
-      logger.info("in CMoflonCodeGenerator");
       for (final GenPackage genPackage : genModel.getGenPackages())
       {
          algorithmName = genPackage.getNSName();
-         logger.info("GenPackage: " + genPackage.getPackageName());
          for (final GenClass genClass : genPackage.getGenClasses())
          {
-            logger.info("GenClass: " + genClass.getName());
             if (genClass.isAbstract())
                continue;
 
@@ -234,11 +231,11 @@ public class CMoflonCodeGenerator
                   else
                      type = typechain[typechain.length - 1];
                   if (!isBuiltInType(type) && !type.equalsIgnoreCase("void"))
-                     type = type.toUpperCase() + "_T*";
+                     type = getTypeName(type) + "*";
                   generatedCode += type;
                   generatedCode += " ";
-                  generatedCode += genOperation.getEcoreOperation().getEContainingClass().getName().toLowerCase() + "_";
-                  generatedCode += genOperation.getName();
+                  final String functionName = getClassPrefixForMethods(genOperation.getEcoreOperation().getEContainingClass().getName()) + genOperation.getName();
+                  generatedCode += functionName;
                   generatedCode += ("(");
                   generatedCode += getParametersFromEcore(genOperation.getEcoreOperation());
                   generatedCode += ("){" + newline);
@@ -249,7 +246,7 @@ public class CMoflonCodeGenerator
                   generatedCode += (newline + "}" + newline);
                } else
                {
-                  LogUtils.info(logger, "No generated Method body for: '%s::%s'", genClass.getName(), genOperation.getName());
+                  LogUtils.info(logger, "Skip method body due to missing specification: '%s::%s'", genClass.getName(), genOperation.getName());
                }
                methods.add(new MethodAttribute(
                      new Type(isBuiltInType(genOperation.getGenClass().getName()),
@@ -393,7 +390,7 @@ public class CMoflonCodeGenerator
       for (final String tcClass : this.tcClasses)
       {
          processBodyCode += "\t\tprepareLinks();" + nl();
-         processBodyCode += "\t\t" + getType(tcClass) + " tc;" + nl();
+         processBodyCode += "\t\t" + getTypeName(tcClass) + " tc;" + nl();
          processBodyCode += "\t\ttc.node =  networkaddr_node_addr();" + nl();
 
          final ST template = templateGroup
@@ -452,12 +449,12 @@ public class CMoflonCodeGenerator
    /**
     * Returns the prefix is placed in front of the method name when generating invocations of functions that represent methods
     * 
-    * @param tcClass the surround class of the method
+    * @param clazz the surround class of the method
     * @return
     */
-   private String getClassPrefixForMethods(final String tcClass)
+   private String getClassPrefixForMethods(final String clazz)
    {
-      return tcClass.toLowerCase() + "_";
+      return clazz.substring(0, 1).toLowerCase() + clazz.substring(1) + "_";
    }
 
    /**
@@ -465,7 +462,7 @@ public class CMoflonCodeGenerator
     * @param tcClass
     * @return
     */
-   private String getType(final String tcClass)
+   private String getTypeName(final String tcClass)
    {
       return tcClass.toUpperCase() + "_T";
    }

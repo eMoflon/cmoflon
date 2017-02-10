@@ -121,7 +121,7 @@ void link_setMarked(LINK_T* _this, LinkState value) {
 	//IF this node is not part of the edge don't ignore any of the nodes
 }
 
-int edouble_compare(EDouble _this, EDouble other) {
+int eDouble_compare(EDouble _this, EDouble other) {
 	if (_this == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
 		return 1;
 	if (other == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
@@ -141,11 +141,11 @@ bool link_equals(LINK_T* _this, LINK_T* other) {
 					&& node_equals(_this->node2, other->node1)));
 }
 
-bool linkstate_equals(LinkState s1, LinkState s2) {
+bool linkState_equals(LinkState s1, LinkState s2) {
 	return s1 == s2;
 }
 
-bool eboolean_equals(EBoolean b1, EBoolean b2) {
+bool eBoolean_equals(EBoolean b1, EBoolean b2) {
 	return b1 == b2;
 }
 
