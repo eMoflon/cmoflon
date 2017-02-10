@@ -21,7 +21,10 @@ COL_TOTAL = "Total [B]"
 
 # Derived columns
 COL_SIZE = "\\MetricCodeMemorySize{A}"
-COL_SIZE_DIFF_TO_NOTC = "$\\Delta\\MetricCodeMemorySize{A}$"
+COL_SIZE_DIFF_TO_NOTC = "$\\Delta_{A-NoTC}\\MetricCodeMemorySize$"
+COL_SIZE_RELDIFF_TO_NOTC = "$\\Delta_{A-NoTC}\\MetricCodeMemorySize$[\\%]"
+COL_SIZE_DIFF_GEN_TO_MAN = "$\\Delta_{Gen-Man}\\MetricCodeMemorySize$"
+COL_SIZE_RELDIFF_GEN_TO_MAN = "$\\Delta_{Gen-Man}\\MetricCodeMemorySize$[\\%]"
 
 
 source("./_SoSyMTemplate/utilities.R")
@@ -56,16 +59,18 @@ main <- function()
 	
 	# Calculate abs. increase compared to NoTC
 	sizeOfNoTC = codeSizeData[[rowOfNoTC, COL_SIZE]]
-	print(sizeOfNoTC)
 	codeSizeData[[COL_SIZE_DIFF_TO_NOTC]] = codeSizeData[[COL_SIZE]] - sizeOfNoTC
+	codeSizeData[[COL_SIZE_RELDIFF_TO_NOTC]] = codeSizeData[[COL_SIZE_DIFF_TO_NOTC]] / sizeOfNoTC * 100.0
 	
+
 	# Compare gen vs. man for each algorithm
-	codeSizeData[[COL_GEN_VS_MAN]] = codeSizeData[[COL_TEXT]]
-	codeSizeData[grep("-man", codeSizeData[[COL_ALGORITHM]]),][[COL_GEN_VS_MAN]] = NA
-	codeSizeData[rowOfNoTC,][[COL_GEN_VS_MAN]] = NA
-	for (i in grep("-gen", codeSizeData[[COL_ALGORITHM]]))
+	codeSizeData[[COL_SIZE_DIFF_GEN_TO_MAN]] = NA
+	codeSizeData[[COL_SIZE_RELDIFF_GEN_TO_MAN]] = NA
+	for (genIndex in grep("-gen", codeSizeData[[COL_ALGORITHM]]))
 	{
-		codeSizeData[i,][[COL_GEN_VS_MAN]] = codeSizeData[i, ][[COL_TEXT]] / codeSizeData[i-1, ][[COL_TEXT]] * 100.0
+		manIndex = genIndex - 1
+		codeSizeData[genIndex,][[COL_SIZE_DIFF_GEN_TO_MAN]] = codeSizeData[genIndex, ][[COL_SIZE]] - codeSizeData[manIndex, ][[COL_SIZE]]
+		codeSizeData[genIndex,][[COL_SIZE_RELDIFF_GEN_TO_MAN]] = codeSizeData[genIndex,][[COL_SIZE_RELDIFF_GEN_TO_MAN]] / codeSizeData[manIndex, ][[COL_SIZE]] * 100.0
 	}
 		
 	# Compare code size with NoTC
@@ -77,7 +82,7 @@ main <- function()
 	print("--- RQ1: Raw data ---")
 	print(codeSizeData)
 	
-	printedDataHeader = c(COL_ALGORITHM, COL_SIZE, COL_A_VS_NOTC, COL_GEN_VS_MAN)
+	printedDataHeader = c(COL_ALGORITHM, COL_SIZE, COL_SIZE_DIFF_TO_NOTC, COL_A_VS_NOTC)
 	intermediateLinePositions = c(2, 4, 6) # stores the pos. of the \toprule,\midrule,\bottomrule lines
 	digitsSpec = c(0, 0, 0, 1, 1)
 	printedData = codeSizeData[,printedDataHeader]
