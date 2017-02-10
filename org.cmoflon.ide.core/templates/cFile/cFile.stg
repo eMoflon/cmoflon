@@ -134,7 +134,8 @@ void init(){
 >>
 
 hopcount(comp, algo)::=<<
-//Start of declarations for hopcount usage
+
+// --- Start of declarations for hop count usage
 typedef struct hopcount {
 	struct hopcount *next;
 	networkaddr_t *address;
@@ -218,6 +219,6 @@ static void _hopcount_broadcast(s) {
 	else
 		etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_PERIODIC_MIN, CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_PERIODIC_MAX));
 }
-//End of declarations for hopcount usage
+// --- End of declarations for hopcount usage
 
 >>

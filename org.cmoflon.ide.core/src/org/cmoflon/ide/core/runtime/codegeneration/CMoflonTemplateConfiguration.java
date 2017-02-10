@@ -49,11 +49,19 @@ import org.stringtemplate.v4.STGroup;
  */
 public class CMoflonTemplateConfiguration implements TemplateConfigurationProvider
 {
-   //Prefixes for STGs
+   /**
+    * String template group prefix for control flow
+    */
    public static final String CONTROL_FLOW_GENERATOR = "ControlFlowGenerator";
 
+   /**
+    * String template group prefix for header file structure of the topology control component
+    */
    public static final String HEADER_FILE_GENERATOR = "HeaderFileGenerator";
 
+   /**
+    * String template group prefix for source file structure of the topology control component
+    */
    public static final String SOURCE_FILE_GENERATOR = "SourceFileGenerator";
 
    protected final HashMap<String, STGroup> templates = new HashMap<String, STGroup>();
@@ -70,14 +78,17 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
       final STGroup controlFlowTemplateGroup = createControlFlowTemplates();
       controlFlowTemplateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
       templates.put(CONTROL_FLOW_GENERATOR, controlFlowTemplateGroup);
+      
       final STGroup headerGroup = new STGroup();
       headerGroup.setListener(new LoggingSTErrorListener(logger));
       headerGroup.loadGroupFile("/" + HEADER_FILE_GENERATOR + "/", getTemplateUriPrefix() + "/header/header.stg");
       templates.put(HEADER_FILE_GENERATOR, headerGroup);
+      
       final STGroup sourceGroup = new STGroup();
       sourceGroup.setListener(new LoggingSTErrorListener(logger));
       sourceGroup.loadGroupFile("/" + SOURCE_FILE_GENERATOR + "/", getTemplateUriPrefix() + "/cFile/cFile.stg");
       templates.put(SOURCE_FILE_GENERATOR, sourceGroup);
+      
       final STGroup bindingAndBlackTemplateGroup = createBindingAndBlackTemplates();
       bindingAndBlackTemplateGroup.registerModelAdaptor(EModelElement.class, ecoreModelAdaptor);
       bindingAndBlackTemplateGroup.registerModelAdaptor(EMFVariable.class, ecoreModelAdaptor);
@@ -136,9 +147,6 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 
    private STGroup createControlFlowTemplates()
    {
-      // final URL groupFileURL = FileLocator.resolve(Platform.getBundle("org.moflon.compiler.sdm.democles").getEntry(
-      // "templates/stringtemplate/ControlFlow.stg"));
-      // final STGroup controlFlowGenerator = new STGroupFile(groupFileURL, "ascii", '<', '>');
       final STGroup group = new STGroup();
       group.setListener(new LoggingSTErrorListener(logger));
       group.loadGroupFile("/" + CONTROL_FLOW_GENERATOR + "/", getTemplateUriPrefix() + "stringtemplate/ControlFlow.stg");

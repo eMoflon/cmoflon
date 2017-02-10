@@ -36,17 +36,13 @@ public class SourceFileGenerator
 
    public static final String HOPCOUNT = "hopcount";
 
-   //TODO: contains general as well as specific parts, should be splitted later on
-   public static String generateClosingPart(boolean dropUnidir, STGroup sourceGroup,boolean hopcount)
+   //TODO@rkluge contains general as well as specific parts, should be splitted later on
+   public static String generateClosingPart(STGroup templateGroup, boolean hopcount)
    {
-      String result = "";
-      if (dropUnidir)
-      {
-         result += (sourceGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + DROP_UNIDIRECTIONAL_EDGES).render());
-      }
-      result += (sourceGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START).add("hopcount", hopcount).render());
-      result += (sourceGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_END).render());
-      return result;
+      StringBuilder sb = new StringBuilder();
+      sb.append(templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START).add("hopcount", hopcount).render());
+      sb.append(templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_END).render());
+      return sb.toString();
    }
 
    /**
@@ -56,6 +52,7 @@ public class SourceFileGenerator
     * @param templateGroup
     * @return
     */
+   //TODO@rkluge contains general as well as specific parts, should be splitted later on
    public static String generateUpperPart(String component, String algorithmName, STGroup templateGroup,boolean hopcount)
    {
       String result = "";
