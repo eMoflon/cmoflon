@@ -26,7 +26,7 @@ typedef struct TREE_T{
 typedef struct {
 	struct TREEENTRY_T* next;
 	NODE_T* node;
-	LINK_T* selectedLink;
-	TREE_T* algorithm;
+	LINK_T* parent;
+	TREE_T* tree;
 	bool isInTree;
 }TREEENTRY_T;

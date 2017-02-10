@@ -1,6 +1,7 @@
 package org.cmoflon.ide.core.runtime.codegeneration;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.utilities.CMoflonMonitoredMetamodelLoader;
@@ -216,7 +217,7 @@ public class CMoflonCodeGeneratorTask implements ITask
          long tic = System.nanoTime();
 
          final double timeInSeconds = (tic - toc) / 1e9;
-         LogUtils.info(logger, "Completed in %.3fs", timeInSeconds);
+         LogUtils.info(logger, String.format(Locale.US, "Completed in %.3fs", timeInSeconds));
 
          return validatorStatus.isOK() ? new Status(IStatus.OK, CodeGeneratorPlugin.getModuleID(), "Code generation succeeded")
                : new MultiStatus(CodeGeneratorPlugin.getModuleID(), validatorStatus.getCode(), new IStatus[] { validatorStatus },

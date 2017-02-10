@@ -65,7 +65,7 @@ void lmstalgorithm_init(LMSTALGORITHM_T* this) {
 	tree->algo = this;
 	MEMB(memb_entries, TREEENTRY_T, MAX_MATCH_COUNT);
 	memb_init(&memb_entries);
-	tree->mem = &entries;
+	tree->mem = &memb_entries;
 	LIST(list_tree_entries);
 	list_init(list_tree_entries);
 
@@ -92,7 +92,7 @@ void lmstalgorithm_init(LMSTALGORITHM_T* this) {
 			} else {
 				item_node->node = item_neighbor->node1;
 				item_node->parent = NULL;
-				item_node->algorithm = tree;
+				item_node->tree = tree;
 				if (networkaddr_equal(networkaddr_node_addr(),
 						item_neighbor->node1))
 					item_node->isInTree = true;
@@ -117,7 +117,7 @@ void lmstalgorithm_init(LMSTALGORITHM_T* this) {
 			} else {
 				item_node->node = item_neighbor->node2;
 				item_node->parent = NULL;
-				item_node->algorithm = lmst;
+				item_node->tree = tree;
 				if (networkaddr_equal(networkaddr_node_addr(),
 						item_neighbor->node2))
 					item_node->isInTree = true;
@@ -128,7 +128,7 @@ void lmstalgorithm_init(LMSTALGORITHM_T* this) {
 		}
 	}
 	tree->entries = list_tree_entries;
-	this->lmst = tree;
+	this->tree = tree;
 }
 ;
 
@@ -162,7 +162,7 @@ bool tree_isEntries(void* candidate, void* _this) {
 }
 
 TREE_T* treeentry_getTree(TREEENTRY_T* _this) {
-	return _this->algorithm;
+	return _this->tree;
 }
 
 NODE_T* treeentry_getNode(TREEENTRY_T* _this) {
