@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: org.cmoflon.ide.ui
 Bundle-SymbolicName: org.cmoflon.ide.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.cmoflon.ide.ui.CMoflonUIActivator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources;bundle-version="[3.5.2,4.0.0)",
  org.eclipse.core.runtime;bundle-version="[3.5.0,4.0.0)",
@@ -16,6 +15,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text;bundle-version="3.10.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: org.cmoflon.ide.ui,
+Export-Package: 
  org.cmoflon.ide.ui.admin.wizards.metamodel
 Bundle-ClassPath: .

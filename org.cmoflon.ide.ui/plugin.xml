@@ -20,6 +20,7 @@
             project="true">
       </wizard>
    </extension>
+   <!--
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
@@ -45,52 +46,5 @@
          </toolbar>
       </menuContribution>
    </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            categoryId="org.moflon.ide.ui.commands.MainCategory"
-            id="org.cmoflon.ide.ui.commands.build.BuildCommand"
-            name="BuildCMoflon">
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="org.cmoflon.ide.ui.admin.handlers.BuildHandler"
-            commandId="org.cmoflon.ide.ui.commands.build.BuildCommand">
-         <enabledWhen>
-            <or>
-               <with
-                     variable="selection">
-                  <iterate
-                        operator="or">
-                     <reference
-                           definitionId="org.moflon.ide.ui.definitions.isProject">
-                     </reference>
-                  </iterate>
-               </with>
-               <with
-                     variable="activeEditorInput">
-                  <or>
-                     <reference
-                           definitionId="org.moflon.ide.ui.definitions.hasIntegrationNature">
-                     </reference>
-                     <reference
-                           definitionId="org.moflon.ide.ui.definitions.hasMetamodelNature">
-                     </reference>
-                     <reference
-                           definitionId="org.moflon.ide.ui.definitions.hasRepositoryNature">
-                     </reference>
-                  </or>
-                  <reference
-                        definitionId="org.moflon.ide.ui.definitions.isInPackageExplorer">
-                  </reference>
-                  <reference
-                        definitionId="org.moflon.ide.ui.definitions.isInProjectExplorer">
-                  </reference>
-               </with>
-            </or>
-         </enabledWhen>
-      </handler>
-   </extension>
+   -->
 </plugin>

@@ -1,10 +1,10 @@
 package org.cmoflon.ide.ui.admin.wizards.metamodel;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.natures.CMoflonMetamodelNature;
-import org.cmoflon.ide.ui.CMoflonUIActivator;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -36,7 +36,7 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
    // Page containing controls for taking user input
    private NewMetamodelProjectInfoPage projectInfo;
 
-   private static Logger logger = Logger.getLogger(CMoflonUIActivator.class);
+   private static Logger logger = Logger.getLogger(NewCMoflonMetamodelWizard.class);
 
    public NewCMoflonMetamodelWizard()
    {
@@ -99,12 +99,11 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
          IPath location = projectInfo.getProjectLocation();
 
          // Create project
-         IProject newProjectHandle = createProject(projectName, CMoflonUIActivator.getModuleID(), location, subMon.split(1));
+         IProject newProjectHandle = createProject(projectName, WorkspaceHelper.getPluginId(getClass()), location, subMon.split(1));
 
          // generate default files
-         WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap",
-               MoflonUtilitiesActivator.getPathRelToPlugIn("resources/kTC.eap", CMoflonUIActivator.getModuleID()), CMoflonUIActivator.getModuleID(),
-               subMon.split(1));
+         final URL pathToDefaultEapFile = MoflonUtilitiesActivator.getPathRelToPlugIn("resources/kTC.eap", WorkspaceHelper.getPluginId(getClass()));
+         WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap", pathToDefaultEapFile, WorkspaceHelper.getPluginId(getClass()), subMon.split(1));
 
          WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp", subMon.split(1));
 
@@ -123,7 +122,7 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
          monitor.done();
       }
    }
-   
+
    /**
     * Creates a new project in current workspace
     * 
