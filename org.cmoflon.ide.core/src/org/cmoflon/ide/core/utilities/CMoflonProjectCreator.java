@@ -117,7 +117,7 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
             final InputStream stream = MoflonUtilitiesActivator.getPathRelToPlugIn(PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY, pluginId).openStream();
             try
             {
-               file.setContents(stream, true, true, subMon.split(1));
+            	file.create(stream, true, subMon.split(1));
             } finally
             {
                IOUtils.closeQuietly(stream);
@@ -140,7 +140,10 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 
    private static void clearBuildProperties(final IProject workspaceProject) throws CoreException
    {
-      WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n", new NullProgressMonitor());
+	  final IFile file = workspaceProject.getFile("build.properties");
+	  if(!file.exists()){
+		  WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n", new NullProgressMonitor());
+	  }
    }
 
    /**
