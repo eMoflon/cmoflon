@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.codegeneration.HeaderFileGenerator.BuiltInTypes;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes.Components;
@@ -370,7 +372,12 @@ public class CMoflonCodeGenerator
       contents += getProcessClosingCode(templateGroup);
 
       final String outputFileName = CMoflonWorkspaceHelper.GEN_FOLDER + "/" + componentBasename + ".c";
-      WorkspaceHelper.addFile(project, outputFileName, contents, monitor);
+      IFile sourceFile = project.getFile(outputFileName);
+      if(!sourceFile.exists()){
+    	  WorkspaceHelper.addFile(project, outputFileName, contents, monitor);
+      }
+      else
+    	  sourceFile.setContents(new ReaderInputStream(new StringReader(contents)),true,true, monitor);
 
    }
 
@@ -669,7 +676,12 @@ public class CMoflonCodeGenerator
       contents += getHeaderTail(componentName, algorithmName, templateGroup);
 
       final String outputFileName = CMoflonWorkspaceHelper.GEN_FOLDER + "/" + getComponentBaseName(componentName, algorithmName) + ".h";
-      WorkspaceHelper.addFile(project, outputFileName, contents, subMon.split(1));
+      IFile headerFile = project.getFile(outputFileName);
+      if(!headerFile.exists()){
+    	  WorkspaceHelper.addFile(project, outputFileName, contents, subMon.split(1));
+      }
+      else
+      headerFile.setContents(new ReaderInputStream(new StringReader(contents)),true,true, subMon.split(1));
    }
 
    private String getIncludesCode(final STGroup templateGroup)
