@@ -1,5 +1,5 @@
-#ifndef __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_
-#define __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_
+#ifndef __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_
+#define __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,8 +14,8 @@
 #include "../../lib/networkaddr.h"
 #include "dev/watchdog.h"
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_UPDATEINTERVAL
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_UPDATEINTERVAL 300
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE3_C_UPDATEINTERVAL
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE3_C_UPDATEINTERVAL 300
 #endif
 
 #ifndef MAX_MATCH_COUNT
@@ -26,9 +26,11 @@ typedef struct match{
 	void** match;
 }match_t;
 
+typedef networkaddr_t NODE_T;
+
+
 typedef neighbor_t LINK_T;
 
-typedef networkaddr_t NODE_T;
 
 typedef bool EBoolean;
 
@@ -36,18 +38,18 @@ typedef double EDouble;
 
 typedef int EInt;
 
+// --- Begin of default cMoflon type definitions
 typedef struct {
 	NODE_T* node;
 }TOPOLOGYCONTROLALGORITHM_T;
 
+// --- End of default cMoflon type definitions
+
+// --- Begin of user-defined type definitions (from path 'injection/custom-typedefs.c')
 typedef struct  {
 	EDouble k;
 	NODE_T* node;
 }KTCALGORITHM_T;
-
-typedef struct  {
-	NODE_T* node;
-}MAXPOWERALGORITHM_T;
 
 typedef struct {
 	EDouble k;
@@ -55,31 +57,34 @@ typedef struct {
 	NODE_T* node;
 }LSTARKTCALGORITHM_T;
 
-struct lmst_t;
+// Forward declaration
+struct TREE_T;
 
 typedef struct {
 	NODE_T* node;
-	struct lmst_t* lmst;
+	struct TREE_T* tree;
 }LMSTALGORITHM_T;
 
-typedef struct lmst_t{
+typedef struct TREE_T{
 	LMSTALGORITHM_T* algo;
-	list_t lmstEntries;
+	list_t entries;
 	struct memb* mem;
-}LMST_T;
+}TREE_T;
 
 typedef struct {
-	struct LMSTENTRY_T* next;
+	struct TREEENTRY_T* next;
 	NODE_T* node;
-	LINK_T* selectedLink;
-	LMST_T* algorithm;
+	LINK_T* parent;
+	TREE_T* tree;
 	bool isInTree;
-}LMSTENTRY_T;
+}TREEENTRY_T;
+// --- End of user-defined type definitions
+
 //Begin of non SDM implemented methods
-void lmstalgorithm_prepareLMSTEntries(LMSTALGORITHM_T* this);
-void lmstalgorithm_run(LMSTALGORITHM_T* this);
-LINK_T* lmstalgorithm_findShortestUnconnectedLink(LMSTALGORITHM_T* this);
-void lmstalgorithm_cleanupLMST(LMSTALGORITHM_T* this);
+void lmstAlgorithm_init(LMSTALGORITHM_T* this);
+void lmstAlgorithm_run(LMSTALGORITHM_T* this);
+LINK_T* lmstAlgorithm_findShortestUnconnectedLink(LMSTALGORITHM_T* this);
+void lmstAlgorithm_cleanup(LMSTALGORITHM_T* this);
 //End of non SDM implemented methods
 
 //Begin of declarations for hopcount
@@ -132,70 +137,70 @@ void link_setSource(LINK_T* _this, NODE_T* value);
 //End of declarations for source
 
 //Begin of declarations for node
-NODE_T* lmstalgorithm_getNode(LMSTALGORITHM_T* _this);
-void lmstalgorithm_setNode(LMSTALGORITHM_T* _this, NODE_T* value);
+NODE_T* lmstAlgorithm_getNode(LMSTALGORITHM_T* _this);
+void lmstAlgorithm_setNode(LMSTALGORITHM_T* _this, NODE_T* value);
 //End of declarations for node
 
-//Begin of declarations for lmst
-LMST_T* lmstalgorithm_getLmst(LMSTALGORITHM_T* _this);
-void lmstalgorithm_setLmst(LMSTALGORITHM_T* _this, LMST_T* value);
-//End of declarations for lmst
+//Begin of declarations for tree
+TREE_T* lmstAlgorithm_getTree(LMSTALGORITHM_T* _this);
+void lmstAlgorithm_setTree(LMSTALGORITHM_T* _this, TREE_T* value);
+//End of declarations for tree
 
 //Begin of declarations for algorithm
-LMSTALGORITHM_T* lmst_getAlgorithm(LMST_T* _this);
-void lmst_setAlgorithm(LMST_T* _this, LMSTALGORITHM_T* value);
+LMSTALGORITHM_T* tree_getAlgorithm(TREE_T* _this);
+void tree_setAlgorithm(TREE_T* _this, LMSTALGORITHM_T* value);
 //End of declarations for algorithm
 
-//Begin of declarations for lmstEntries
-list_t lmst_getLmstEntries(LMST_T* _this);
-void lmst_addLmstEntries(LMST_T* _this, LMSTENTRY_T* value);
-void lmst_removeLmstEntries(LMST_T* _this, LMSTENTRY_T* item);
-bool lmst_containsLmstEntries(LMST_T* _this, LMSTENTRY_T* value);
-bool lmst_isLmstEntries(void* candidate, void* _this);
-//End of declarations for lmstEntries
+//Begin of declarations for entries
+list_t tree_getEntries(TREE_T* _this);
+void tree_addEntries(TREE_T* _this, TREEENTRY_T* value);
+void tree_removeEntries(TREE_T* _this, TREEENTRY_T* item);
+bool tree_containsEntries(TREE_T* _this, TREEENTRY_T* value);
+bool tree_isEntries(void* candidate, void* _this);
+//End of declarations for entries
 
 //Begin of declarations for isInTree
-bool lmstentry_isIsInTree(LMSTENTRY_T* _this);
-void lmstentry_setIsInTree(LMSTENTRY_T* _this, EBoolean value);
+bool treeEntry_isIsInTree(TREEENTRY_T* _this);
+void treeEntry_setIsInTree(TREEENTRY_T* _this, EBoolean value);
 //End of declarations for isInTree
 
-//Begin of declarations for lmst
-LMST_T* lmstentry_getLmst(LMSTENTRY_T* _this);
-void lmstentry_setLmst(LMSTENTRY_T* _this, LMST_T* value);
-//End of declarations for lmst
+//Begin of declarations for tree
+TREE_T* treeEntry_getTree(TREEENTRY_T* _this);
+void treeEntry_setTree(TREEENTRY_T* _this, TREE_T* value);
+//End of declarations for tree
 
 //Begin of declarations for node
-NODE_T* lmstentry_getNode(LMSTENTRY_T* _this);
-void lmstentry_setNode(LMSTENTRY_T* _this, NODE_T* value);
+NODE_T* treeEntry_getNode(TREEENTRY_T* _this);
+void treeEntry_setNode(TREEENTRY_T* _this, NODE_T* value);
 //End of declarations for node
 
-//Begin of declarations for selectedLink
-LINK_T* lmstentry_getSelectedLink(LMSTENTRY_T* _this);
-void lmstentry_setSelectedLink(LMSTENTRY_T* _this, LINK_T* value);
-//End of declarations for selectedLink
+//Begin of declarations for parent
+LINK_T* treeEntry_getParent(TREEENTRY_T* _this);
+void treeEntry_setParent(TREEENTRY_T* _this, LINK_T* value);
+//End of declarations for parent
 
 //Begin of compare declarations
-int eboolean_compare(EBoolean _this, EBoolean other);
-int edouble_compare(EDouble _this, EDouble other);
-int eint_compare(EInt _this, EInt other);
+int eBoolean_compare(EBoolean _this, EBoolean other);
+int eDouble_compare(EDouble _this, EDouble other);
+int eInt_compare(EInt _this, EInt other);
 int node_compare(NODE_T* _this, NODE_T* other);
 int link_compare(LINK_T* _this, LINK_T* other);
-int topologycontrolalgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
-int lmstalgorithm_compare(LMSTALGORITHM_T* _this, LMSTALGORITHM_T* other);
-int lmst_compare(LMST_T* _this, LMST_T* other);
-int lmstentry_compare(LMSTENTRY_T* _this, LMSTENTRY_T* other);
+int topologyControlAlgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
+int lmstAlgorithm_compare(LMSTALGORITHM_T* _this, LMSTALGORITHM_T* other);
+int tree_compare(TREE_T* _this, TREE_T* other);
+int treeEntry_compare(TREEENTRY_T* _this, TREEENTRY_T* other);
 //End of compare declarations
 
 //Begin of equals declarations
-bool eboolean_equals(EBoolean _this, EBoolean other);
-bool edouble_equals(EDouble _this, EDouble other);
-bool eint_equals(EInt _this, EInt other);
+bool eBoolean_equals(EBoolean _this, EBoolean other);
+bool eDouble_equals(EDouble _this, EDouble other);
+bool eInt_equals(EInt _this, EInt other);
 bool node_equals(NODE_T* _this, NODE_T* other);
 bool link_equals(LINK_T* _this, LINK_T* other);
-bool topologycontrolalgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
-bool lmstalgorithm_equals(LMSTALGORITHM_T* _this, LMSTALGORITHM_T* other);
-bool lmst_equals(LMST_T* _this, LMST_T* other);
-bool lmstentry_equals(LMSTENTRY_T* _this, LMSTENTRY_T* other);
+bool topologyControlAlgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
+bool lmstAlgorithm_equals(LMSTALGORITHM_T* _this, LMSTALGORITHM_T* other);
+bool tree_equals(TREE_T* _this, TREE_T* other);
+bool treeEntry_equals(TREEENTRY_T* _this, TREEENTRY_T* other);
 //End of equals declarations
 
-#endif /* __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_ */
+#endif /* __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_ */

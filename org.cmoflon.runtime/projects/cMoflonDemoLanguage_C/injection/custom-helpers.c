@@ -172,10 +172,10 @@ void treeEntry_setNode(TREEENTRY_T* _this, NODE_T* value) {
 	_this->node = value;
 }
 
-LINK_T* treeEntry_getSelectedLink(TREEENTRY_T* _this) {
+LINK_T* treeEntry_getParent(TREEENTRY_T* _this) {
 	return _this->parent;
 }
-void treeEntry_setSelectedLink(TREEENTRY_T* _this, LINK_T* value) {
+void treeEntry_setParent(TREEENTRY_T* _this, LINK_T* value) {
 	_this->parent = value;
 }
 

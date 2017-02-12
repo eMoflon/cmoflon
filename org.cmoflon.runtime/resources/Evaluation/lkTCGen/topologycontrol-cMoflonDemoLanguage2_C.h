@@ -1,5 +1,5 @@
-#ifndef __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE_C_H_
-#define __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE_C_H_
+#ifndef __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_
+#define __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,40 +14,40 @@
 #include "../../lib/networkaddr.h"
 #include "dev/watchdog.h"
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_UPDATEINTERVAL
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_UPDATEINTERVAL 300
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_SMALLDELAY_MAX
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_SMALLDELAY_MAX 65
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_K
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_K 1.2
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_PERIODIC_MIN
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_PERIODIC_MIN 270
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_IMMEDIATE_MIN
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_IMMEDIATE_MIN 1
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_STRETCHFACTOR
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_STRETCHFACTOR 1.5
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_SMALLDELAY_MIN
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_SMALLDELAY_MIN 55
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_IMMEDIATE_MAX
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_IMMEDIATE_MAX 10 
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_PERIODIC_MIN
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_PERIODIC_MIN 270
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_IMMEDIATE_MIN
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_IMMEDIATE_MIN 1
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_IMMEDIATE_MAX
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_IMMEDIATE_MAX 10
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_K
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_K 1.2
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_SMALLDELAY_MAX
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_SMALLDELAY_MAX 65
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_PERIODIC_MAX
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_PERIODIC_MAX 330
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_STRETCHFACTOR
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_STRETCHFACTOR 1.5
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_UPDATEINTERVAL
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_UPDATEINTERVAL 300
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_PERIODIC_MAX
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_PERIODIC_MAX 330
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_SMALLDELAY_MIN
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_SMALLDELAY_MIN 55
 #endif
 
 #ifndef MAX_MATCH_COUNT
@@ -58,9 +58,11 @@ typedef struct match{
 	void** match;
 }match_t;
 
+typedef networkaddr_t NODE_T;
+
+
 typedef neighbor_t LINK_T;
 
-typedef networkaddr_t NODE_T;
 
 typedef bool EBoolean;
 
@@ -68,18 +70,18 @@ typedef double EDouble;
 
 typedef int EInt;
 
+// --- Begin of default cMoflon type definitions
 typedef struct {
 	NODE_T* node;
 }TOPOLOGYCONTROLALGORITHM_T;
 
+// --- End of default cMoflon type definitions
+
+// --- Begin of user-defined type definitions (from path 'injection/custom-typedefs.c')
 typedef struct  {
 	EDouble k;
 	NODE_T* node;
 }KTCALGORITHM_T;
-
-typedef struct  {
-	NODE_T* node;
-}MAXPOWERALGORITHM_T;
 
 typedef struct {
 	EDouble k;
@@ -87,29 +89,31 @@ typedef struct {
 	NODE_T* node;
 }LSTARKTCALGORITHM_T;
 
-struct lmst_t;
+// Forward declaration
+struct TREE_T;
 
 typedef struct {
 	NODE_T* node;
-	struct lmst_t* lmst;
+	struct TREE_T* tree;
 }LMSTALGORITHM_T;
 
-typedef struct lmst_t{
+typedef struct TREE_T{
 	LMSTALGORITHM_T* algo;
-	list_t lmstEntries;
+	list_t entries;
 	struct memb* mem;
-}LMST_T;
+}TREE_T;
 
 typedef struct {
-	struct LMSTENTRY_T* next;
+	struct TREEENTRY_T* next;
 	NODE_T* node;
-	LINK_T* selectedLink;
-	LMST_T* algorithm;
+	LINK_T* parent;
+	TREE_T* tree;
 	bool isInTree;
-}LMSTENTRY_T;
+}TREEENTRY_T;
+// --- End of user-defined type definitions
+
 //Begin of non SDM implemented methods
-void lstarktcalgorithm_run(LSTARKTCALGORITHM_T* this);
-EBoolean lstarktcalgorithm_evaluateHopcountConstraint(LSTARKTCALGORITHM_T* this, EInt hopCount1, EInt hopCount2, EInt hopCount3, EDouble stretchFactor);
+void lStarKtcAlgorithm_run(LSTARKTCALGORITHM_T* this);
 //End of non SDM implemented methods
 
 //Begin of declarations for hopcount
@@ -162,38 +166,38 @@ void link_setSource(LINK_T* _this, NODE_T* value);
 //End of declarations for source
 
 //Begin of declarations for k
-EDouble lstarktcalgorithm_getK(LSTARKTCALGORITHM_T* _this);
-void lstarktcalgorithm_setK(LSTARKTCALGORITHM_T* _this, EDouble value);
+EDouble lStarKtcAlgorithm_getK(LSTARKTCALGORITHM_T* _this);
+void lStarKtcAlgorithm_setK(LSTARKTCALGORITHM_T* _this, EDouble value);
 //End of declarations for k
 
 //Begin of declarations for stretchFactor
-EDouble lstarktcalgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this);
-void lstarktcalgorithm_setStretchFactor(LSTARKTCALGORITHM_T* _this, EDouble value);
+EDouble lStarKtcAlgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this);
+void lStarKtcAlgorithm_setStretchFactor(LSTARKTCALGORITHM_T* _this, EDouble value);
 //End of declarations for stretchFactor
 
 //Begin of declarations for node
-NODE_T* lstarktcalgorithm_getNode(LSTARKTCALGORITHM_T* _this);
-void lstarktcalgorithm_setNode(LSTARKTCALGORITHM_T* _this, NODE_T* value);
+NODE_T* lStarKtcAlgorithm_getNode(LSTARKTCALGORITHM_T* _this);
+void lStarKtcAlgorithm_setNode(LSTARKTCALGORITHM_T* _this, NODE_T* value);
 //End of declarations for node
 
 //Begin of compare declarations
-int eboolean_compare(EBoolean _this, EBoolean other);
-int edouble_compare(EDouble _this, EDouble other);
-int eint_compare(EInt _this, EInt other);
+int eBoolean_compare(EBoolean _this, EBoolean other);
+int eDouble_compare(EDouble _this, EDouble other);
+int eInt_compare(EInt _this, EInt other);
 int node_compare(NODE_T* _this, NODE_T* other);
 int link_compare(LINK_T* _this, LINK_T* other);
-int topologycontrolalgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
-int lstarktcalgorithm_compare(LSTARKTCALGORITHM_T* _this, LSTARKTCALGORITHM_T* other);
+int topologyControlAlgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
+int lStarKtcAlgorithm_compare(LSTARKTCALGORITHM_T* _this, LSTARKTCALGORITHM_T* other);
 //End of compare declarations
 
 //Begin of equals declarations
-bool eboolean_equals(EBoolean _this, EBoolean other);
-bool edouble_equals(EDouble _this, EDouble other);
-bool eint_equals(EInt _this, EInt other);
+bool eBoolean_equals(EBoolean _this, EBoolean other);
+bool eDouble_equals(EDouble _this, EDouble other);
+bool eInt_equals(EInt _this, EInt other);
 bool node_equals(NODE_T* _this, NODE_T* other);
 bool link_equals(LINK_T* _this, LINK_T* other);
-bool topologycontrolalgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
-bool lstarktcalgorithm_equals(LSTARKTCALGORITHM_T* _this, LSTARKTCALGORITHM_T* other);
+bool topologyControlAlgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
+bool lStarKtcAlgorithm_equals(LSTARKTCALGORITHM_T* _this, LSTARKTCALGORITHM_T* other);
 //End of equals declarations
 
-#endif /* __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE_C_H_ */
+#endif /* __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_ */

@@ -1,5 +1,5 @@
-#ifndef __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_
-#define __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_
+#ifndef __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE1_C_H_
+#define __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE1_C_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,12 +14,12 @@
 #include "../../lib/networkaddr.h"
 #include "dev/watchdog.h"
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE3_C_UPDATEINTERVAL
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE3_C_UPDATEINTERVAL 300
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE1_C_K
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE1_C_K 1.2
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE3_C_K
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE3_C_K 1.2
+#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE1_C_UPDATEINTERVAL
+#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE1_C_UPDATEINTERVAL 300
 #endif
 
 #ifndef MAX_MATCH_COUNT
@@ -30,9 +30,11 @@ typedef struct match{
 	void** match;
 }match_t;
 
+typedef networkaddr_t NODE_T;
+
+
 typedef neighbor_t LINK_T;
 
-typedef networkaddr_t NODE_T;
 
 typedef bool EBoolean;
 
@@ -40,18 +42,18 @@ typedef double EDouble;
 
 typedef int EInt;
 
+// --- Begin of default cMoflon type definitions
 typedef struct {
 	NODE_T* node;
 }TOPOLOGYCONTROLALGORITHM_T;
 
+// --- End of default cMoflon type definitions
+
+// --- Begin of user-defined type definitions (from path 'injection/custom-typedefs.c')
 typedef struct  {
 	EDouble k;
 	NODE_T* node;
 }KTCALGORITHM_T;
-
-typedef struct  {
-	NODE_T* node;
-}MAXPOWERALGORITHM_T;
 
 typedef struct {
 	EDouble k;
@@ -59,28 +61,31 @@ typedef struct {
 	NODE_T* node;
 }LSTARKTCALGORITHM_T;
 
-struct lmst_t;
+// Forward declaration
+struct TREE_T;
 
 typedef struct {
 	NODE_T* node;
-	struct lmst_t* lmst;
+	struct TREE_T* tree;
 }LMSTALGORITHM_T;
 
-typedef struct lmst_t{
+typedef struct TREE_T{
 	LMSTALGORITHM_T* algo;
-	list_t lmstEntries;
+	list_t entries;
 	struct memb* mem;
-}LMST_T;
+}TREE_T;
 
 typedef struct {
-	struct LMSTENTRY_T* next;
+	struct TREEENTRY_T* next;
 	NODE_T* node;
-	LINK_T* selectedLink;
-	LMST_T* algorithm;
+	LINK_T* parent;
+	TREE_T* tree;
 	bool isInTree;
-}LMSTENTRY_T;
+}TREEENTRY_T;
+// --- End of user-defined type definitions
+
 //Begin of non SDM implemented methods
-void ktcalgorithm_run(KTCALGORITHM_T* this);
+void ktcAlgorithm_run(KTCALGORITHM_T* this);
 //End of non SDM implemented methods
 
 //Begin of declarations for hopcount
@@ -133,33 +138,33 @@ void link_setSource(LINK_T* _this, NODE_T* value);
 //End of declarations for source
 
 //Begin of declarations for k
-EDouble ktcalgorithm_getK(KTCALGORITHM_T* _this);
-void ktcalgorithm_setK(KTCALGORITHM_T* _this, EDouble value);
+EDouble ktcAlgorithm_getK(KTCALGORITHM_T* _this);
+void ktcAlgorithm_setK(KTCALGORITHM_T* _this, EDouble value);
 //End of declarations for k
 
 //Begin of declarations for node
-NODE_T* ktcalgorithm_getNode(KTCALGORITHM_T* _this);
-void ktcalgorithm_setNode(KTCALGORITHM_T* _this, NODE_T* value);
+NODE_T* ktcAlgorithm_getNode(KTCALGORITHM_T* _this);
+void ktcAlgorithm_setNode(KTCALGORITHM_T* _this, NODE_T* value);
 //End of declarations for node
 
 //Begin of compare declarations
-int eboolean_compare(EBoolean _this, EBoolean other);
-int edouble_compare(EDouble _this, EDouble other);
-int eint_compare(EInt _this, EInt other);
+int eBoolean_compare(EBoolean _this, EBoolean other);
+int eDouble_compare(EDouble _this, EDouble other);
+int eInt_compare(EInt _this, EInt other);
 int node_compare(NODE_T* _this, NODE_T* other);
 int link_compare(LINK_T* _this, LINK_T* other);
-int topologycontrolalgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
-int ktcalgorithm_compare(KTCALGORITHM_T* _this, KTCALGORITHM_T* other);
+int topologyControlAlgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
+int ktcAlgorithm_compare(KTCALGORITHM_T* _this, KTCALGORITHM_T* other);
 //End of compare declarations
 
 //Begin of equals declarations
-bool eboolean_equals(EBoolean _this, EBoolean other);
-bool edouble_equals(EDouble _this, EDouble other);
-bool eint_equals(EInt _this, EInt other);
+bool eBoolean_equals(EBoolean _this, EBoolean other);
+bool eDouble_equals(EDouble _this, EDouble other);
+bool eInt_equals(EInt _this, EInt other);
 bool node_equals(NODE_T* _this, NODE_T* other);
 bool link_equals(LINK_T* _this, LINK_T* other);
-bool topologycontrolalgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
-bool ktcalgorithm_equals(KTCALGORITHM_T* _this, KTCALGORITHM_T* other);
+bool topologyControlAlgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
+bool ktcAlgorithm_equals(KTCALGORITHM_T* _this, KTCALGORITHM_T* other);
 //End of equals declarations
 
-#endif /* __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_ */
+#endif /* __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE1_C_H_ */
