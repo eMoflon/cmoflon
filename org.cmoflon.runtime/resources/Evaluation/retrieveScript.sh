@@ -13,7 +13,7 @@ for((i=0;i<$runs;i++))
 			lmstMan) offset=2;;
 			kTCGen) offset=3;;
 			lkTCGen) offset=4;;
-			lmstGen) offest=5;;
+			lmstGen) offset=5;;
 		esac 	
 		id=$(($start+ 6*$i+$offset))
 		mkdir ./$a/$id

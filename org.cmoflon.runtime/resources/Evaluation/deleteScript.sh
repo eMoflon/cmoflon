@@ -1,4 +1,6 @@
-for((i=35571;i<35631;i++))
+start=$1
+end=$2
+for((i=$start;i<=$end;i++))
 do
 ./flocklab -d $i
 done
