@@ -48,6 +48,16 @@
     <parameterIDs
         identifier="d"/>
   </operationSpecifications>
+  <operationSpecifications
+      constraintSpecifications="//@constraintSpecifications.3"
+      operationIdentifier="isWeightDefined">
+    <operationSpecifications
+        specification="link_isWeightDefined($a$)"
+        adornmentString="B"
+        alwaysSuccessful="false"/>
+    <parameterIDs
+        identifier="a"/>
+  </operationSpecifications>
   <constraintSpecifications
       operationSpecificationGroup="//@operationSpecifications.0"
       symbol="max">
@@ -104,6 +114,15 @@
           xsi:type="ecore:EDataType"
           href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     </parameterTypes>
+    <parameterTypes>
+      <type
+          xsi:type="ecore:EDataType"
+          href="http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    </parameterTypes>
+  </constraintSpecifications>
+  <constraintSpecifications
+      operationSpecificationGroup="//@operationSpecifications.3"
+      symbol="isWeightDefined">
     <parameterTypes>
       <type
           xsi:type="ecore:EDataType"

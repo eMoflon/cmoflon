@@ -10,21 +10,19 @@ cMoflonBlue = rgb(0, 162, 232, max=255)
 GRID_COL = "lightgray"
 GRID_LINE_TYPE = 6
 
-COL_GEN_VS_MAN = "Gen. / man. [\\%]" # w.r.t. text
-COL_A_VS_NOTC = "Algo. / NoTC [\\%]" # w.r.t. text
 COL_FILE = "File"
-COL_ALGORITHM = "Algorithm A"
+COL_ALGORITHM = "Algo. A"
 COL_DATA = "Data [B]"
 COL_TEXT= "Text [B]"
 COL_BSS = "BSS [B]"
 COL_TOTAL = "Total [B]"
 
 # Derived columns
-COL_SIZE = "\\MetricCodeMemorySize{A}"
-COL_SIZE_DIFF_TO_NOTC = "$\\Delta_{A-NoTC}\\MetricCodeMemorySize$"
-COL_SIZE_RELDIFF_TO_NOTC = "$\\Delta_{A-NoTC}\\MetricCodeMemorySize$[\\%]"
-COL_SIZE_DIFF_GEN_TO_MAN = "$\\Delta_{Gen-Man}\\MetricCodeMemorySize$"
-COL_SIZE_RELDIFF_GEN_TO_MAN = "$\\Delta_{Gen-Man}\\MetricCodeMemorySize$[\\%]"
+COL_SIZE = "Size [B]"
+COL_SIZE_DIFF_TO_NOTC = "$\\Delta(\\text{A-NoTC})$[B]"
+COL_SIZE_RELDIFF_TO_NOTC = "$\\Delta(\\text{A-NoTC})$[\\%]"
+COL_SIZE_DIFF_GEN_TO_MAN = "$\\Delta(\\text{Gen-Man})$[B]"
+COL_SIZE_RELDIFF_GEN_TO_MAN = "$\\Delta(\\text{Gen-Man})$[\\%]"
 
 
 source("./_SoSyMTemplate/utilities.R")
@@ -60,6 +58,7 @@ main <- function()
 	# Calculate abs. increase compared to NoTC
 	sizeOfNoTC = codeSizeData[[rowOfNoTC, COL_SIZE]]
 	codeSizeData[[COL_SIZE_DIFF_TO_NOTC]] = codeSizeData[[COL_SIZE]] - sizeOfNoTC
+	codeSizeData[rowOfNoTC, ][[COL_SIZE_DIFF_TO_NOTC]] = NA
 	codeSizeData[[COL_SIZE_RELDIFF_TO_NOTC]] = codeSizeData[[COL_SIZE_DIFF_TO_NOTC]] / sizeOfNoTC * 100.0
 	
 
@@ -70,29 +69,31 @@ main <- function()
 	{
 		manIndex = genIndex - 1
 		codeSizeData[genIndex,][[COL_SIZE_DIFF_GEN_TO_MAN]] = codeSizeData[genIndex, ][[COL_SIZE]] - codeSizeData[manIndex, ][[COL_SIZE]]
-		codeSizeData[genIndex,][[COL_SIZE_RELDIFF_GEN_TO_MAN]] = codeSizeData[genIndex,][[COL_SIZE_RELDIFF_GEN_TO_MAN]] / codeSizeData[manIndex, ][[COL_SIZE]] * 100.0
+		codeSizeData[genIndex,][[COL_SIZE_RELDIFF_GEN_TO_MAN]] = codeSizeData[genIndex,][[COL_SIZE_DIFF_TO_NOTC]] / codeSizeData[manIndex, ][[COL_SIZE_DIFF_TO_NOTC]] * 100
 	}
 		
-	# Compare code size with NoTC
-	
-	textSizeOfNoTC = codeSizeData[rowOfNoTC,][[COL_TEXT]]
-	codeSizeData[[COL_A_VS_NOTC]] = codeSizeData[[COL_TEXT]] / textSizeOfNoTC * 100.0
-	#codeSizeData[rowOfNoTC,][[COL_A_VS_NOTC]] = NA
-	
+		
 	print("--- RQ1: Raw data ---")
 	print(codeSizeData)
 	
-	printedDataHeader = c(COL_ALGORITHM, COL_SIZE, COL_SIZE_DIFF_TO_NOTC, COL_A_VS_NOTC)
+	printedDataHeader = c(COL_ALGORITHM, COL_SIZE, COL_SIZE_DIFF_TO_NOTC, COL_SIZE_DIFF_GEN_TO_MAN, COL_SIZE_RELDIFF_GEN_TO_MAN)
 	intermediateLinePositions = c(2, 4, 6) # stores the pos. of the \toprule,\midrule,\bottomrule lines
-	digitsSpec = c(0, 0, 0, 1, 1)
+	digitsSpec = c(0, 0, 0, 0, 0, 1)
 	printedData = codeSizeData[,printedDataHeader]
+	printedData[[COL_SIZE]] = sprintf("\\numprint{%s}", printedData[[COL_SIZE]])
+	printedData[[COL_SIZE_DIFF_TO_NOTC]] = sprintf("\\numprint{%s}", printedData[[COL_SIZE_DIFF_TO_NOTC]])
+	printedData[rowOfNoTC, ][[COL_SIZE_DIFF_TO_NOTC]] = NA
+	printedData[[COL_SIZE_DIFF_GEN_TO_MAN]] = sprintf("\\numprint{%s}", printedData[[COL_SIZE_DIFF_GEN_TO_MAN]])
+	printedData[grep("-man|NoTC", printedData[[COL_ALGORITHM]]), COL_SIZE_DIFF_GEN_TO_MAN] = NA
+	
+	
 	print("--- RQ1: LaTeX ---")
 	print(printedData)
 	formattedCodeSizeTable = xtable(
 		printedData,
-		caption = sprintf("Code size of the sensor images (\\RQCode)"),
+		caption = sprintf("Code size of the sensor images"),
 		digits = digitsSpec,
-		align=c("l", "r|", "r", "r", "r"),
+		align=c("l", "l", "r", "r", "r", "r"),
 		label = "tab:RQCode"
 		)
 	
@@ -101,7 +102,8 @@ main <- function()
 			comment = FALSE,
 			file = sprintf("%s/%s.tex", outputDir, "RQCodeSizeTable"),
 			hline.after = c(-1, 0, intermediateLinePositions, nrow(printedData)),
-			sanitize.colnames.function = myBold, 
+			sanitize.colnames.function = myBold,
+			sanitize.text.function=identity,
 			include.rownames=FALSE,
 			table.placement = "hbtp",
 			caption.placement = "top", 
@@ -139,7 +141,7 @@ main <- function()
 
 myBold <- function(x) {
 	sanitizedColnames = sprintf("\\multicolumn{1}{c}{\\textbf{%s}}", x)
-	sanitizedColnames[1] = sprintf("\\multicolumn{1}{c|}{\\textbf{%s}}", x[2])
+	#sanitizedColnames[1] = sprintf("\\multicolumn{1}{c|}{\\textbf{%s}}", x[2])
 	sanitizedColnames
 }
 

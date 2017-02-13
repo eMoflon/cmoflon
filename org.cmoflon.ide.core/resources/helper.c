@@ -82,6 +82,11 @@ bool node_isNeighborhood(void* candidate, void* _this) {
 	return true;
 }
 
+bool link_isWeightDefined(EDouble weight)
+{
+	return weight != COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
+}
+
 EDouble link_getWeight(LINK_T* _this) {
 		return _this->weight_node1_to_node2;
 }

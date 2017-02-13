@@ -22,6 +22,16 @@
     <parameterIDs
         identifier="d"/>
   </operationSpecifications>
+  <operationSpecifications
+      constraintSpecifications="//@constraintSpecifications.1"
+      operationIdentifier="isWeightDefined">
+    <operationSpecifications
+        specification="$a$ != -1.0"
+        adornmentString="B"
+        alwaysSuccessful="false"/>
+    <parameterIDs
+        identifier="a"/>
+  </operationSpecifications>
   <constraintSpecifications
       operationSpecificationGroup="//@operationSpecifications.0"
       symbol="evalHopcountConstr">
@@ -40,6 +50,15 @@
           xsi:type="ecore:EDataType"
           href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     </parameterTypes>
+    <parameterTypes>
+      <type
+          xsi:type="ecore:EDataType"
+          href="http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    </parameterTypes>
+  </constraintSpecifications>
+  <constraintSpecifications
+      operationSpecificationGroup="//@operationSpecifications.1"
+      symbol="isWeightDefined">
     <parameterTypes>
       <type
           xsi:type="ecore:EDataType"
