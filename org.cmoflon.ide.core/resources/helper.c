@@ -83,14 +83,7 @@ bool node_isNeighborhood(void* candidate, void* _this) {
 }
 
 EDouble link_getWeight(LINK_T* _this) {
-	if (_this->weight_node1_to_node2
-			!= COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
 		return _this->weight_node1_to_node2;
-	} else if (_this->weight_node2_to_node1
-			!= COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
-		return _this->weight_node2_to_node1;
-	} else
-		return COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
 }
 
 NODE_T* link_getTarget(LINK_T* _this) {
@@ -119,15 +112,6 @@ void link_setMarked(LINK_T* _this, LinkState value) {
 			component_network_ignoredlinks_remove(_this->node1);
 	}
 	//IF this node is not part of the edge don't ignore any of the nodes
-}
-
-int eDouble_compare(EDouble _this, EDouble other) {
-	if (_this == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
-		return 1;
-	if (other == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
-		return -1;
-	int result = (_this < other) ? -1 : (_this > other) ? 1 : 0;
-	return result;
 }
 
 bool node_equals(NODE_T* _this, NODE_T* other) {
