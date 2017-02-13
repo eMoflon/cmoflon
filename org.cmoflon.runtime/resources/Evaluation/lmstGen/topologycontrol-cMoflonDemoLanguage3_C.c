@@ -86,15 +86,13 @@ bool node_isNeighborhood(void* candidate, void* _this) {
 	return true;
 }
 
+bool link_isWeightDefined(EDouble weight)
+{
+	return weight != COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
+}
+
 EDouble link_getWeight(LINK_T* _this) {
-	if (_this->weight_node1_to_node2
-			!= COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
 		return _this->weight_node1_to_node2;
-	} else if (_this->weight_node2_to_node1
-			!= COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
-		return _this->weight_node2_to_node1;
-	} else
-		return COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
 }
 
 NODE_T* link_getTarget(LINK_T* _this) {
@@ -123,15 +121,6 @@ void link_setMarked(LINK_T* _this, LinkState value) {
 			component_network_ignoredlinks_remove(_this->node1);
 	}
 	//IF this node is not part of the edge don't ignore any of the nodes
-}
-
-int eDouble_compare(EDouble _this, EDouble other) {
-	if (_this == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
-		return 1;
-	if (other == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
-		return -1;
-	int result = (_this < other) ? -1 : (_this > other) ? 1 : 0;
-	return result;
 }
 
 bool node_equals(NODE_T* _this, NODE_T* other) {
@@ -547,16 +536,19 @@ void** pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_blackBFFFFFF(LM
 											if (node_containsOutgoingLinks(node1, link)) {
 												LinkState link_marked = link_getMarked(link);
 												if (!linkState_equals(link_marked, PROCESSED)) {
-													void** _result = malloc(7*sizeof(void*));
-													_result[0]= _this;
-													_result[1]= link;
-													_result[2]= node1;
-													_result[3]= node2;
-													_result[4]= lmst;
-													_result[5]= lmstEntry1;
-													_result[6]= lmstEntry2;
-													 
-													return _result;
+													EDouble link_weight = link_getWeight(link);
+													if(link_isWeightDefined(link_weight )){
+													 void** _result = malloc(7*sizeof(void*));
+													 _result[0]= _this;
+													 _result[1]= link;
+													 _result[2]= node1;
+													 _result[3]= node2;
+													 _result[4]= lmst;
+													 _result[5]= lmstEntry1;
+													 _result[6]= lmstEntry2;
+													  
+													 return _result; }
+
 												}
 
 											}
@@ -611,18 +603,18 @@ void** pattern_LmstAlgorithm_2_2_TryToFindAShorterLink_blackBFFFBFF(LINK_T* link
 										if (!link_equals(link, link2)) {
 											if (node_containsOutgoingLinks(node3, link2)) {
 												EDouble link2_weight = link_getWeight(link2);
-												if (eDouble_compare(link2_weight, link_weight) < 0) {
-													void** _result = malloc(7*sizeof(void*));
-													_result[0]= link;
-													_result[1]= link2;
-													_result[2]= node3;
-													_result[3]= node4;
-													_result[4]= lmst;
-													_result[5]= lmstEntry3;
-													_result[6]= lmstEntry4;
-													 
-													return _result;
-												}
+												if(link_isWeightDefined(link2_weight )){
+												 if(link2_weight <link_weight ){
+												  void** _result = malloc(7*sizeof(void*));
+												  _result[0]= link;
+												  _result[1]= link2;
+												  _result[2]= node3;
+												  _result[3]= node4;
+												  _result[4]= lmst;
+												  _result[5]= lmstEntry3;
+												  _result[6]= lmstEntry4;
+												   
+												  return _result; } }
 
 											}
 										}
@@ -643,7 +635,7 @@ void** pattern_LmstAlgorithm_2_2_TryToFindAShorterLink_blackBFFFBFF(LINK_T* link
 	return NULL;
 }
 
-void** pattern_LmstAlgorithm_2_4_ResetLinks_blackFBFF(TREE_T* lmst) {
+void** pattern_LmstAlgorithm_2_4_FindDirtyLink_blackFBFF(TREE_T* lmst) {
 	TREEENTRY_T* entry;
 	list_t list_lmst_entry = tree_getEntries(lmst);
 	for (entry = list_head_pred(list_lmst_entry,lmst,&tree_isEntries); entry!=NULL; entry=list_item_next_pred(entry,lmst,&tree_isEntries)) {
@@ -691,160 +683,66 @@ LINK_T* pattern_LmstAlgorithm_2_6_expressionFB(LINK_T* link) {
 	return _result;
 }
 
-LINK_T* pattern_LmstAlgorithm_2_7_expressionF() {
+void** pattern_LmstAlgorithm_2_7_FindDirtyLinks2_blackFBFFF(LMSTALGORITHM_T* _this) {
+	TREE_T* lmst = lmstAlgorithm_getTree(_this);
+	if (lmst != NULL) {
+		TREEENTRY_T* entry;
+		list_t list_lmst_entry = tree_getEntries(lmst);
+		for (entry = list_head_pred(list_lmst_entry,lmst,&tree_isEntries); entry!=NULL; entry=list_item_next_pred(entry,lmst,&tree_isEntries)) {
+			NODE_T* node = treeEntry_getNode(entry);
+			if (node != NULL) {
+				LINK_T* linkDirty;
+				list_t list_linkDirty_node_neighborhood = node_getNeighborhood(node);
+				for (linkDirty = list_head_pred(list_linkDirty_node_neighborhood,node,&node_isNeighborhood); linkDirty!=NULL; linkDirty=list_item_next_pred(linkDirty,node,&node_isNeighborhood)) {
+					LinkState linkDirty_marked = link_getMarked(linkDirty);
+					if (!linkState_equals(linkDirty_marked, UNCLASSIFIED)) {
+						void** _result = malloc(5*sizeof(void*));
+						_result[0]= lmst;
+						_result[1]= _this;
+						_result[2]= linkDirty;
+						_result[3]= entry;
+						_result[4]= node;
+						 
+						return _result;
+					}
+
+				}
+			}
+
+		}
+	}
+
+	return NULL;
+}
+
+void** pattern_LmstAlgorithm_2_8_SetUnclassified2_blackB(LINK_T* linkDirty) {
+	void** _result = malloc(1*sizeof(void*));
+	_result[0]= linkDirty;
+	 
+	return _result;
+}
+
+void** pattern_LmstAlgorithm_2_8_SetUnclassified2_greenB(LINK_T* linkDirty) {
+	LinkState linkDirty_marked_prime = UNCLASSIFIED;
+	link_setMarked(linkDirty, linkDirty_marked_prime);
+	void** _result = malloc(1*sizeof(void*));
+	_result[0]= linkDirty;
+	 
+	return _result;
+}
+
+LINK_T* pattern_LmstAlgorithm_2_9_expressionF() {
 	LINK_T* _result = NULL;
 	return _result;
 }
 
 
 void lmstAlgorithm_run(LMSTALGORITHM_T* this){
-	
-	// BindThis
-	void** result1_black = pattern_LmstAlgorithm_1_1_BindThis_blackBF(this);
-	if (result1_black == NULL) {
-		printf("Pattern matching in node [BindThis] failed.");
-		printf("Variables: [this]");
-		exit(-1);
-	}
-	// NODE_T* self = (NODE_T*) result1_black[1];
-	free(result1_black);
-	// PrepareEntries
-	pattern_LmstAlgorithm_1_2_PrepareEntries_expressionB(this);
-	// FindMinimalOutgoingLink
-	void** result3_bindingAndBlack = pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_bindingAndBlackFB(this);
-	while (result3_bindingAndBlack != NULL) {
-		LINK_T* shortestUnconnectedLink = (LINK_T*) result3_bindingAndBlack[0];
-		free(result3_bindingAndBlack);
-	
-		// UpdateLMSTEntry
-		void** result4_black = pattern_LmstAlgorithm_1_4_UpdateLMSTEntry_blackBFFFFFB(this, shortestUnconnectedLink);
-		if (result4_black == NULL) {
-			printf("Pattern matching in node [UpdateLMSTEntry] failed.");
-			printf("Variables: [this] , [shortestUnconnectedLink]");
-			exit(-1);
-		}
-		// NODE_T* node1 = (NODE_T*) result4_black[1];
-		TREEENTRY_T* lmstEntry2 = (TREEENTRY_T*) result4_black[2];
-		// NODE_T* node2 = (NODE_T*) result4_black[3];
-		// TREE_T* lmst = (TREE_T*) result4_black[4];
-		// TREEENTRY_T* lmstEntry1 = (TREEENTRY_T*) result4_black[5];
-		free(result4_black);
-		void** result4_green = pattern_LmstAlgorithm_1_4_UpdateLMSTEntry_greenBB(lmstEntry2, shortestUnconnectedLink);
-		free(result4_green);
-	
-	
-		free(result3_bindingAndBlack);
-		result3_bindingAndBlack = pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_bindingAndBlackFB(this);
-	}
-	// MarkEdges
-	void** result5_black = pattern_LmstAlgorithm_1_5_MarkEdges_blackBFFF(this);
-	while (result5_black != NULL) {
-		// TREE_T* lmst = (TREE_T*) result5_black[1];
-		// TREEENTRY_T* entry = (TREEENTRY_T*) result5_black[2];
-		LINK_T* selected = (LINK_T*) result5_black[3];
-		free(result5_black);
-	
-		// MarkAllLinksInTreeActive
-		void** result6_black = pattern_LmstAlgorithm_1_6_MarkAllLinksInTreeActive_blackB(selected);
-		if (result6_black == NULL) {
-			printf("Pattern matching in node [MarkAllLinksInTreeActive] failed.");
-			printf("Variables: [selected]");
-			exit(-1);
-		}
-		free(result6_black);
-		void** result6_green = pattern_LmstAlgorithm_1_6_MarkAllLinksInTreeActive_greenB(selected);
-		free(result6_green);
-	
-	
-		free(result5_black);
-		result5_black = pattern_LmstAlgorithm_1_5_MarkEdges_blackBFFF(this);
-	}
-	// InactivateLinks
-	void** result7_black = pattern_LmstAlgorithm_1_7_InactivateLinks_blackBFFFF(this);
-	while (result7_black != NULL) {
-		// TREE_T* lmst = (TREE_T*) result7_black[1];
-		// TREEENTRY_T* entry = (TREEENTRY_T*) result7_black[2];
-		// NODE_T* node = (NODE_T*) result7_black[3];
-		LINK_T* link = (LINK_T*) result7_black[4];
-		free(result7_black);
-	
-		// InactivateLinks
-		void** result8_black = pattern_LmstAlgorithm_1_8_InactivateLinks_blackB(link);
-		if (result8_black == NULL) {
-			printf("Pattern matching in node [InactivateLinks] failed.");
-			printf("Variables: [link]");
-			exit(-1);
-		}
-		free(result8_black);
-		void** result8_green = pattern_LmstAlgorithm_1_8_InactivateLinks_greenB(link);
-		free(result8_green);
-	
-	
-		free(result7_black);
-		result7_black = pattern_LmstAlgorithm_1_7_InactivateLinks_blackBFFFF(this);
-	}
-	// Cleanup
-	pattern_LmstAlgorithm_1_9_Cleanup_expressionB(this);
-	return;
-
+		// BindThis	void** result1_black = pattern_LmstAlgorithm_1_1_BindThis_blackBF(this);	if (result1_black == NULL) {		printf("Pattern matching in node [BindThis] failed.");		printf("Variables: [this]");		exit(-1);	}	// NODE_T* self = (NODE_T*) result1_black[1];	free(result1_black);	// PrepareEntries	pattern_LmstAlgorithm_1_2_PrepareEntries_expressionB(this);	// FindMinimalOutgoingLink	void** result3_bindingAndBlack = pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_bindingAndBlackFB(this);	while (result3_bindingAndBlack != NULL) {		LINK_T* shortestUnconnectedLink = (LINK_T*) result3_bindingAndBlack[0];		free(result3_bindingAndBlack);			// UpdateLMSTEntry		void** result4_black = pattern_LmstAlgorithm_1_4_UpdateLMSTEntry_blackBFFFFFB(this, shortestUnconnectedLink);		if (result4_black == NULL) {			printf("Pattern matching in node [UpdateLMSTEntry] failed.");			printf("Variables: [this] , [shortestUnconnectedLink]");			exit(-1);		}		// NODE_T* node1 = (NODE_T*) result4_black[1];		TREEENTRY_T* lmstEntry2 = (TREEENTRY_T*) result4_black[2];		// NODE_T* node2 = (NODE_T*) result4_black[3];		// TREE_T* lmst = (TREE_T*) result4_black[4];		// TREEENTRY_T* lmstEntry1 = (TREEENTRY_T*) result4_black[5];		free(result4_black);		void** result4_green = pattern_LmstAlgorithm_1_4_UpdateLMSTEntry_greenBB(lmstEntry2, shortestUnconnectedLink);		free(result4_green);				free(result3_bindingAndBlack);		result3_bindingAndBlack = pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_bindingAndBlackFB(this);	}	// MarkEdges	void** result5_black = pattern_LmstAlgorithm_1_5_MarkEdges_blackBFFF(this);	while (result5_black != NULL) {		// TREE_T* lmst = (TREE_T*) result5_black[1];		// TREEENTRY_T* entry = (TREEENTRY_T*) result5_black[2];		LINK_T* selected = (LINK_T*) result5_black[3];		free(result5_black);			// MarkAllLinksInTreeActive		void** result6_black = pattern_LmstAlgorithm_1_6_MarkAllLinksInTreeActive_blackB(selected);		if (result6_black == NULL) {			printf("Pattern matching in node [MarkAllLinksInTreeActive] failed.");			printf("Variables: [selected]");			exit(-1);		}		free(result6_black);		void** result6_green = pattern_LmstAlgorithm_1_6_MarkAllLinksInTreeActive_greenB(selected);		free(result6_green);				free(result5_black);		result5_black = pattern_LmstAlgorithm_1_5_MarkEdges_blackBFFF(this);	}	// InactivateLinks	void** result7_black = pattern_LmstAlgorithm_1_7_InactivateLinks_blackBFFFF(this);	while (result7_black != NULL) {		// TREE_T* lmst = (TREE_T*) result7_black[1];		// TREEENTRY_T* entry = (TREEENTRY_T*) result7_black[2];		// NODE_T* node = (NODE_T*) result7_black[3];		LINK_T* link = (LINK_T*) result7_black[4];		free(result7_black);			// InactivateLinks		void** result8_black = pattern_LmstAlgorithm_1_8_InactivateLinks_blackB(link);		if (result8_black == NULL) {			printf("Pattern matching in node [InactivateLinks] failed.");			printf("Variables: [link]");			exit(-1);		}		free(result8_black);		void** result8_green = pattern_LmstAlgorithm_1_8_InactivateLinks_greenB(link);		free(result8_green);				free(result7_black);		result7_black = pattern_LmstAlgorithm_1_7_InactivateLinks_blackBFFFF(this);	}	// Cleanup	pattern_LmstAlgorithm_1_9_Cleanup_expressionB(this);	return;
 }
 
 LINK_T* lmstAlgorithm_findShortestUnconnectedLink(LMSTALGORITHM_T* this){
-	// IdentifyShortestUnconnectedLink
-	void** result1_black = pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_blackBFFFFFF(this);
-	while (result1_black != NULL) {
-		LINK_T* link = (LINK_T*) result1_black[1];
-		// NODE_T* node1 = (NODE_T*) result1_black[2];
-		// NODE_T* node2 = (NODE_T*) result1_black[3];
-		TREE_T* lmst = (TREE_T*) result1_black[4];
-		// TREEENTRY_T* lmstEntry1 = (TREEENTRY_T*) result1_black[5];
-		// TREEENTRY_T* lmstEntry2 = (TREEENTRY_T*) result1_black[6];
-		free(result1_black);
-		void** result1_green = pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_greenB(link);
-		free(result1_green);
-	
-		// TryToFindAShorterLink
-		void** result2_black = pattern_LmstAlgorithm_2_2_TryToFindAShorterLink_blackBFFFBFF(link, lmst);
-		if (result2_black != NULL) {
-			// LINK_T* link2 = (LINK_T*) result2_black[1];
-			// NODE_T* node3 = (NODE_T*) result2_black[2];
-			// NODE_T* node4 = (NODE_T*) result2_black[3];
-			// TREEENTRY_T* lmstEntry3 = (TREEENTRY_T*) result2_black[5];
-			// TREEENTRY_T* lmstEntry4 = (TREEENTRY_T*) result2_black[6];
-			free(result2_black);
-			// EmptyStoryNodeToAvoidTailControlledLoop story node is empty
-	
-		} else {
-			// ResetLinks
-			void** result4_black = pattern_LmstAlgorithm_2_4_ResetLinks_blackFBFF(lmst);
-			while (result4_black != NULL) {
-				LINK_T* linkDirty = (LINK_T*) result4_black[0];
-				// TREEENTRY_T* entry = (TREEENTRY_T*) result4_black[2];
-				// NODE_T* node = (NODE_T*) result4_black[3];
-				free(result4_black);
-	
-				// SetUnclassified
-				void** result5_black = pattern_LmstAlgorithm_2_5_SetUnclassified_blackB(linkDirty);
-				if (result5_black == NULL) {
-					printf("Pattern matching in node [SetUnclassified] failed.");
-					printf("Variables: [linkDirty]");
-					exit(-1);
-				}
-				free(result5_black);
-				void** result5_green = pattern_LmstAlgorithm_2_5_SetUnclassified_greenB(linkDirty);
-				free(result5_green);
-	
-	
-				free(result4_black);
-				result4_black = pattern_LmstAlgorithm_2_4_ResetLinks_blackFBFF(lmst);
-			}
-			return pattern_LmstAlgorithm_2_6_expressionFB(link);
-		}
-	
-		free(result1_black);
-		result1_black = pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_blackBFFFFFF(this);
-	}
-	return pattern_LmstAlgorithm_2_7_expressionF();
+	// IdentifyShortestUnconnectedLink	void** result1_black = pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_blackBFFFFFF(this);	while (result1_black != NULL) {		LINK_T* link = (LINK_T*) result1_black[1];		// NODE_T* node1 = (NODE_T*) result1_black[2];		// NODE_T* node2 = (NODE_T*) result1_black[3];		TREE_T* lmst = (TREE_T*) result1_black[4];		// TREEENTRY_T* lmstEntry1 = (TREEENTRY_T*) result1_black[5];		// TREEENTRY_T* lmstEntry2 = (TREEENTRY_T*) result1_black[6];		free(result1_black);		void** result1_green = pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_greenB(link);		free(result1_green);			// TryToFindAShorterLink		void** result2_black = pattern_LmstAlgorithm_2_2_TryToFindAShorterLink_blackBFFFBFF(link, lmst);		if (result2_black != NULL) {			// LINK_T* link2 = (LINK_T*) result2_black[1];			// NODE_T* node3 = (NODE_T*) result2_black[2];			// NODE_T* node4 = (NODE_T*) result2_black[3];			// TREEENTRY_T* lmstEntry3 = (TREEENTRY_T*) result2_black[5];			// TREEENTRY_T* lmstEntry4 = (TREEENTRY_T*) result2_black[6];			free(result2_black);			// EmptyStoryNodeToAvoidTailControlledLoop story node is empty			} else {			// FindDirtyLink			void** result4_black = pattern_LmstAlgorithm_2_4_FindDirtyLink_blackFBFF(lmst);			while (result4_black != NULL) {				LINK_T* linkDirty = (LINK_T*) result4_black[0];				// TREEENTRY_T* entry = (TREEENTRY_T*) result4_black[2];				// NODE_T* node = (NODE_T*) result4_black[3];				free(result4_black);					// SetUnclassified				void** result5_black = pattern_LmstAlgorithm_2_5_SetUnclassified_blackB(linkDirty);				if (result5_black == NULL) {					printf("Pattern matching in node [SetUnclassified] failed.");					printf("Variables: [linkDirty]");					exit(-1);				}				free(result5_black);				void** result5_green = pattern_LmstAlgorithm_2_5_SetUnclassified_greenB(linkDirty);				free(result5_green);						free(result4_black);				result4_black = pattern_LmstAlgorithm_2_4_FindDirtyLink_blackFBFF(lmst);			}			return pattern_LmstAlgorithm_2_6_expressionFB(link);		}			free(result1_black);		result1_black = pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_blackBFFFFFF(this);	}	// FindDirtyLinks2	void** result7_black = pattern_LmstAlgorithm_2_7_FindDirtyLinks2_blackFBFFF(this);	while (result7_black != NULL) {		// TREE_T* lmst = (TREE_T*) result7_black[0];		LINK_T* linkDirty = (LINK_T*) result7_black[2];		// TREEENTRY_T* entry = (TREEENTRY_T*) result7_black[3];		// NODE_T* node = (NODE_T*) result7_black[4];		free(result7_black);			// SetUnclassified2		void** result8_black = pattern_LmstAlgorithm_2_8_SetUnclassified2_blackB(linkDirty);		if (result8_black == NULL) {			printf("Pattern matching in node [SetUnclassified2] failed.");			printf("Variables: [linkDirty]");			exit(-1);		}		free(result8_black);		void** result8_green = pattern_LmstAlgorithm_2_8_SetUnclassified2_greenB(linkDirty);		free(result8_green);				free(result7_black);		result7_black = pattern_LmstAlgorithm_2_7_FindDirtyLinks2_blackFBFFF(this);	}	return pattern_LmstAlgorithm_2_9_expressionF();
 }
 void init(){
 }
@@ -866,25 +764,7 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		prepareLinks();
 		LMSTALGORITHM_T tc;
 		tc.node =  networkaddr_node_addr();
-		list_t neighbors= component_neighbordiscovery_neighbors();
-		neighbor_t* link;
-		int degree=0;
-		for(link=list_head(neighbors);link!=NULL;link=list_item_next(link)){
-			if(networkaddr_equal(link->node1,networkaddr_node_addr())||networkaddr_equal(link->node2,networkaddr_node_addr()))
-				degree++;
-		}
-		printf("[topologycontrol]: DEGREE: %d\n",degree);
-		unsigned long start=RTIMER_NOW();
-		printf("[topologycontrol]: STATUS: Run\n");
 		lmstAlgorithm_run(&tc);
-		printf("[topologycontrol]: TIME: %lu\n",RTIMER_NOW()-start);
-		LINK_T* onehop;
-		/*for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
-			if(networkaddr_equal(onehop->node1, networkaddr_node_addr()) && onehop->weight_node1_to_node2 == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
-				component_network_ignoredlinks_add(onehop->node2);
-			}
-		}*/
-
 		watchdog_start();
 	}
 	PROCESS_END();

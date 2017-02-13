@@ -19,7 +19,7 @@
 #endif
 
 #ifndef MAX_MATCH_COUNT
-#define MAX_MATCH_COUNT 20
+#define MAX_MATCH_COUNT 30
 #endif
 typedef struct match{
 	struct match_t* next;

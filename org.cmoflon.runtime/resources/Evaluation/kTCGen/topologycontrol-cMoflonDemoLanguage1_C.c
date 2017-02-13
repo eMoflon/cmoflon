@@ -86,15 +86,13 @@ bool node_isNeighborhood(void* candidate, void* _this) {
 	return true;
 }
 
+bool link_isWeightDefined(EDouble weight)
+{
+	return weight != COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
+}
+
 EDouble link_getWeight(LINK_T* _this) {
-	if (_this->weight_node1_to_node2
-			!= COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
 		return _this->weight_node1_to_node2;
-	} else if (_this->weight_node2_to_node1
-			!= COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
-		return _this->weight_node2_to_node1;
-	} else
-		return COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
 }
 
 NODE_T* link_getTarget(LINK_T* _this) {
@@ -123,15 +121,6 @@ void link_setMarked(LINK_T* _this, LinkState value) {
 			component_network_ignoredlinks_remove(_this->node1);
 	}
 	//IF this node is not part of the edge don't ignore any of the nodes
-}
-
-int eDouble_compare(EDouble _this, EDouble other) {
-	if (_this == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
-		return 1;
-	if (other == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN)
-		return -1;
-	int result = (_this < other) ? -1 : (_this > other) ? 1 : 0;
-	return result;
 }
 
 bool node_equals(NODE_T* _this, NODE_T* other) {
@@ -166,6 +155,10 @@ void prepareLinks() {
 		link->state = UNCLASSIFIED;
 	}
 }
+
+bool isWeightDefined(EDouble weight){
+	return weight!=COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
+}
 // --- End of default cMoflon code// --- End of default cMoflon helpers
 
 // --- Begin of user-defined helpers (from path 'injection/custom-helpers.c')
@@ -192,55 +185,58 @@ void** pattern_KtcAlgorithm_0_1_IdentifyLinksToBeInactivated_blackBFFFFFF(KTCALG
 					LinkState e12_marked = link_getMarked(e12);
 					if(linkState_equals(e12_marked, UNCLASSIFIED)){
 						EDouble e12_weight = link_getWeight(e12);
-						LINK_T* e13;
-						list_t list_e13_this_node_outgoingLinks = node_getOutgoingLinks(this_node);
-						for (e13 = list_head_pred(list_e13_this_node_outgoingLinks,this_node,&node_isOutgoingLinks); e13!=NULL; e13=list_item_next_pred(e13,this_node,&node_isOutgoingLinks)) {
-							if (!link_equals(e12, e13)) {
-								NODE_T* n3 = link_getTarget(e13);
-								if (n3 != NULL) {
-									if (!node_equals(n2, n3)) {
-										if (!node_equals(n3, this_node)) {
-											EDouble e13_weight = link_getWeight(e13);
-											LINK_T* e32;
-											list_t list_e32_n2_incomingLinks = node_getIncomingLinks(n2);
-											for (e32 = list_head_pred(list_e32_n2_incomingLinks,n2,&node_isIncomingLinks); e32!=NULL; e32=list_item_next_pred(e32,n2,&node_isIncomingLinks)) {
-												if (!link_equals(e12, e32)) {
-													if (!link_equals(e13, e32)) {
-														if (node_containsOutgoingLinks(n3, e32)) {
-															EDouble e32_weight = link_getWeight(e32);
-															 EDouble maxWeight ;
+						if(isWeightDefined(e12_weight )){
+						 LINK_T* e13;
+						 list_t list_e13_this_node_outgoingLinks = node_getOutgoingLinks(this_node);
+						 for (e13 = list_head_pred(list_e13_this_node_outgoingLinks,this_node,&node_isOutgoingLinks); e13!=NULL; e13=list_item_next_pred(e13,this_node,&node_isOutgoingLinks)) {
+						 	if (!link_equals(e12, e13)) {
+						 		NODE_T* n3 = link_getTarget(e13);
+						 		if (n3 != NULL) {
+						 			if (!node_equals(n2, n3)) {
+						 				if (!node_equals(n3, this_node)) {
+						 					EDouble e13_weight = link_getWeight(e13);
+						 					if(isWeightDefined(e13_weight )){
+						 					 LINK_T* e32;
+						 					 list_t list_e32_n2_incomingLinks = node_getIncomingLinks(n2);
+						 					 for (e32 = list_head_pred(list_e32_n2_incomingLinks,n2,&node_isIncomingLinks); e32!=NULL; e32=list_item_next_pred(e32,n2,&node_isIncomingLinks)) {
+						 					 	if (!link_equals(e12, e32)) {
+						 					 		if (!link_equals(e13, e32)) {
+						 					 			if (node_containsOutgoingLinks(n3, e32)) {
+						 					 				EDouble e32_weight = link_getWeight(e32);
+						 					 				if(isWeightDefined(e32_weight )){
+						 					 				  EDouble maxWeight ;
 
-															 maxWeight =e13_weight <e32_weight ?e32_weight :e13_weight ;
-															 if(e12_weight >maxWeight ){
-															   EDouble minWeight ;
+						 					 				  maxWeight =e13_weight <e32_weight ?e32_weight :e13_weight ;
+						 					 				  if(e12_weight >maxWeight ){
+						 					 				    EDouble minWeight ;
 
-															   minWeight =e13_weight <e32_weight ?e13_weight :e32_weight ;
-															    EDouble kMinWeight ;
+						 					 				    minWeight =e13_weight <e32_weight ?e13_weight :e32_weight ;
+						 					 				     EDouble kMinWeight ;
 
-															    kMinWeight =minWeight *this_k ;
-															    if(e12_weight >kMinWeight ){
-															     void** _result = malloc(7*sizeof(void*));
-															     _result[0]= _this;
-															     _result[1]= this_node;
-															     _result[2]= e12;
-															     _result[3]= n2;
-															     _result[4]= n3;
-															     _result[5]= e32;
-															     _result[6]= e13;
-															      
-															     return _result; }   } 
+						 					 				     kMinWeight =minWeight *this_k ;
+						 					 				     if(e12_weight >kMinWeight ){
+						 					 				      void** _result = malloc(7*sizeof(void*));
+						 					 				      _result[0]= _this;
+						 					 				      _result[1]= this_node;
+						 					 				      _result[2]= e12;
+						 					 				      _result[3]= n2;
+						 					 				      _result[4]= n3;
+						 					 				      _result[5]= e32;
+						 					 				      _result[6]= e13;
+						 					 				       
+						 					 				      return _result; }   }  }
 
-														}
-													}
-												}
-											}
+						 					 			}
+						 					 		}
+						 					 	}
+						 					 } }
 
-										}
-									}
-								}
+						 				}
+						 			}
+						 		}
 
-							}
-						}
+						 	}
+						 } }
 
 					}	
 
@@ -310,56 +306,7 @@ void** pattern_KtcAlgorithm_0_4_ActivateEdge_greenB(LINK_T* e12) {
 
 
 void ktcAlgorithm_run(KTCALGORITHM_T* this){
-	// IdentifyLinksToBeInactivated
-	void** result1_black = pattern_KtcAlgorithm_0_1_IdentifyLinksToBeInactivated_blackBFFFFFF(this);
-	while (result1_black != NULL) {
-		// NODE_T* this_node = (NODE_T*) result1_black[1];
-		LINK_T* e12 = (LINK_T*) result1_black[2];
-		// NODE_T* n2 = (NODE_T*) result1_black[3];
-		// NODE_T* n3 = (NODE_T*) result1_black[4];
-		// LINK_T* e32 = (LINK_T*) result1_black[5];
-		// LINK_T* e13 = (LINK_T*) result1_black[6];
-		free(result1_black);
-	
-		// InactivateLinks
-		void** result2_black = pattern_KtcAlgorithm_0_2_InactivateLinks_blackB(e12);
-		if (result2_black == NULL) {
-			printf("Pattern matching in node [InactivateLinks] failed.");
-			printf("Variables: [e12]");
-			exit(-1);
-		}
-		free(result2_black);
-		void** result2_green = pattern_KtcAlgorithm_0_2_InactivateLinks_greenB(e12);
-		free(result2_green);
-	
-	
-		free(result1_black);
-		result1_black = pattern_KtcAlgorithm_0_1_IdentifyLinksToBeInactivated_blackBFFFFFF(this);
-	}
-	// IdentifyRemainingUnclassifiedEdges
-	void** result3_black = pattern_KtcAlgorithm_0_3_IdentifyRemainingUnclassifiedEdges_blackBFF(this);
-	while (result3_black != NULL) {
-		// NODE_T* this_node = (NODE_T*) result3_black[1];
-		LINK_T* e12 = (LINK_T*) result3_black[2];
-		free(result3_black);
-	
-		// ActivateEdge
-		void** result4_black = pattern_KtcAlgorithm_0_4_ActivateEdge_blackB(e12);
-		if (result4_black == NULL) {
-			printf("Pattern matching in node [ActivateEdge] failed.");
-			printf("Variables: [e12]");
-			exit(-1);
-		}
-		free(result4_black);
-		void** result4_green = pattern_KtcAlgorithm_0_4_ActivateEdge_greenB(e12);
-		free(result4_green);
-	
-	
-		free(result3_black);
-		result3_black = pattern_KtcAlgorithm_0_3_IdentifyRemainingUnclassifiedEdges_blackBFF(this);
-	}
-	return;
-
+	// IdentifyLinksToBeInactivated	void** result1_black = pattern_KtcAlgorithm_0_1_IdentifyLinksToBeInactivated_blackBFFFFFF(this);	while (result1_black != NULL) {		// NODE_T* this_node = (NODE_T*) result1_black[1];		LINK_T* e12 = (LINK_T*) result1_black[2];		// NODE_T* n2 = (NODE_T*) result1_black[3];		// NODE_T* n3 = (NODE_T*) result1_black[4];		// LINK_T* e32 = (LINK_T*) result1_black[5];		// LINK_T* e13 = (LINK_T*) result1_black[6];		free(result1_black);			// InactivateLinks		void** result2_black = pattern_KtcAlgorithm_0_2_InactivateLinks_blackB(e12);		if (result2_black == NULL) {			printf("Pattern matching in node [InactivateLinks] failed.");			printf("Variables: [e12]");			exit(-1);		}		free(result2_black);		void** result2_green = pattern_KtcAlgorithm_0_2_InactivateLinks_greenB(e12);		free(result2_green);				free(result1_black);		result1_black = pattern_KtcAlgorithm_0_1_IdentifyLinksToBeInactivated_blackBFFFFFF(this);	}	// IdentifyRemainingUnclassifiedEdges	void** result3_black = pattern_KtcAlgorithm_0_3_IdentifyRemainingUnclassifiedEdges_blackBFF(this);	while (result3_black != NULL) {		// NODE_T* this_node = (NODE_T*) result3_black[1];		LINK_T* e12 = (LINK_T*) result3_black[2];		free(result3_black);			// ActivateEdge		void** result4_black = pattern_KtcAlgorithm_0_4_ActivateEdge_blackB(e12);		if (result4_black == NULL) {			printf("Pattern matching in node [ActivateEdge] failed.");			printf("Variables: [e12]");			exit(-1);		}		free(result4_black);		void** result4_green = pattern_KtcAlgorithm_0_4_ActivateEdge_greenB(e12);		free(result4_green);				free(result3_black);		result3_black = pattern_KtcAlgorithm_0_3_IdentifyRemainingUnclassifiedEdges_blackBFF(this);	}	return;
 }
 void init(){
 }
@@ -381,18 +328,8 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		prepareLinks();
 		KTCALGORITHM_T tc;
 		tc.node =  networkaddr_node_addr();
-		list_t neighbors= component_neighbordiscovery_neighbors();
-		neighbor_t* link;
-		int degree=0;
-		for(link=list_head(neighbors);link!=NULL;link=list_item_next(link)){
-			if(networkaddr_equal(link->node1,networkaddr_node_addr())||networkaddr_equal(link->node2,networkaddr_node_addr()))
-				degree++;
-		}
-		printf("[topologycontrol]: DEGREE: %d\n",degree);
-		unsigned long start=RTIMER_NOW();
-		printf("[topologycontrol]: STATUS: Run\n");
+		tc.k = COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE1_C_K;
 		ktcAlgorithm_run(&tc);
-		printf("[topologycontrol]: TIME: %lu\n",RTIMER_NOW()-start);
 		LINK_T* onehop;
 		for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
 			if(networkaddr_equal(onehop->node1, networkaddr_node_addr()) && onehop->weight_node1_to_node2 == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {

@@ -6,18 +6,9 @@ EDouble ktcAlgorithm_getK(KTCALGORITHM_T* _this) {
 NODE_T* ktcAlgorithm_getNode(KTCALGORITHM_T* _this) {
 	return _this->node;
 }
-
-EBoolean ktcAlgorithm_allWeightsDefined(EDouble w1, EDouble w2, EDouble w3){
-	return w1!=COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN&&w2!=COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN&&w3!_COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
-}
 // --- End of kTC-specific methods
 
 // --- Begin of l*-kTC-specific methods
-
-
-EBoolean lStarKtcAlgorithm_allWeightsDefined(EDouble w1, EDouble w2, EDouble w3){
-	return w1!=COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN&&w2!=COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN&&w3!_COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
-}
 /**
  * Returns whether the given hop counts fulfill the l*-kTC predicate
  */
