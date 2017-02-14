@@ -50,15 +50,17 @@ public class SourceFileGenerator
     * @param component
     * @param algorithmName
     * @param templateGroup
+    * @param componentPreprocessorId 
     * @return
     */
    //TODO@rkluge contains general as well as specific parts, should be splitted later on
-   public static String generateUpperPart(String component, String algorithmName, STGroup templateGroup,boolean hopcount)
+   public static String generateUpperPart(String component, String algorithmName, STGroup templateGroup, boolean hopcount, String componentPreprocessorId)
    {
       String result = "";
       ST procBegin = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_BEGIN);
       procBegin.add("component", component);
       procBegin.add("algo", algorithmName);
+      procBegin.add("componentId", componentPreprocessorId);
       result += procBegin.render();
 
       ST bootComp = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + BOOT_COMP_WAIT);

@@ -118,7 +118,7 @@ public class CMoflonCodeGeneratorTask implements ITask
    }
 
    @SuppressWarnings("deprecation")
-   public IStatus processResource(IProgressMonitor monitor)
+   public IStatus processResource(final IProgressMonitor monitor)
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Code generation task", 100);
       try
@@ -198,7 +198,6 @@ public class CMoflonCodeGeneratorTask implements ITask
 
          final IProject project = getEcoreFile().getProject();
 
-         System.out.println("Entering Code Generation in CMoflonCodeGenerator");
          // (6) Generate code
          subMon.subTask("Generating code for project " + project.getName());
          Descriptor codeGenerationEngine = new DemoclesGeneratorAdapterFactory(defaultCodeGeneratorConfig.createTemplateConfiguration(genModel), null);

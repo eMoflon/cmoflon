@@ -7,9 +7,9 @@ parameter(name, type)::=<<
 parameterConstant(comp,algo,name)::=<<
 tc.<name> = COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">
 >>
-processBegin(component,algo)::=<<
+processBegin(component,algo,componentId)::=<<
 
-#if COMPONENT_<component;format="fulluppercase"> == COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">
+#if COMPONENT_<component;format="fulluppercase"> == <componentId>
 PROCESS(component_<component>, "<component>: <algo>");
 PROCESS_THREAD(component_<component>, ev, data) {
 	PROCESS_BEGIN();
