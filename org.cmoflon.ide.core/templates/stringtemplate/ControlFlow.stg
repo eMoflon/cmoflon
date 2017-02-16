@@ -298,8 +298,8 @@ NodeDeletionImpl(action, importManager) ::= <<
 <action.destructedVariables:DeleteNode(importManager); separator="\n">
 >>
 
+//<("org.eclipse.emf.ecore.util.EcoreUtil")>.delete(<variable.name>);
 DeleteNode(variable, importManager) ::= <<
-<("org.eclipse.emf.ecore.util.EcoreUtil")>.delete(<variable.name>);
 <variable.name> = NULL;
 >>
 

@@ -584,7 +584,7 @@ public class CMoflonCodeGenerator
       StringBuilder allinjectedCode = new StringBuilder();
       for (final GenClass genClass : genClasses)
       {
-         String injectedCode = getInjectedCode(genClass);
+         String injectedCode = getPatternImplementationCode(genClass);
          if (injectedCode != null)
          {
             allinjectedCode.append(injectedCode);
@@ -735,7 +735,7 @@ public class CMoflonCodeGenerator
     * @param genClass
     * @return returns the pattern Matching code as string
     */
-   private String getInjectedCode(final GenClass genClass)
+   private String getPatternImplementationCode(final GenClass genClass)
    {
       // Produces pattern matching code
       final StringBuilder code = new StringBuilder();
@@ -762,7 +762,6 @@ public class CMoflonCodeGenerator
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            //st.inspect();
             code.append(st.render());
             code.append(nl());
             code.append(nl());
@@ -964,7 +963,7 @@ public class CMoflonCodeGenerator
       template.add("type", new Type(isBuiltInType(eOperation.getEContainingClass().getName()), eOperation.getEContainingClass().getName()));
       result.append(template.render());
       EList<EParameter> parameters = eOperation.getEParameters();
-      for (EParameter p : parameters)
+      for (final EParameter p : parameters)
       {
          template.remove("name");
          template.remove("type");
@@ -982,7 +981,7 @@ public class CMoflonCodeGenerator
       final String urlString = String.format("platform:/plugin/%s/resources/helper.c", WorkspaceHelper.getPluginId(getClass()));
       try
       {
-         URL url = new URL(urlString);
+         final URL url = new URL(urlString);
          try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream())))
          {
             result.append(reader.lines().collect(Collectors.joining(nl())));
@@ -1128,8 +1127,8 @@ public class CMoflonCodeGenerator
             {
                IOUtils.closeQuietly(stream);
             }
-         }
-         else {
+         } else
+         {
             result.append("// No algorithm-specific typedefs for " + tcAlgorithm + " found." + nl());
          }
          result.append("// --- End of user-defined type definitions for " + tcAlgorithm + nl());
