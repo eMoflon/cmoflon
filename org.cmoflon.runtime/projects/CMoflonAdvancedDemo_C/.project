@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.cmoflon.evaluation</name>
+	<name>CMoflonAdvancedDemo_C</name>
 	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>de.walware.statet.r.builders.RSupport</name>
+			<name>org.cmoflon.ide.core.runtime.builders.CMoflonRepositoryBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>de.walware.statet.base.StatetNature</nature>
-		<nature>de.walware.statet.r.RNature</nature>
+		<nature>org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature</nature>
 	</natures>
 </projectDescription>

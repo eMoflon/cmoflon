@@ -25,7 +25,7 @@ COL_SIZE_DIFF_GEN_TO_MAN = "$\\Delta(\\text{G-M})$[B]"
 COL_SIZE_RELDIFF_GEN_TO_MAN = "$\\Delta(\\text{G-M})$[\\%]"
 
 
-source("./_SoSyMTemplate/utilities.R")
+source("./utilities.R")
 
 parentDir="."
 
