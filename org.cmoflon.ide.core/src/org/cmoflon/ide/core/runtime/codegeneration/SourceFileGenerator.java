@@ -56,29 +56,29 @@ public class SourceFileGenerator
    //TODO@rkluge contains general as well as specific parts, should be splitted later on
    public static String generateUpperPart(String component, String algorithmName, STGroup templateGroup, boolean hopcount, String componentPreprocessorId)
    {
-      String result = "";
+      final StringBuilder result = new StringBuilder();
       ST procBegin = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_BEGIN);
       procBegin.add("component", component);
       procBegin.add("algo", algorithmName);
       procBegin.add("componentId", componentPreprocessorId);
-      result += procBegin.render();
+      result.append(procBegin.render());
 
       ST bootComp = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + BOOT_COMP_WAIT);
       bootComp.add("component", component);
       bootComp.add("hopcount", hopcount);
       bootComp.add("algo", algorithmName);
-      result += bootComp.render();
+      result.append(bootComp.render());
 
       ST mainLoop = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + MAIN_LOOP);
       mainLoop.add("hopcount", hopcount);
       mainLoop.add("component", component);
       mainLoop.add("algo", algorithmName);
-      result += mainLoop.render();
+      result.append(mainLoop.render());
 
       ST watchDogStop = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_STOP);
-      result += watchDogStop.render();
+      result.append(watchDogStop.render());
 
-      return result;
+      return result.toString();
    }
 
 }

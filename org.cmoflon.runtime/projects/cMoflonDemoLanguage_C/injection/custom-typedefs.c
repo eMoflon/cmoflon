@@ -1,32 +1,3 @@
-typedef struct  {
-	EDouble k;
-	NODE_T* node;
-}KTCALGORITHM_T;
-
-typedef struct {
-	EDouble k;
-	EDouble stretchFactor;
-	NODE_T* node;
-}LSTARKTCALGORITHM_T;
-
-// Forward declaration
-struct TREE_T;
-
-typedef struct {
-	NODE_T* node;
-	struct TREE_T* tree;
-}LMSTALGORITHM_T;
-
-typedef struct TREE_T{
-	LMSTALGORITHM_T* algo;
-	list_t entries;
-	struct memb* mem;
-}TREE_T;
-
-typedef struct {
-	struct TREEENTRY_T* next;
-	NODE_T* node;
-	LINK_T* parent;
-	TREE_T* tree;
-	bool isInTree;
-}TREEENTRY_T;
+// Required because generated code is replicated to all algorithms (but will not influence the size of the generated image)
+EBoolean lStarKtcAlgorithm_evaluateHopcountConstraint(EInt hopCount1,
+		EInt hopCount2, EInt hopCount3, EDouble stretchFactor);

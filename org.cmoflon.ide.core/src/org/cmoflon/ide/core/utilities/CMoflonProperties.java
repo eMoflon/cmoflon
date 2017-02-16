@@ -6,6 +6,8 @@ public class CMoflonProperties
    public static final String PROPERTY_PREFIX_FOR_CONSTANTS = "const-";
 
    public static final String PROPERTY_TC_USE_HOPCOUNT = "tc.enableHopcountProcess";
+   
+   public static final String PROPERTY_PREFIX_TC_USE_HOPCOUNT = "tc.enableHopCountProcessFor.";
 
    public static final String PROPERTY_TC_DROP_UNIDIRECTIONAL_EDGES = "tc.dropUnidirectionalEdges";
 
@@ -39,6 +41,7 @@ public class CMoflonProperties
                + PROPERTY_TC_DROP_UNIDIRECTIONAL_EDGES + " = true\n\n" //
                + "# Set to True if you want to use hopcounts.\n" //
                + PROPERTY_TC_USE_HOPCOUNT + " = " + CMoflonProperties.DEFAULT_USE_HOPCOUNT + "\n\n" //
+               + "# You may also override this behavior for individual algorithms by using " + PROPERTY_PREFIX_TC_USE_HOPCOUNT + ". (e.g., " + PROPERTY_PREFIX_TC_USE_HOPCOUNT + "LStarKtcAlgorithm = true)\n" // 
                + "# Set number of matches allowed per foreach invocation\n" //
                + PROPERTY_PM_MAX_MATCH_COUNT + " = " + CMoflonProperties.DEFAULT_MAX_MATCH_COUNT + "\n\n" //
                + "# Sets the minimum ID to use as preprocessor constant for the generated TC algorithms (default: " + DEFAULT_TC_MIN_ALGORITHM_ID + ")\n" //
