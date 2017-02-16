@@ -31,7 +31,7 @@ public class HeaderFileGenerator
 
    //TODO: extend this for all Built in Types
    public enum BuiltInTypes {
-      EBoolean, EDouble, EInt
+      EBoolean, EDouble, EFloat, EInt, ELong
    }
 
    public static String generateConstant(Object key, Object value, String component, String algorithm, ST template)
@@ -48,12 +48,14 @@ public class HeaderFileGenerator
     */
    public static String getAllBuiltInMappings()
    {
-      String result = "";
-      for (BuiltInTypes t : BuiltInTypes.values())
+      final StringBuilder result = new StringBuilder();
+      for (final BuiltInTypes t : BuiltInTypes.values())
       {
-         result += "typedef " + getCType(t) + " " + t.name() + ";\n\n";
+         result.append("typedef " + getCType(t) + " " + t.name() + ";");
+         result.append(CMoflonCodeGenerator.nl());
+         result.append(CMoflonCodeGenerator.nl());
       }
-      return result;
+      return result.toString();
    }
 
    //TODO: add cases for all Built in Types
@@ -62,16 +64,20 @@ public class HeaderFileGenerator
     * @param t the type
     * @return a string with the type specifier corresponding to the EType
     */
-   public static String getCType(BuiltInTypes t)
+   public static String getCType(final BuiltInTypes t)
    {
       switch (t)
       {
       case EDouble:
          return "double";
+      case EFloat:
+         return "float";
       case EBoolean:
          return "bool";
       case EInt:
-    	  return "int";
+         return "int";
+      case ELong:
+         return "long";
       default:
          return "void";
       }
@@ -85,15 +91,16 @@ public class HeaderFileGenerator
     */
    public static String generateIncludes(Components comp, ST include)
    {
-      String result = "";
+
+      final StringBuilder result = new StringBuilder();
       List<String> includes = CMoflonIncludes.getCMoflonIncludes();
       includes.addAll(CMoflonIncludes.getComponentSpecificIncludes(comp));
       for (String path : includes)
       {
          include.add("path", path);
-         result += include.render();
+         result.append(include.render());
          include.remove("path");
       }
-      return result;
+      return result.toString();
    }
 }
