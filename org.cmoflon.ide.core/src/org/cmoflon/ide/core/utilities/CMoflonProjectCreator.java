@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.cmoflon.ide.core.build.CMoflonPluginProducerWorkspaceRunnable;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -76,8 +77,12 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       createFilesIfNecessary(project, subMon);
 
       WorkspaceHelper.addNature(project, CMoflonRepositoryNature.NATURE_ID, subMon);
-      final PluginProducerWorkspaceRunnable pluginProducer = new PluginProducerWorkspaceRunnable(project, metamodelProperties);
-      pluginProducer.run(subMon);
+      final PluginProducerWorkspaceRunnable pluginProducer = new CMoflonPluginProducerWorkspaceRunnable(project, metamodelProperties);
+      try {
+         pluginProducer.run(subMon);
+      } catch(final Exception e)
+      {
+      }
       clearBuildProperties(project);
       final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(project.getName(),
             getMetaModelProjectName());
