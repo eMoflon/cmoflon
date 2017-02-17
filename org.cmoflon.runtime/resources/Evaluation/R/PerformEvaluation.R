@@ -69,7 +69,7 @@ main <- function()
 	{
 		manIndex = genIndex - 1
 		codeSizeData[genIndex,][[COL_SIZE_DIFF_GEN_TO_MAN]] = codeSizeData[genIndex, ][[COL_SIZE]] - codeSizeData[manIndex, ][[COL_SIZE]]
-		codeSizeData[genIndex,][[COL_SIZE_RELDIFF_GEN_TO_MAN]] = codeSizeData[genIndex,][[COL_SIZE_DIFF_TO_NOTC]] / codeSizeData[manIndex, ][[COL_SIZE_DIFF_TO_NOTC]] * 100
+		codeSizeData[genIndex,][[COL_SIZE_RELDIFF_GEN_TO_MAN]] = codeSizeData[genIndex,][[COL_SIZE_DIFF_GEN_TO_MAN]] / codeSizeData[manIndex, ][[COL_SIZE_DIFF_TO_NOTC]] * 100
 	}
 		
 		
@@ -115,29 +115,26 @@ main <- function()
 			booktabs = T, 
 			type="latex")	
 	
-## Process runtime data
+## (NOT IN THIS EVAL) Process runtime data
 	# Change spacing of ticks: https://stackoverflow.com/questions/3785089/r-change-the-spacing-of-tick-marks-on-the-axis-of-a-plot
-	tryCatch({
-	pdf(file="output/RuntimeBoxplot.pdf",
-			width=10, height=6
-			)
-		
-		par(mar=c(3.5, 4, 1, 1))
-		boxplotColumnLabels = gsub("-man", "-m", gsub("-gen", "-g", runtimeData$Algorithm))
-		boxplot(RuntimeInMillis~boxplotColumnLabels, data=runtimeData)
-		#minor.tick(0,2,0.5) # library(Hmisc)
-		grid(NULL, NULL, lty = GRID_LINE_TYPE, col = GRID_COL)
-		par(new=TRUE)
-		plot = boxplot(RuntimeInMillis~boxplotColumnLabels,
-			data=runtimeData,
-			col=c("gray", cMoflonBlue),
-			#xlab="Algorithm",
-			ylab="Runtime[ms]"
-		)
-		
-		#print(summary(plot$stats))
-	
-	}, finally={closeAllDevices()});
+	## tryCatch({
+	## pdf(file="output/RuntimeBoxplot.pdf",
+	##         width=10, height=6
+	##         )
+	## 
+	##     par(mar=c(3.5, 4, 1, 1))
+	##     boxplotColumnLabels = gsub("-man", "-m", gsub("-gen", "-g", runtimeData$Algorithm))
+	##     boxplot(RuntimeInMillis~boxplotColumnLabels, data=runtimeData)
+	##     #minor.tick(0,2,0.5) # library(Hmisc)
+	##     grid(NULL, NULL, lty = GRID_LINE_TYPE, col = GRID_COL)
+	##     par(new=TRUE)
+	##     plot = boxplot(RuntimeInMillis~boxplotColumnLabels,
+	##         data=runtimeData,
+	##         col=c("gray", cMoflonBlue),
+	##         #xlab="Algorithm",
+	##         ylab="Runtime[ms]"
+	##     )
+	## }, finally={closeAllDevices()});
 		
 	log("Processing complete.")
 }

@@ -104,7 +104,7 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
          WorkspaceHelper.addFile(project, "model/.keepmodel", "# Dummy file versioning /model", subMon.split(1));
       
       if (!project.getFile(CMoflonProperties.CMOFLON_PROPERTIES_FILENAME).exists())
-         WorkspaceHelper.addFile(project, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME, CMoflonProperties.DEFAULT_CMOFLON_PROPERTIES_CONTENT, subMon.split(1));
+         WorkspaceHelper.addFile(project, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME, CMoflonProperties.getDefaultCMoflonPropertiesContent(), subMon.split(1));
       
       initializeConstraintsLibrary(project, subMon.split(1));
    }
