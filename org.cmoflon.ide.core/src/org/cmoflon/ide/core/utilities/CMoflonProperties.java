@@ -1,12 +1,17 @@
 package org.cmoflon.ide.core.utilities;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class CMoflonProperties
 {
 
    public static final String PROPERTY_PREFIX_FOR_CONSTANTS = "const-";
 
    public static final String PROPERTY_TC_USE_HOPCOUNT = "tc.enableHopcountProcess";
-   
+
    public static final String PROPERTY_PREFIX_TC_USE_HOPCOUNT = "tc.enableHopCountProcessFor.";
 
    public static final String PROPERTY_TC_DROP_UNIDIRECTIONAL_EDGES = "tc.dropUnidirectionalEdges";
@@ -36,7 +41,9 @@ public class CMoflonProperties
 
    public static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
-   public static final String DEFAULT_CMOFLON_PROPERTIES_CONTENT = //
+   private static Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
+
+   private static final String DEFAULT_CMOFLON_PROPERTIES_CONTENT = //
          "#Set to 'true' if dropping unidirectional edges is desired \n" //
                + PROPERTY_TC_DROP_UNIDIRECTIONAL_EDGES + " = true\n\n" //
                + "# Set to True if you want to use hopcounts.\n" //
@@ -53,6 +60,7 @@ public class CMoflonProperties
                + "# (e.g., " + PROPERTY_PREFIX_PARAMETERS + "KtcAlgorithm=" + PROPERTY_PREFIX_FOR_CONSTANTS + "k\n\n"
                + "# It is also possible to define constants. A constant declaration must look as follows: const-[constname]\n" //
                + "# (e.g., " + PROPERTY_PREFIX_FOR_CONSTANTS + "k=3.0)\n" //
+               + getCMoflonPropertiesLinesForDefaultConstants() //
                + "\n\n" //
                + "# " + " Type mapping definitions follow \n"//
                + "# The Key is the EClass, and the value is the C Struct you want it to be mapped to.\n" + "# Default: " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS
@@ -60,5 +68,24 @@ public class CMoflonProperties
                + "\n" // 
                + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Node = " + CMoflonProperties.DEFAULT_NODE_TYPE + "\n" //
                + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Link = " + CMoflonProperties.DEFAULT_LINK_TYPE + "\n\n";
+
+   public static String getDefaultCMoflonPropertiesContent()
+   {
+      return DEFAULT_CMOFLON_PROPERTIES_CONTENT;
+   }
+
+   private static String getCMoflonPropertiesLinesForDefaultConstants()
+   {
+      return DEFAULT_CONSTANTS.entrySet().stream()//
+            .map(entry -> PROPERTY_PREFIX_FOR_CONSTANTS + entry.getKey() + "=" + entry.getValue() + "\n")//
+            .collect(Collectors.joining(""));
+   }
+
+   private static Map<String, String> createDefaultConstantsMap()
+   {
+      final Map<String, String> map = new HashMap<>();
+      map.put("updateinterval", "300");
+      return Collections.unmodifiableMap(map);
+   }
 
 }
