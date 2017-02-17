@@ -515,7 +515,11 @@ public class CMoflonCodeGenerator
          ++tcAlgorithmId;
       }
       final String content = StringUtils.join(linesForSampleFile, nl());
-      WorkspaceHelper.addFile(project, appConfConstants, content, subMon.split(1));
+      IFile sampleFile = project.getFile(appConfConstants);
+      if(sampleFile.exists()){
+    	  sampleFile.setContents(new ReaderInputStream(new StringReader(content.toString())), true, true, subMon.split(2));
+      }
+      else WorkspaceHelper.addFile(project, appConfConstants, content, subMon.split(1));
 
    }
 
