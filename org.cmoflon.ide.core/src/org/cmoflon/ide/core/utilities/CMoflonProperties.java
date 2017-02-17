@@ -31,17 +31,15 @@ public class CMoflonProperties
 
    public static final int DEFAULT_MAX_MATCH_COUNT = 20;
 
-   public static final String DEFAULT_NODE_TYPE = "networkaddr_t";
-
-   public static final String DEFAULT_LINK_TYPE = "neighbor_t";
-
-   public static final boolean DEFAULT_USE_HOPCOUNT = false;
-
    public static final String PROPERTY_TC_MIN_ALGORITHM_ID = "tc.minId";
+
+   private static final boolean DEFAULT_USE_HOPCOUNT = false;
 
    public static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
-   private static Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
+   public static Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
+
+   public static Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();
 
    private static final String DEFAULT_CMOFLON_PROPERTIES_CONTENT = //
          "#Set to 'true' if dropping unidirectional edges is desired \n" //
@@ -63,22 +61,23 @@ public class CMoflonProperties
                + getCMoflonPropertiesLinesForDefaultConstants() //
                + "\n\n" //
                + "# " + " Type mapping definitions follow \n"//
-               + "# The Key is the EClass, and the value is the C Struct you want it to be mapped to.\n" + "# Default: " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS
-               + "Node = " + CMoflonProperties.DEFAULT_NODE_TYPE + " and " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Link = " + CMoflonProperties.DEFAULT_LINK_TYPE
+               + "# The Key is the EClass, and the value is the C Struct you want it to be mapped to.\n" //
+               + "# Default: " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Node = " + DEFAULT_TYPE_MAPPINGS.get("Node") + " and " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Link = " + DEFAULT_TYPE_MAPPINGS.get("Link")
                + "\n" // 
-               + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Node = " + CMoflonProperties.DEFAULT_NODE_TYPE + "\n" //
-               + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Link = " + CMoflonProperties.DEFAULT_LINK_TYPE + "\n\n";
+               + getCMoflonPropertiesLinesForDefaultTypeMappings() //
+               + "\n";
 
    public static String getDefaultCMoflonPropertiesContent()
    {
       return DEFAULT_CMOFLON_PROPERTIES_CONTENT;
    }
 
-   private static String getCMoflonPropertiesLinesForDefaultConstants()
+   private static Map<String, String> createDefaultTypeMappingsMap()
    {
-      return DEFAULT_CONSTANTS.entrySet().stream()//
-            .map(entry -> PROPERTY_PREFIX_FOR_CONSTANTS + entry.getKey() + "=" + entry.getValue() + "\n")//
-            .collect(Collectors.joining(""));
+      final Map<String, String> map = new HashMap<>();
+      map.put("Node", "networkaddr_t");
+      map.put("Link", "neighbor_t");
+      return Collections.unmodifiableMap(map);
    }
 
    private static Map<String, String> createDefaultConstantsMap()
@@ -88,4 +87,17 @@ public class CMoflonProperties
       return Collections.unmodifiableMap(map);
    }
 
+   private static String getCMoflonPropertiesLinesForDefaultTypeMappings()
+   {
+      return DEFAULT_TYPE_MAPPINGS.entrySet().stream()//
+            .map(entry -> PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + entry.getKey() + "=" + entry.getValue() + "\n")//
+            .collect(Collectors.joining(""));
+   }
+
+   private static String getCMoflonPropertiesLinesForDefaultConstants()
+   {
+      return DEFAULT_CONSTANTS.entrySet().stream()//
+            .map(entry -> PROPERTY_PREFIX_FOR_CONSTANTS + entry.getKey() + "=" + entry.getValue() + "\n")//
+            .collect(Collectors.joining(""));
+   }
 }
