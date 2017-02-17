@@ -289,17 +289,17 @@ public class CMoflonCodeGenerator
    {
       final List<GenClass> tcAlgorithmCandidateClasses = new ArrayList<>();
       genModel.getAllGenPackagesWithClassifiers().forEach(genPackage -> genPackage.getGenClasses().stream()
-            .filter(genClass -> isSubtypeOfTCAlgorithmParentClass(genClass)).forEach(genClass -> tcAlgorithmCandidateClasses.add(genClass)));
+            .filter(genClass -> isTrueSubtypeOfTCAlgorithmParentClass(genClass)).forEach(genClass -> tcAlgorithmCandidateClasses.add(genClass)));
       LogUtils.error(logger, "Topology class '%s' (specified in %s) cannot be found in GenModel or is not a subtype of '"
             + this.tcAlgorithmParentGenClass.getName() + "' and will be ignored.", nameOfInappropriateClass, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME);
       LogUtils.error(logger,
-            "Candidates are " + tcAlgorithmCandidateClasses.stream().map(cand -> "'" + cand.toString() + "'").collect(Collectors.joining(", ")),
+            "Candidates are " + tcAlgorithmCandidateClasses.stream().map(cand -> "'" + cand.getName() + "'").collect(Collectors.joining(", ")),
             nameOfInappropriateClass, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME);
    }
 
-   private boolean isSubtypeOfTCAlgorithmParentClass(GenClass genClass)
+   private boolean isTrueSubtypeOfTCAlgorithmParentClass(final GenClass genClass)
    {
-      return this.tcAlgorithmParentGenClass.getEcoreClass().isSuperTypeOf(genClass.getEcoreClass());
+      return this.tcAlgorithmParentGenClass != genClass && this.tcAlgorithmParentGenClass.getEcoreClass().isSuperTypeOf(genClass.getEcoreClass());
    }
 
    private void initializeCaches()
