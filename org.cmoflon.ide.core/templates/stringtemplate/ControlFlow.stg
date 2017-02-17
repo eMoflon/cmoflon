@@ -298,9 +298,11 @@ NodeDeletionImpl(action, importManager) ::= <<
 <action.destructedVariables:DeleteNode(importManager); separator="\n">
 >>
 
+// EMF code:
 //<("org.eclipse.emf.ecore.util.EcoreUtil")>.delete(<variable.name>);
+//<variable.name> = NULL;
 DeleteNode(variable, importManager) ::= <<
-<variable.name> = NULL;
+deallocate_<variable.name>_of_<variable.constructor.pattern.name><variable.constructor.parameters:BoundOrFree()>(<variable.name>);
 >>
 
 
