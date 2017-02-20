@@ -139,9 +139,9 @@ public class CMoflonCodeGenerator
    												+"\t\t}"+nl()
    												+"\t\tprintf(\"[topologycontrol]: DEGREE: %d\\n\",degree);"+nl()
    												+"\t\tunsigned long start=RTIMER_NOW();"+nl()
-   												+"\t\tprintf(\"[topologycontrol]: STATUS: Run\n\");"+nl();
+   												+"\t\tprintf(\"[topologycontrol]: STATUS: Run\\n\");"+nl();
    
-   private static String EVAL_STATEMENTS_END = "printf(\"[topologycontrol]: TIME: %lu\\n\",RTIMER_NOW()-start);"+nl();
+   private static String EVAL_STATEMENTS_END = "\t\tprintf(\"[topologycontrol]: TIME: %lu\\n\",RTIMER_NOW()-start);"+nl();
 
    /**
     * Constants mapping
@@ -627,7 +627,7 @@ public class CMoflonCodeGenerator
       final ST template = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT);
       final String algorithm = this.cachedConcreteClasses.get(0).getEcoreClass().getEPackage().getName();
       final String algorithmInvocation = this.tcAlgorithmParameters.get(tcAlgorithm);
-      processBodyCode.append(getParameters(algorithmInvocation, algorithm, template));
+      processBodyCode.append(getParameters(algorithmInvocation, tcAlgorithm, template));
       if(this.useEvalStatements){
     	  processBodyCode.append(EVAL_STATEMENTS_START);
     	  processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());

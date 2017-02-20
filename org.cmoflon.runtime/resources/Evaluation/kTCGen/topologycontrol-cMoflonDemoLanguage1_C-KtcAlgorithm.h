@@ -1,5 +1,5 @@
-#ifndef __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_
-#define __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_
+#ifndef __TOPOLOGYCONTROL__KTCALGORITHM_H_
+#define __TOPOLOGYCONTROL__KTCALGORITHM_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,44 +14,16 @@
 #include "../../lib/networkaddr.h"
 #include "dev/watchdog.h"
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_SMALLDELAY_MAX
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_SMALLDELAY_MAX 65
+#ifndef COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_K
+#define COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_K 1.2
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_PERIODIC_MIN
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_PERIODIC_MIN 270
-#endif
-
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_STRETCHFACTOR
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_STRETCHFACTOR 1.5
-#endif
-
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_IMMEDIATE_MAX
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_IMMEDIATE_MAX 10 
-#endif
-
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_IMMEDIATE_MIN
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_IMMEDIATE_MIN 1
-#endif
-
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_K
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_K 1.2
-#endif
-
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_PERIODIC_MAX
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_PERIODIC_MAX 330
-#endif
-
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_UPDATEINTERVAL
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_UPDATEINTERVAL 300
-#endif
-
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_SMALLDELAY_MIN
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE2_C_BROADCASTHOPCOUNT_SMALLDELAY_MIN 55
+#ifndef COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL
+#define COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL 300
 #endif
 
 #ifndef MAX_MATCH_COUNT
-#define MAX_MATCH_COUNT 30
+#define MAX_MATCH_COUNT 20
 #endif
 typedef struct match{
 	struct match_t* next;
@@ -68,7 +40,19 @@ typedef bool EBoolean;
 
 typedef double EDouble;
 
+typedef float EFloat;
+
 typedef int EInt;
+
+typedef long ELong;
+
+typedef char EChar;
+
+typedef short EShort;
+
+typedef char EByte;
+
+typedef const char* EString;
 
 // --- Begin of default cMoflon type definitions
 typedef struct {
@@ -77,43 +61,24 @@ typedef struct {
 
 // --- End of default cMoflon type definitions
 
-// --- Begin of user-defined type definitions (from path 'injection/custom-typedefs.c')
+// --- Begin of user-defined algorithm-independent type definitions (Path: 'injection/custom-typedefs.c')
+// Algorithm-independent type definitions.
+// --- End of user-defined algorithm-independent type definitions
+
+// --- Begin of user-defined type definitions for KtcAlgorithm(Path: 'injection/custom-typedefs_KtcAlgorithm.c')
+typedef struct LSTARKTCALGORITHM_T LSTARKTCALGORITHM_T;
+typedef struct LMSTALGORITHM_T LMSTALGORITHM_T;
+typedef struct TREE_T TREE_T;
+typedef struct TREEENTRY_T TREEENTRY_T;
+
 typedef struct  {
 	EDouble k;
 	NODE_T* node;
 }KTCALGORITHM_T;
-
-typedef struct {
-	EDouble k;
-	EDouble stretchFactor;
-	NODE_T* node;
-}LSTARKTCALGORITHM_T;
-
-// Forward declaration
-struct TREE_T;
-
-typedef struct {
-	NODE_T* node;
-	struct TREE_T* tree;
-}LMSTALGORITHM_T;
-
-typedef struct TREE_T{
-	LMSTALGORITHM_T* algo;
-	list_t entries;
-	struct memb* mem;
-}TREE_T;
-
-typedef struct {
-	struct TREEENTRY_T* next;
-	NODE_T* node;
-	LINK_T* parent;
-	TREE_T* tree;
-	bool isInTree;
-}TREEENTRY_T;
-// --- End of user-defined type definitions
+// --- End of user-defined type definitions for KtcAlgorithm
 
 //Begin of non SDM implemented methods
-void lStarKtcAlgorithm_run(LSTARKTCALGORITHM_T* this);
+void ktcAlgorithm_run(KTCALGORITHM_T* this);
 //End of non SDM implemented methods
 
 //Begin of declarations for hopcount
@@ -166,38 +131,45 @@ void link_setSource(LINK_T* _this, NODE_T* value);
 //End of declarations for source
 
 //Begin of declarations for k
-EDouble lStarKtcAlgorithm_getK(LSTARKTCALGORITHM_T* _this);
-void lStarKtcAlgorithm_setK(LSTARKTCALGORITHM_T* _this, EDouble value);
+EDouble ktcAlgorithm_getK(KTCALGORITHM_T* _this);
+void ktcAlgorithm_setK(KTCALGORITHM_T* _this, EDouble value);
 //End of declarations for k
 
-//Begin of declarations for stretchFactor
-EDouble lStarKtcAlgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this);
-void lStarKtcAlgorithm_setStretchFactor(LSTARKTCALGORITHM_T* _this, EDouble value);
-//End of declarations for stretchFactor
-
 //Begin of declarations for node
-NODE_T* lStarKtcAlgorithm_getNode(LSTARKTCALGORITHM_T* _this);
-void lStarKtcAlgorithm_setNode(LSTARKTCALGORITHM_T* _this, NODE_T* value);
+NODE_T* ktcAlgorithm_getNode(KTCALGORITHM_T* _this);
+void ktcAlgorithm_setNode(KTCALGORITHM_T* _this, NODE_T* value);
 //End of declarations for node
 
 //Begin of compare declarations
 int eBoolean_compare(EBoolean _this, EBoolean other);
 int eDouble_compare(EDouble _this, EDouble other);
+int eFloat_compare(EFloat _this, EFloat other);
 int eInt_compare(EInt _this, EInt other);
+int eLong_compare(ELong _this, ELong other);
+int eChar_compare(EChar _this, EChar other);
+int eShort_compare(EShort _this, EShort other);
+int eByte_compare(EByte _this, EByte other);
+int eString_compare(EString _this, EString other);
 int node_compare(NODE_T* _this, NODE_T* other);
 int link_compare(LINK_T* _this, LINK_T* other);
 int topologyControlAlgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
-int lStarKtcAlgorithm_compare(LSTARKTCALGORITHM_T* _this, LSTARKTCALGORITHM_T* other);
+int ktcAlgorithm_compare(KTCALGORITHM_T* _this, KTCALGORITHM_T* other);
 //End of compare declarations
 
 //Begin of equals declarations
 bool eBoolean_equals(EBoolean _this, EBoolean other);
 bool eDouble_equals(EDouble _this, EDouble other);
+bool eFloat_equals(EFloat _this, EFloat other);
 bool eInt_equals(EInt _this, EInt other);
+bool eLong_equals(ELong _this, ELong other);
+bool eChar_equals(EChar _this, EChar other);
+bool eShort_equals(EShort _this, EShort other);
+bool eByte_equals(EByte _this, EByte other);
+bool eString_equals(EString _this, EString other);
 bool node_equals(NODE_T* _this, NODE_T* other);
 bool link_equals(LINK_T* _this, LINK_T* other);
 bool topologyControlAlgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
-bool lStarKtcAlgorithm_equals(LSTARKTCALGORITHM_T* _this, LSTARKTCALGORITHM_T* other);
+bool ktcAlgorithm_equals(KTCALGORITHM_T* _this, KTCALGORITHM_T* other);
 //End of equals declarations
 
-#endif /* __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE2_C_H_ */
+#endif /* __TOPOLOGYCONTROL__KTCALGORITHM_H_ */
