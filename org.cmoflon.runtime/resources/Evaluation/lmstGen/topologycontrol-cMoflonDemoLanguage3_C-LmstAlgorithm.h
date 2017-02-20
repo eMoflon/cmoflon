@@ -1,5 +1,5 @@
-#ifndef __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_
-#define __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_
+#ifndef __TOPOLOGYCONTROL__LMSTALGORITHM_H_
+#define __TOPOLOGYCONTROL__LMSTALGORITHM_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,12 +14,12 @@
 #include "../../lib/networkaddr.h"
 #include "dev/watchdog.h"
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE3_C_UPDATEINTERVAL
-#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE3_C_UPDATEINTERVAL 300
+#ifndef COMPONENT_TOPOLOGYCONTROL_LMSTALGORITHM_UPDATEINTERVAL
+#define COMPONENT_TOPOLOGYCONTROL_LMSTALGORITHM_UPDATEINTERVAL 300
 #endif
 
 #ifndef MAX_MATCH_COUNT
-#define MAX_MATCH_COUNT 30
+#define MAX_MATCH_COUNT 20
 #endif
 typedef struct match{
 	struct match_t* next;
@@ -36,7 +36,19 @@ typedef bool EBoolean;
 
 typedef double EDouble;
 
+typedef float EFloat;
+
 typedef int EInt;
+
+typedef long ELong;
+
+typedef char EChar;
+
+typedef short EShort;
+
+typedef char EByte;
+
+typedef const char* EString;
 
 // --- Begin of default cMoflon type definitions
 typedef struct {
@@ -45,17 +57,13 @@ typedef struct {
 
 // --- End of default cMoflon type definitions
 
-// --- Begin of user-defined type definitions (from path 'injection/custom-typedefs.c')
-typedef struct  {
-	EDouble k;
-	NODE_T* node;
-}KTCALGORITHM_T;
+// --- Begin of user-defined algorithm-independent type definitions (Path: 'injection/custom-typedefs.c')
+// Algorithm-independent type definitions.
+// --- End of user-defined algorithm-independent type definitions
 
-typedef struct {
-	EDouble k;
-	EDouble stretchFactor;
-	NODE_T* node;
-}LSTARKTCALGORITHM_T;
+// --- Begin of user-defined type definitions for LmstAlgorithm(Path: 'injection/custom-typedefs_LmstAlgorithm.c')
+typedef struct KTCALGORITHM_T KTCALGORITHM_T;
+typedef struct LSTARKTCALGORITHM_T LSTARKTCALGORITHM_T;
 
 // Forward declaration
 struct TREE_T;
@@ -78,7 +86,7 @@ typedef struct {
 	TREE_T* tree;
 	bool isInTree;
 }TREEENTRY_T;
-// --- End of user-defined type definitions
+// --- End of user-defined type definitions for LmstAlgorithm
 
 //Begin of non SDM implemented methods
 void lmstAlgorithm_init(LMSTALGORITHM_T* this);
@@ -182,7 +190,13 @@ void treeEntry_setParent(TREEENTRY_T* _this, LINK_T* value);
 //Begin of compare declarations
 int eBoolean_compare(EBoolean _this, EBoolean other);
 int eDouble_compare(EDouble _this, EDouble other);
+int eFloat_compare(EFloat _this, EFloat other);
 int eInt_compare(EInt _this, EInt other);
+int eLong_compare(ELong _this, ELong other);
+int eChar_compare(EChar _this, EChar other);
+int eShort_compare(EShort _this, EShort other);
+int eByte_compare(EByte _this, EByte other);
+int eString_compare(EString _this, EString other);
 int node_compare(NODE_T* _this, NODE_T* other);
 int link_compare(LINK_T* _this, LINK_T* other);
 int topologyControlAlgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
@@ -194,7 +208,13 @@ int treeEntry_compare(TREEENTRY_T* _this, TREEENTRY_T* other);
 //Begin of equals declarations
 bool eBoolean_equals(EBoolean _this, EBoolean other);
 bool eDouble_equals(EDouble _this, EDouble other);
+bool eFloat_equals(EFloat _this, EFloat other);
 bool eInt_equals(EInt _this, EInt other);
+bool eLong_equals(ELong _this, ELong other);
+bool eChar_equals(EChar _this, EChar other);
+bool eShort_equals(EShort _this, EShort other);
+bool eByte_equals(EByte _this, EByte other);
+bool eString_equals(EString _this, EString other);
 bool node_equals(NODE_T* _this, NODE_T* other);
 bool link_equals(LINK_T* _this, LINK_T* other);
 bool topologyControlAlgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
@@ -203,4 +223,4 @@ bool tree_equals(TREE_T* _this, TREE_T* other);
 bool treeEntry_equals(TREEENTRY_T* _this, TREEENTRY_T* other);
 //End of equals declarations
 
-#endif /* __TOPOLOGYCONTROL__CMOFLONDEMOLANGUAGE3_C_H_ */
+#endif /* __TOPOLOGYCONTROL__LMSTALGORITHM_H_ */
