@@ -37,6 +37,10 @@ public class CMoflonProperties
 
    public static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
+   public static final String PROPERTY_INCLUDE_EVALUATION_STATEMENTS = "tc.useEvaluationStatements";
+
+   private static final boolean DEFAULT_INCLUDE_EVALUATION_STATEMENTS = false;
+
    public static Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
 
    public static Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();
@@ -50,6 +54,7 @@ public class CMoflonProperties
                + "# (e.g., " + PROPERTY_PREFIX_TC_USE_HOPCOUNT + "LStarKtcAlgorithm = true)\n\n" // 
                + "# Set number of matches allowed per foreach invocation\n" //
                + PROPERTY_PM_MAX_MATCH_COUNT + " = " + CMoflonProperties.DEFAULT_MAX_MATCH_COUNT + "\n\n" //
+               + PROPERTY_INCLUDE_EVALUATION_STATEMENTS + " = " + CMoflonProperties.DEFAULT_INCLUDE_EVALUATION_STATEMENTS + "\n\n" //
                + "# Sets the minimum ID to use as preprocessor constant for the generated TC algorithms (default: " + DEFAULT_TC_MIN_ALGORITHM_ID + ")\n" //
                + PROPERTY_TC_MIN_ALGORITHM_ID + "=" + DEFAULT_TC_MIN_ALGORITHM_ID + "\n\n" //
                + "# Place the names of the topology control algorithms to use as CSV (e.g., " + PROPERTY_TC_ALGORITHMS + "=KtcAlgorithm,LStarKtcAlgorithm)\n" //

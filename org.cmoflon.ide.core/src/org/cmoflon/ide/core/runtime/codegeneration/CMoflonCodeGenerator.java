@@ -125,8 +125,23 @@ public class CMoflonCodeGenerator
    private final Map<String, String> tcAlgorithmParameters;
 
    private int maximumMatchCount;
+   
+   private boolean useEvalStatements;
 
    private final Map<String, String> typeMappings;
+   
+   private static String EVAL_STATEMENTS_START ="\t\tlist_t neighbors= component_neighbordiscovery_neighbors();"+nl()
+   												+"\t\tneighbor_t* link;"+nl()
+   												+"\t\tint degree=0;"+nl()
+   												+"\t\tfor(link=list_head(neighbors);link!=NULL;link=list_item_next(link)){"+nl()
+   												+"\t\t\tif(networkaddr_equal(link->node1,networkaddr_node_addr())||networkaddr_equal(link->node2,networkaddr_node_addr()))"+nl()
+   												+"\t\t\t\tdegree++;"+nl()
+   												+"\t\t}"+nl()
+   												+"\t\tprintf(\"[topologycontrol]: DEGREE: %d\\n\",degree);"+nl()
+   												+"\t\tunsigned long start=RTIMER_NOW();"+nl()
+   												+"\t\tprintf(\"[topologycontrol]: STATUS: Run\n\");"+nl();
+   
+   private static String EVAL_STATEMENTS_END = "printf(\"[topologycontrol]: TIME: %lu\\n\",RTIMER_NOW()-start);"+nl();
 
    /**
     * Constants mapping
@@ -199,6 +214,8 @@ public class CMoflonCodeGenerator
             case CMoflonProperties.PROPERTY_TC_MIN_ALGORITHM_ID:
                this.minTcComponentConstant = Integer.parseInt(value);
                break;
+            case CMoflonProperties.PROPERTY_INCLUDE_EVALUATION_STATEMENTS:
+            	this.useEvalStatements = Boolean.parseBoolean(value);
             }
             if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_PARAMETERS))
             {
@@ -611,11 +628,18 @@ public class CMoflonCodeGenerator
       final String algorithm = this.cachedConcreteClasses.get(0).getEcoreClass().getEPackage().getName();
       final String algorithmInvocation = this.tcAlgorithmParameters.get(tcAlgorithm);
       processBodyCode.append(getParameters(algorithmInvocation, algorithm, template));
-      processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());
+      if(this.useEvalStatements){
+    	  processBodyCode.append(EVAL_STATEMENTS_START);
+    	  processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());
+    	  processBodyCode.append(EVAL_STATEMENTS_END);
+      }
+      else{
+    	  processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());
+      }
       return processBodyCode.toString();
    }
 
-   private String getPatternMatchingCode()
+private String getPatternMatchingCode()
    {
       StringBuilder allinjectedCode = new StringBuilder();
       for (final GenClass genClass : this.cachedConcreteClasses)
