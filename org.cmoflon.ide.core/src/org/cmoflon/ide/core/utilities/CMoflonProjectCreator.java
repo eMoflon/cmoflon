@@ -50,11 +50,6 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       this.metamodelProperties = metamodelProperties;
    }
 
-   private String getMetaModelProjectName()
-   {
-      return metamodelProperties.getMetamodelProjectName();
-   }
-
    private String getProjectName()
    {
       return metamodelProperties.getProjectName();
@@ -72,40 +67,44 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 
       project.create(description, IWorkspace.AVOID_UPDATE, subMon.split(1));
       project.open(IWorkspace.AVOID_UPDATE, subMon.split(1));
+      WorkspaceHelper.addNature(project, CMoflonRepositoryNature.NATURE_ID, subMon.split(1));
 
-      createFoldersIfNecessary(project, subMon.split(4));
-      createFilesIfNecessary(project, subMon);
+      createFoldersIfNecessary(project, subMon.split(1));
+      createFilesIfNecessary(project, subMon.split(1));
 
-      WorkspaceHelper.addNature(project, CMoflonRepositoryNature.NATURE_ID, subMon);
-      final PluginProducerWorkspaceRunnable pluginProducer = new CMoflonPluginProducerWorkspaceRunnable(project, metamodelProperties);
-      try {
-         pluginProducer.run(subMon);
-      } catch(final Exception e)
+      createPluginSpecificFiles(project, this.metamodelProperties, subMon.split(1));
+      createMoflonProperties(project, this.metamodelProperties, subMon.split(1));
+
+   }
+
+   private static void createMoflonProperties(final IProject project, final MetamodelProperties metamodelProperties, final IProgressMonitor monitor)
+   {
+      final SubMonitor subMon = SubMonitor.convert(monitor, "Creating moflon.properties.xmi", 2);
+      if (!project.getFile(MoflonPropertiesContainerHelper.MOFLON_CONFIG_FILE).exists())
       {
+         final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(project.getName(),
+               metamodelProperties.getMetamodelProjectName());
+         moflonProperties.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES);
+         subMon.worked(1);
+
+         MoflonPropertiesContainerHelper.save(moflonProperties, subMon.split(1));
       }
-      clearBuildProperties(project);
-      final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(project.getName(),
-            getMetaModelProjectName());
-      moflonProperties.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES);
-      subMon.worked(1);
-
-      MoflonPropertiesContainerHelper.save(moflonProperties, subMon.split(1));
-
    }
 
    public static void createFilesIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, 4);
-      
+
       if (!project.getFile(".gitignore").exists())
          WorkspaceHelper.addFile(project, ".gitignore", DEFAULT_GITIGNORE_CONTENT, subMon.split(1));
-      
+
       if (!project.getFile("model/.keepmodel").exists())
          WorkspaceHelper.addFile(project, "model/.keepmodel", "# Dummy file versioning /model", subMon.split(1));
-      
+
       if (!project.getFile(CMoflonProperties.CMOFLON_PROPERTIES_FILENAME).exists())
-         WorkspaceHelper.addFile(project, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME, CMoflonProperties.getDefaultCMoflonPropertiesContent(), subMon.split(1));
-      
+         WorkspaceHelper.addFile(project, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME, CMoflonProperties.getDefaultCMoflonPropertiesContent(),
+               subMon.split(1));
+
       initializeConstraintsLibrary(project, subMon.split(1));
    }
 
@@ -122,7 +121,7 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
             final InputStream stream = MoflonUtilitiesActivator.getPathRelToPlugIn(PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY, pluginId).openStream();
             try
             {
-            	file.create(stream, true, subMon.split(1));
+               file.create(stream, true, subMon.split(1));
             } finally
             {
                IOUtils.closeQuietly(stream);
@@ -145,10 +144,11 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 
    private static void clearBuildProperties(final IProject workspaceProject) throws CoreException
    {
-	  final IFile file = workspaceProject.getFile("build.properties");
-	  if(!file.exists()){
-		  WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n", new NullProgressMonitor());
-	  }
+      final IFile file = workspaceProject.getFile("build.properties");
+      if (!file.exists())
+      {
+         WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n", new NullProgressMonitor());
+      }
    }
 
    /**
@@ -161,5 +161,22 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       final IWorkspaceRoot workspaceRoot = workspace.getRoot();
       final IProject workspaceProject = workspaceRoot.getProject(getProjectName());
       return workspaceProject;
+   }
+
+   public static void createPluginSpecificFiles(final IProject project, final MetamodelProperties metamodelProperties, final IProgressMonitor monitor)
+         throws CoreException
+   {
+      final SubMonitor subMon = SubMonitor.convert(monitor, "Creating folders within project", 3);
+      final PluginProducerWorkspaceRunnable pluginProducer = new CMoflonPluginProducerWorkspaceRunnable(project, metamodelProperties);
+      try
+      {
+         pluginProducer.run(subMon.split(2));
+      } catch (final Exception e)
+      {
+         throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(CMoflonProjectCreator.class),
+               "Failed to create plugin-specific features: " + e.getMessage(), e));
+      }
+      clearBuildProperties(project);
+      subMon.worked(1);
    }
 }

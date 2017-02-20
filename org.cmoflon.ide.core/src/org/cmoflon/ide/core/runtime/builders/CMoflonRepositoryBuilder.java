@@ -27,7 +27,7 @@ import org.moflon.ide.core.runtime.builders.RepositoryBuilder;
 
 /**
  * Builder for projects with {@link CMoflonRepositoryNature}. 
- * Similar to {@link RepositoryBuilder}.#
+ * Similar to {@link RepositoryBuilder}.
  * Triggers {@link CMoflonRepositoryCodeGenerator}.
  * 
  * @author David Giessing
@@ -73,7 +73,7 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
 
       try
       {
-         final SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 52);
+         final SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 53);
 
          CMoflonProjectCreator.createFoldersIfNecessary(getProject(), subMon.split(1));
          CMoflonProjectCreator.createFilesIfNecessary(getProject(), subMon.split(1));
