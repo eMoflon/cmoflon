@@ -22,7 +22,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.cmoflon.ide.core.runtime.codegeneration.HeaderFileGenerator.BuiltInTypes;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes.Components;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonStringRenderer;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.FieldAttribute;
@@ -973,7 +972,7 @@ public class CMoflonCodeGenerator
    {
       final List<Type> result = new ArrayList<Type>();
       // Add built in Types
-      for (BuiltInTypes t : HeaderFileGenerator.BuiltInTypes.values())
+      for (CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values())
       {
          result.add(new Type(true, t.name()));
       }

@@ -29,11 +29,6 @@ public class HeaderFileGenerator
 
    public static final String INCLUDE = "include";
 
-   //TODO: extend this for all Built in Types
-   public enum BuiltInTypes {
-      EBoolean, EDouble, EFloat, EInt, ELong
-   }
-
    public static String generateConstant(Object key, Object value, String component, String algorithm, ST template)
    {
       template.add("comp", component);
@@ -49,38 +44,13 @@ public class HeaderFileGenerator
    public static String getAllBuiltInMappings()
    {
       final StringBuilder result = new StringBuilder();
-      for (final BuiltInTypes t : BuiltInTypes.values())
+      for (final CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values())
       {
-         result.append("typedef " + getCType(t) + " " + t.name() + ";");
+         result.append("typedef " + CMoflonBuiltInTypes.getCType(t) + " " + t.name() + ";");
          result.append(CMoflonCodeGenerator.nl());
          result.append(CMoflonCodeGenerator.nl());
       }
       return result.toString();
-   }
-
-   //TODO: add cases for all Built in Types
-   /**
-    * Returns the String for each built in EType that is also part of C programming language.
-    * @param t the type
-    * @return a string with the type specifier corresponding to the EType
-    */
-   public static String getCType(final BuiltInTypes t)
-   {
-      switch (t)
-      {
-      case EDouble:
-         return "double";
-      case EFloat:
-         return "float";
-      case EBoolean:
-         return "bool";
-      case EInt:
-         return "int";
-      case ELong:
-         return "long";
-      default:
-         return "void";
-      }
    }
 
    /**
