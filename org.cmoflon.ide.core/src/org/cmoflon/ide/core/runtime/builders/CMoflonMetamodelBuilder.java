@@ -10,7 +10,6 @@ import org.cmoflon.ide.core.runtime.natures.CMoflonMetamodelNature;
 import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -49,9 +48,9 @@ import MocaTree.Node;
  */
 public class CMoflonMetamodelBuilder extends MetamodelBuilder
 {
-   public static final Logger logger = Logger.getLogger(CMoflonMetamodelBuilder.class);
-
    public static final String BUILDER_ID = CMoflonMetamodelBuilder.class.getName();
+
+   private static final Logger logger = Logger.getLogger(CMoflonMetamodelBuilder.class);
 
    @Override
    public void clean(final IProgressMonitor monitor) throws CoreException
@@ -69,8 +68,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
       {
          try
          {
-            logger.debug("Start processing .temp folder");
-            SubMonitor subMon = SubMonitor.convert(monitor, "Processing .temp", 140);
+            final SubMonitor subMon = SubMonitor.convert(monitor, "Processing .temp", 140);
 
             if (CMoflonWorkspaceHelper.getExportedMocaTree(this.getProject()).exists())
             {
@@ -169,10 +167,10 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
             e.printStackTrace();
          } finally
          {
+            handleErrorsInEclipse(mocaToMoflonStatus);
             monitor.done();
          }
 
-         handleErrorsInEclipse(mocaToMoflonStatus);
       }
    }
 
@@ -181,20 +179,14 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
     */
    private void handleErrorsInEclipse(final IStatus validationStatus)
    {
-      final IProject metamodelProject = getProject();
-      final IFile eapFile = metamodelProject.getFile(metamodelProject.getName() + ".eap");
-
-      if (eapFile.exists())
+      final IFile ecoreFile = WorkspaceHelper.getDefaultEcoreFile(getProject());
+      final ErrorReporter eclipseErrorReporter = (ErrorReporter) Platform.getAdapterManager().loadAdapter(ecoreFile,
+            "org.moflon.compiler.sdm.democles.eclipse.EclipseErrorReporter");
+      if (eclipseErrorReporter != null)
       {
-         ErrorReporter eclipseErrorReporter = (ErrorReporter) Platform.getAdapterManager().loadAdapter(eapFile,
-               "org.moflon.compiler.sdm.democles.eclipse.EclipseErrorReporter");
-         if (eclipseErrorReporter != null)
+         if (!validationStatus.isOK())
          {
-            if (!validationStatus.isOK())
-            {
-
-               eclipseErrorReporter.report(validationStatus);
-            }
+            eclipseErrorReporter.report(validationStatus);
          }
       }
    }

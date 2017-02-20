@@ -51,6 +51,9 @@ import org.moflon.sdm.constraints.scopevalidation.ScopevalidationFactory;
 import org.moflon.sdm.democles.literalexpressionsolver.ConstantTransformer;
 import org.moflon.sdm.democles.literalexpressionsolver.LiteralexpressionsolverFactory;
 
+/**
+ * @author David Giessing
+ */
 public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGeneratorConfig
 {
 
@@ -68,7 +71,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
    // Operation modules (constraint to operation (constraint + adornment) mappings)
    private final AttributeConstraintsOperationBuilder attributeConstraintsOperationBuilder = new AttributeConstraintsOperationBuilder();
 
-   //Constraint libraies
+   //Constraint libraries
    private List<AttributeConstraintLibrary> attributeVariableConstraintLibraries = new LinkedList<AttributeConstraintLibrary>();
 
    //Constraint type module
@@ -77,12 +80,6 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
    protected AttributeConstraintLibUtilImpl attributeConstraintLibUtil = (AttributeConstraintLibUtilImpl) ConstraintstodemoclesFactory.eINSTANCE
          .createAttributeConstraintLibUtil();
 
-
-   public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet)
-   {
-      this(resourceSet, null);
-   }
-   
    public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet, final IProject project)
    {
       super(resourceSet);

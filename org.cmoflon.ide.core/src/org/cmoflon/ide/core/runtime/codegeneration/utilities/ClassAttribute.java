@@ -18,16 +18,16 @@ public class ClassAttribute
    //The Type(Class) this Attribute belongs to.
    protected Type owningType;
 
-   public Type getOwningType()
-   {
-      return owningType;
-   }
-
    public ClassAttribute(Type owningType, Type type, String name)
    {
       this.name = name;
       this.type = type;
       this.owningType = owningType;
+   }
+
+   public Type getOwningType()
+   {
+      return owningType;
    }
 
    public Type getType()

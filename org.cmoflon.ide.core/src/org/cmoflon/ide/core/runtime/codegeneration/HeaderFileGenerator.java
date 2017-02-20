@@ -8,7 +8,7 @@ import org.stringtemplate.v4.ST;
 
 public class HeaderFileGenerator
 {
-
+   // Template names follow
    public static final String CONSTANTS_BEGIN = "headerDefinition";
 
    public static final String CONSTANTS_DEFINTION = "constants";
@@ -28,6 +28,7 @@ public class HeaderFileGenerator
    public static final String DEFINE = "define";
 
    public static final String INCLUDE = "include";
+   // End of template names
 
    public static String generateConstant(Object key, Object value, String component, String algorithm, ST template)
    {

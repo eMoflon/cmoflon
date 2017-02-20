@@ -74,7 +74,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * Generates the Source and the Header File.
+ * Generates the source and the header File.
  * 
  * @author David Giessing
  * @author Roland Kluge

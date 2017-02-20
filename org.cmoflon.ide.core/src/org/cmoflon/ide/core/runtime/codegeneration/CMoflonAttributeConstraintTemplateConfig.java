@@ -16,9 +16,11 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupString;
 
+/**
+ * @author David Giessing
+ */
 public class CMoflonAttributeConstraintTemplateConfig extends CMoflonTemplateConfiguration
 {
-
    public CMoflonAttributeConstraintTemplateConfig(final GenModel genModel, final java.util.List<AttributeConstraintLibrary> attributeConstraintLibs)
    {
       super(genModel);

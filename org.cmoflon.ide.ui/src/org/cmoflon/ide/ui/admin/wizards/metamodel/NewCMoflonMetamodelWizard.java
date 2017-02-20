@@ -35,7 +35,6 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 {
    private static final String PATH_TO_DEFAULT_SPECIFICATION = "resources/defaultCMoflonSpecification.eap";
 
-   // Page containing controls for taking user input
    private NewMetamodelProjectInfoPage projectInfo;
 
    private static Logger logger = Logger.getLogger(NewCMoflonMetamodelWizard.class);
@@ -100,16 +99,13 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
          String projectName = projectInfo.getProjectName();
          IPath location = projectInfo.getProjectLocation();
 
-         // Create project
          IProject newProjectHandle = createProject(projectName, WorkspaceHelper.getPluginId(getClass()), location, subMon.split(1));
 
-         // generate default files
          final URL pathToDefaultEapFile = MoflonUtilitiesActivator.getPathRelToPlugIn(PATH_TO_DEFAULT_SPECIFICATION, WorkspaceHelper.getPluginId(getClass()));
          WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap", pathToDefaultEapFile, WorkspaceHelper.getPluginId(getClass()), subMon.split(1));
 
-         WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp", subMon.split(1));
+         WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp\n*.ldb\n", subMon.split(1));
 
-         // Add Nature and Builders
          WorkspaceHelper.addNature(newProjectHandle, CMoflonMetamodelNature.NATURE_ID, subMon.split(1));
          WorkspaceHelper.addNature(newProjectHandle, WorkspaceHelper.METAMODEL_NATURE_ID, subMon.split(1));
 
@@ -140,23 +136,19 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
    private static IProject createProject(final String projectName, final String pluginId, final IPath location, final IProgressMonitor monitor)
          throws CoreException
    {
-      SubMonitor subMon = SubMonitor.convert(monitor, "", 2);
+      final SubMonitor subMon = SubMonitor.convert(monitor, "Create project " + projectName, 2);
 
-      // Get project handle
-      IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-      IProject newProject = root.getProject(projectName);
+      final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+      final IProject newProject = root.getProject(projectName);
 
-      // Use default location (in workspace)
       final IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(newProject.getName());
       description.setLocation(location);
 
-      // Complain if project already exists
       if (newProject.exists())
       {
          throw new CoreException(new Status(IStatus.ERROR, pluginId, projectName + " exists already!"));
       }
 
-      // Create project
       newProject.create(description, subMon.split(1));
       newProject.open(subMon.split(1));
 
@@ -166,6 +158,6 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
    @Override
    public void init(IWorkbench workbench, IStructuredSelection selection)
    {
-
+      // Nothing to do here
    }
 }

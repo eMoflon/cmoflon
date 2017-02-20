@@ -74,11 +74,10 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
       try
       {
          final SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 53);
+         logger.info("Generating code for " + this.getProject());
 
          CMoflonProjectCreator.createFoldersIfNecessary(getProject(), subMon.split(1));
          CMoflonProjectCreator.createFilesIfNecessary(getProject(), subMon.split(1));
-
-         logger.info("Generating code for " + this.getProject());
          
          final CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
          
@@ -113,7 +112,7 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
       }
    }
 
-   private boolean indicatesThatValidationCrashed(IStatus status)
+   private boolean indicatesThatValidationCrashed(final IStatus status)
    {
       return status.getException() != null;
    }
@@ -162,14 +161,14 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
       if (!folder.exists())
          return;
 
-      SubMonitor subMon = SubMonitor.convert(monitor, "Inspecting " + folder.getName(), 2 * folder.members().length);
+      SubMonitor subMon = SubMonitor.convert(monitor, "Cleaning " + folder.getName(), 2 * folder.members().length);
 
       for (final IResource resource : folder.members())
       {
          if (!resource.getName().startsWith("."))
          {
             if (WorkspaceHelper.isFolder(resource))
-               cleanFolderButKeepHiddenFiles((IFolder) resource, subMon.split(1));
+               cleanFolderButKeepHiddenFiles(IFolder.class.cast(resource), subMon.split(1));
             else
                subMon.worked(1);
 
