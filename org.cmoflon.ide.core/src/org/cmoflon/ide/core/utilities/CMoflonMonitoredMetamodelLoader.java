@@ -34,7 +34,7 @@ public class CMoflonMonitoredMetamodelLoader extends GenericMonitoredResourceLoa
       final SubMonitor subMon = SubMonitor.convert(monitor, "Loading workspace projects", workspaceProjects.length);
       for (IProject workspaceProject : workspaceProjects)
       {
-         if (isAccessible(workspaceProject))
+         if (isValidProject(workspaceProject))
          {
             final URI projectURI = CodeGeneratorPlugin.lookupProjectURI(workspaceProject);
             final URI metamodelURI = CodeGeneratorPlugin.getDefaultProjectRelativeEcoreFileURI(workspaceProject).resolve(projectURI);
@@ -44,7 +44,8 @@ public class CMoflonMonitoredMetamodelLoader extends GenericMonitoredResourceLoa
       }
    }
    
-   protected boolean isAccessible(IProject project)
+   @Override
+   protected boolean isValidProject(IProject project)
    {
       try
       {
