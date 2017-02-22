@@ -1,10 +1,17 @@
-# Documentation for cMoflon (UNDER CONSTRUCTION)
-Documentation for cMoflon, the eMoflon derivate for generating Contiki code
-----
+# Documentation for cMoflon
+cMoflon is a code generator for topology control algorithms based on the wireless sensor operating system Contiki.
+cMoflon is a variant of [eMoflon](https://emoflon.github.io).
+In cMoflon, topology control algorithms are specified using Ecore and Story-Driven Modeling, a programmed graph transformation dialect.
+The target programmling language is (embedded) C.
 
+## Troubleshooting
 If you encounter any problems, please post an issue (https://github.com/eMoflon/cmoflon/issues) or send me (Roland Kluge) a message
 
-## How to set up a small case study (walkthrough)
+## SHARE VM
+(Coming soon)
+We invite you to try out cMoflon using the following SHARE VM.
+
+## Short walkthrough
 
 ### Setup: How to install cMoflon and all required software
 The currently requires a mixed environment with a Windows system (for cMoflon/eMoflon and Enterprise Architect) and a Linux VM (provided as Instant Contiki).
