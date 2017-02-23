@@ -788,11 +788,10 @@ private String getPatternMatchingCode()
    }
 
    /**
-    * Gets the PatternMatching Code As a side effect the LIST and MEMB
-    * structures are generated
+    * Returns the implementations of the patterns
     * 
     * @param genClass
-    * @return returns the pattern Matching code as string
+    * @return returns the pattern matching code as string
     */
    private String getPatternImplementationCode(final GenClass genClass)
    {
@@ -815,6 +814,8 @@ private String getPatternMatchingCode()
             {
                st.add(entry.getKey(), entry.getValue());
             }
+            //if (searchPlanAdapter.getBody().getHeader().getName().contains("LmstAlgorithm_1_3_FindMinimalOutgoingLink_binding"))
+            //   st.inspect();
             code.append(st.render());
             code.append(nl());
             code.append(nl());
