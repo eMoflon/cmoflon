@@ -19,12 +19,12 @@ This version of cMoflon has been tested with Eclipse Neon.2 (4.6.2) and eMoflon 
 
 1. **Install Eclipse with Modeling Components Neon.2 (or newer)**
   * All Eclipse packages are available here: https://eclipse.org/downloads/
-1. **Install Enterprise Architect 12 (or newer)**
+1. **Install Enterprise Architect 12 (or later)**
   * A 30-days trial version of Enterprise Architect is available here: https://www.sparxsystems.de/uml/download-trial/
-1. **Install eMoflon 2.26.0**
-  * To install eMoflon in Eclipse use the following update site: http://emoflon.github.io/eclipse-plugin/emoflon_2.26.0/update-site2/
+1. **Install eMoflon 2.28.0 (or later)**
+  * To install eMoflon in Eclipse use the following update site: http://emoflon.github.io/eclipse-plugin/emoflon_2.28.0/updatesite/
   * You only need to install the feature *eMoflon Core*
-  * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.github.io/eclipse-plugin/emoflon_2.26.0/update-site2/ea-ecore-addin.zip
+  * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.github.io/eclipse-plugin/emoflon_2.28.0/updatesite/ea-ecore-addin.zip
 1. **Install cMoflon 1.0.0**
   * Update Site: http://emoflon.github.io/cmoflon/update-site/
   * You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.
@@ -64,13 +64,7 @@ We suggest to mount a [shared folder](https://help.ubuntu.com/community/VirtualB
 1. Copy *$ToCoCo/src/app-conf-default*, and remove the *_default* suffix
  * Add the following lines
    * ```#define TOPOLOGYCONTROL_LINKS_HAVE_STATES``` (This ensures that the type ```neighbor_t``` has a member called ```state```)
-   * ```#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_IMMEDIATE_MIN (15-5)```
-   * ```#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_IMMEDIATE_MIN (15+5)```
-   * ```#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_SMALLDELAY_MIN (15-5)```
-   * ```#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_SMALLDELAY_MAX (15+5)```
-   * ```#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_PERIODIC_MIN (15-5)```
-   * ```#define COMPONENT_TOPOLOGYCONTROL_CMOFLONDEMOLANGUAGE_C_BROADCASTHOPCOUNT_PERIODIC_MAX (15+5)```
- * Adjust the settings within to your wishes
+ * Adjust the settings to your wishes
 1. Copy *$ToCoCo/src/Makefile-conf-default.include*, and remove the *_default*, 
  * Set the *Contiki* property to the contiki path in the VM (e.g., ```Contiki=/home/user/contiki``` in Instant Contiki)
  * **Do not use IPv6** (the resulting image would be too large for Sky motes): ```NETWORK_IPV6 = 0```
@@ -85,9 +79,11 @@ FlockLab (https://www.flocklab.ethz.ch/) is a wireless sensor testbed at ETH Zur
 
 1. You will need a Flocklab account for testing so create one here: https://www.flocklab.ethz.ch/user/login.php
 1. Follow all the Steps for Cooja until compilation has terminated.
-1. Then, unmount the drive from the VM
 1. Go to the test image section (https://www.flocklab.ethz.ch/user/images.php) and upload the compiled *app.sky* file, located in *TCEval/src*.
 1. Copy the ImageID into the xml configuration provided in the */resources* folder in the Eclipse Project and then upload it to the test section
 1. After the Test is run, you will receive an e-mail with the results in a zip folder.
 
 ### How to use the evaluation tools
+The ToCoCo evaluation tools help you to analyze the serial logging output of the FlockLab sensor nodes.
+
+(Yet to come...)
