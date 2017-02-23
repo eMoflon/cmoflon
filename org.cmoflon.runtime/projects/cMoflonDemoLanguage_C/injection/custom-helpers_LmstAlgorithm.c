@@ -81,7 +81,6 @@ void lmstAlgorithm_cleanup(LMSTALGORITHM_T* this) {
 	TREEENTRY_T* item_neighbor;
 	for (item_neighbor = list_head(entryList); item_neighbor != NULL; item_neighbor =
 			list_item_next(item_neighbor)) {
-		free(item_neighbor);
 		memb_free(this->tree->mem, list_pop(entryList));
 	}
 	free(entryList);
