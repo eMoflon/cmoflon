@@ -106,10 +106,11 @@ ForEachImplRegularPatternInvocationImpl(node, importManager) ::= <<
 match_t* result<node.mainAction.id>;
 for (result<node.mainAction.id> = list_head(<node.mainAction:InvokePattern(importManager)>); result<node.mainAction.id>!=NULL; result<node.mainAction.id>=list_item_next(result<node.mainAction.id>)) {
 	<node.mainAction.freeParameters:{ varRef | <WriteVariableMulti(varRef, i0, importManager)>}; separator="\n">
-	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
-	<first(node.scopes):ScopeImpl(importManager)>
 	free(result<node.mainAction.id>->match);
 	memb_free(&memb_<node.mainAction.pattern.name><node.mainAction.parameters:BoundOrFree()>, result<node.mainAction.id>);
+	<if (node.mainAction.next)><node.mainAction.next:NextActions(importManager)><endif>
+	<first(node.scopes):ScopeImpl(importManager)>
+	
 }
 <if (node.next)><node.next:Node(importManager)><endif>
 >>
@@ -218,9 +219,12 @@ PerformAction(action, importManager) ::= <<
 BindingPatternInvocationImplInForEachImpl(action, importManager) ::= <<
 <if (action.referencedFreeParameters)> match_t* result<action.id> = <endif><InvokePattern(action, importManager)>;
 if (result<action.id> == NULL) {
-	throw new RuntimeException("Binding in node <action.cfNode.origin.name> failed."<VariablesByFailedPatternMatching(action)>);
+	printf("Pattern matching in node [<node.origin.name>] failed.");
+	<VariablesByFailedPatternMatching(action)>
+	exit(-1);
 }
 <action.freeParameters:{ varRef | <WriteVariable(varRef, i0, importManager)>}; separator="\n">
+free(result<action.id>)
 >>
 
 SingleResultPatternInvocationImplInIfStatementImpl(action, importManager) ::= <<
