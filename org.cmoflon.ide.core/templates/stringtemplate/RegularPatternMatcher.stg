@@ -3,16 +3,25 @@ match_t* _result;
 if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL)
 	printf("ERROR[topologycontrol]: match-list is full\n");
 else {
-	_result->match = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
+	if(_result->match = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		break;
+	}else{
 	<body.header.internalSymbolicParameters:{x  |_result->match[<i0>]=<if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}> 
 	list_add(list_matches_<body.header.name><adornment>, _result);
+	}
 }
 >> 
 
 SingleMatch(engine, importManager, body, chain) ::= <<
-void** _result = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
-<body.header.internalSymbolicParameters:{x  |_result[<i0>]= <if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}> 
-return _result;
+void** _result;
+if(_result = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*))=NULL){
+	printf("ERROR[topologycontrol]: could not allocate memory\n");
+	return NULL;
+}else{
+	<body.header.internalSymbolicParameters:{x  |_result[<i0>]= <if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}> 
+	return _result;
+}
 >>
 
 MatchSingleMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain, alwaysSuccessful) ::= <<
@@ -30,9 +39,13 @@ list_t <body.header.name><adornment>(<boundSymbolicParameters:{x| <if(x.Type.Lin
 	<else>if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL)
 	printf("ERROR[topologycontrol]: match-list is full\n");)
 	else {
-		_result->match = malloc(<length((boundSymbolicParameters))>*sizeof(void*));
-		<boundSymbolicParameters:{x  |_result->match[<i0>]= <x:/democles/Name(importManager)>;<\n>}> 
-		list_add(list_matches_<body.header.name><adornment>, _result);<endif>
+		if(_result->match = malloc(<length((boundSymbolicParameters))>*sizeof(void*))==NULL){
+			printf("ERROR[topologycontrol]: could not allocate memory\n");
+			break;
+		}else{
+			<boundSymbolicParameters:{x  |_result->match[<i0>]= <x:/democles/Name(importManager)>;<\n>}> 
+			list_add(list_matches_<body.header.name><adornment>, _result);<endif>
+		}
 	return list_matches_<body.header.name><adornment>;
 }
 >>
