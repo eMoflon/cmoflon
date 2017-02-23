@@ -15,11 +15,10 @@ void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 	for (item_neighbor = list_head(component_neighbordiscovery_neighbors());
 			item_neighbor != NULL;
 			item_neighbor = list_item_next(item_neighbor)) {
-		TREEENTRY_T *item_node = (TREEENTRY_T*) malloc(sizeof(TREEENTRY_T));
-		bool found;
+		TREEENTRY_T *item_node;
+		bool found = false;
 
 		// check for node1
-		found = false;
 		for (item_node = list_head(list_tree_entries); item_node != NULL;
 				item_node = list_item_next(item_node)) {
 			if (networkaddr_equal(item_neighbor->node1, item_node->node)) {
