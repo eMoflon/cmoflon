@@ -15,7 +15,7 @@ else {
 
 SingleMatch(engine, importManager, body, chain) ::= <<
 void** _result;
-if(_result = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*))=NULL){
+if(_result = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*))==NULL){
 	printf("ERROR[topologycontrol]: could not allocate memory\n");
 	return NULL;
 }else{
