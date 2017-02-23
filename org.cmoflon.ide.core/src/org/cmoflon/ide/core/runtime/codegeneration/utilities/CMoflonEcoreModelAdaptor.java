@@ -10,6 +10,7 @@ import org.stringtemplate.v4.misc.STNoSuchPropertyException;
 
 /**
  * This class implements custom property accessors for cMoflon
+ *
  * @author David Giessing
  *
  */

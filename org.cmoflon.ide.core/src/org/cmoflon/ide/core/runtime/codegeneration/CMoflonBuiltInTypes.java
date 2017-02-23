@@ -1,7 +1,7 @@
 package org.cmoflon.ide.core.runtime.codegeneration;
 
 /**
- * This enum contains all types that are supported by default by cMoflon
+ * All types that are supported by default by cMoflon
  * 
  * @author David Giessing
  * @author Roland Kluge

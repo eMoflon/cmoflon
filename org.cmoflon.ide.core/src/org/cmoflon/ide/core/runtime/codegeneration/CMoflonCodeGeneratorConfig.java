@@ -13,7 +13,9 @@ import org.moflon.compiler.sdm.democles.TemplateConfigurationProvider;
 import org.moflon.sdm.compiler.democles.validation.scope.PatternMatcher;
 
 /**
- * Overrides {@link DefaultValidatorConfig}. Needed to obtain correct {@link CMoflonTemplateConfiguration}.
+ * Overrides {@link DefaultValidatorConfig}. 
+ * Needed to obtain correct {@link CMoflonTemplateConfiguration}.
+ * 
  * @author David Giessing
  *
  */
@@ -35,6 +37,12 @@ public class CMoflonCodeGeneratorConfig extends DefaultValidatorConfig
    public CMoflonCodeGeneratorConfig(ResourceSet resourceSet)
    {
       super(resourceSet);
+   }
+
+   @Override
+   public TemplateConfigurationProvider createTemplateConfiguration(GenModel genModel)
+   {
+      return new CMoflonTemplateConfiguration(genModel);
    }
 
    protected PatternMatcher configureBindingAndBlackPatternMatcher(Resource resource) throws IOException
@@ -89,12 +97,5 @@ public class CMoflonCodeGeneratorConfig extends DefaultValidatorConfig
             EXPRESSION_PATTERN_MATCHER_GENERATOR);
       resource.getContents().add(expressionPatternMatcherGenerator);
       return expressionPatternMatcherGenerator;
-   }
-
-   @Override
-   public TemplateConfigurationProvider createTemplateConfiguration(GenModel genModel)
-   {
-
-      return new CMoflonTemplateConfiguration(genModel);
    }
 }

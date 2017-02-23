@@ -37,7 +37,13 @@ public class SourceFileGenerator
    public static final String HOPCOUNT = "hopcount";
 
    //TODO@rkluge contains general as well as specific parts, should be splitted later on
-   public static String generateClosingPart(STGroup templateGroup, boolean hopcount)
+   /**
+    * Generates the closing part of a ToCoCo process
+    * @param templateGroup
+    * @param hopcount
+    * @return
+    */
+   public static String generateClosingPart(final STGroup templateGroup, final boolean hopcount)
    {
       StringBuilder sb = new StringBuilder();
       sb.append(templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START).add("hopcount", hopcount).render());
@@ -57,25 +63,25 @@ public class SourceFileGenerator
    public static String generateUpperPart(String component, String algorithmName, STGroup templateGroup, boolean hopcount, String componentPreprocessorId)
    {
       final StringBuilder result = new StringBuilder();
-      ST procBegin = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_BEGIN);
+      final ST procBegin = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_BEGIN);
       procBegin.add("component", component);
       procBegin.add("algo", algorithmName);
       procBegin.add("componentId", componentPreprocessorId);
       result.append(procBegin.render());
 
-      ST bootComp = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + BOOT_COMP_WAIT);
+      final ST bootComp = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + BOOT_COMP_WAIT);
       bootComp.add("component", component);
       bootComp.add("hopcount", hopcount);
       bootComp.add("algo", algorithmName);
       result.append(bootComp.render());
 
-      ST mainLoop = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + MAIN_LOOP);
+      final ST mainLoop = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + MAIN_LOOP);
       mainLoop.add("hopcount", hopcount);
       mainLoop.add("component", component);
       mainLoop.add("algo", algorithmName);
       result.append(mainLoop.render());
 
-      ST watchDogStop = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_STOP);
+      final ST watchDogStop = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_STOP);
       result.append(watchDogStop.render());
 
       return result.toString();

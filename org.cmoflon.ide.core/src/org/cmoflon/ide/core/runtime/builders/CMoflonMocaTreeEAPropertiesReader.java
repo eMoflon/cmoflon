@@ -23,8 +23,8 @@ public class CMoflonMocaTreeEAPropertiesReader extends MocaTreeEAPropertiesReade
    @Override
    public Map<String, MetamodelProperties> getProperties(Node mocaTree) throws CoreException
    {
-      Node root = (Node) ((NodeImpl) mocaTree.getChildren().get(0));
-      for (Text child : root.getChildren())
+      final Node root = (Node) ((NodeImpl) mocaTree.getChildren().get(0));
+      for (final Text child : root.getChildren())
       {
          final Node node = (Node) child;
          if (!node.getAttribute(BasicResourceFillingMocaToMoflonTransformation.MOCA_TREE_ATTRIBUTE_WORKINGSET).iterator().next().getValue()

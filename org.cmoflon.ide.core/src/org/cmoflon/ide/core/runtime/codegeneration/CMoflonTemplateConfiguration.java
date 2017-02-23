@@ -42,8 +42,9 @@ import org.moflon.sdm.runtime.democles.VariableReference;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * Mimics behavior of {@link DefaultTemplateConfiguration}. <br>
+ * Mimics behavior of {@link DefaultTemplateConfiguration}.
  * Includes the changed StringTemplates as well as the {@link CMoflonStringRenderer}
+ * 
  * @author David Giessing
  *
  */
@@ -64,7 +65,7 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
     */
    public static final String SOURCE_FILE_GENERATOR = "SourceFileGenerator";
 
-   protected final HashMap<String, STGroup> templates = new HashMap<String, STGroup>();
+   private final HashMap<String, STGroup> templates = new HashMap<String, STGroup>();
 
    protected final HashMap<String, OperationSequenceCompiler> operationSequenceCompilers = new HashMap<String, OperationSequenceCompiler>();
 

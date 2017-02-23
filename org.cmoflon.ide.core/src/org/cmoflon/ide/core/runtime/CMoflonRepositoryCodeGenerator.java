@@ -26,6 +26,7 @@ import org.osgi.framework.FrameworkUtil;
  * Mimics {@link RepositoryCodeGenerator}. Needed to invoke {@link CMoflonCodeGenerator}
  * 
  * @author David Giessing
+ * @author Roland Kluge
  */
 public class CMoflonRepositoryCodeGenerator
 {
@@ -43,9 +44,9 @@ public class CMoflonRepositoryCodeGenerator
    {
       final SubMonitor subMon = SubMonitor.convert(monitor);
       try
-      {  
-         project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
-         
+      {
+         this.project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+
          final IFile ecoreFile = getEcoreFileAndHandleMissingFile();
          if (!ecoreFile.exists())
          {
@@ -70,7 +71,7 @@ public class CMoflonRepositoryCodeGenerator
       return Status.OK_STATUS;
    }
 
-   protected IFile getEcoreFileAndHandleMissingFile() throws CoreException
+   private IFile getEcoreFileAndHandleMissingFile() throws CoreException
    {
       if (!doesEcoreFileExist())
          createMarkersForMissingEcoreFile();
@@ -78,12 +79,12 @@ public class CMoflonRepositoryCodeGenerator
       return getEcoreFile();
    }
 
-   protected IFile getEcoreFile()
+   private IFile getEcoreFile()
    {
-      return getEcoreFile(project);
+      return getEcoreFile(this.project);
    }
 
-   public static IFile getEcoreFile(final IProject p)
+   private static IFile getEcoreFile(final IProject p)
    {
       String ecoreFileName = MoflonUtil.getDefaultNameOfFileInProjectWithoutExtension(p.getName());
       return p.getFolder(WorkspaceHelper.MODEL_FOLDER).getFile(ecoreFileName + WorkspaceHelper.ECORE_FILE_EXTENSION);
@@ -104,10 +105,5 @@ public class CMoflonRepositoryCodeGenerator
       marker.setAttribute(IMarker.MESSAGE, "Cannot find: " + ecoreFile.getProjectRelativePath().toString());
       marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
       marker.setAttribute(IMarker.LOCATION, ecoreFile.getProjectRelativePath().toString());
-   }
-
-   public static boolean isEcoreFileOfProject(final IResource resource, final IProject p)
-   {
-      return resource.exists() && resource.getProjectRelativePath().equals(getEcoreFile(p).getProjectRelativePath());
    }
 }
