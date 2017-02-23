@@ -625,7 +625,6 @@ public class CMoflonCodeGenerator
       processBodyCode.append("\t\ttc.node =  networkaddr_node_addr();" + nl());
 
       final ST template = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT);
-      final String algorithm = this.cachedConcreteClasses.get(0).getEcoreClass().getEPackage().getName();
       final String algorithmInvocation = this.tcAlgorithmParameters.get(tcAlgorithm);
       processBodyCode.append(getParameters(algorithmInvocation, tcAlgorithm, template));
       if(this.useEvalStatements){
