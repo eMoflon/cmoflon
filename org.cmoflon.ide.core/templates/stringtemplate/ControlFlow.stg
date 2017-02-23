@@ -97,7 +97,6 @@ free(result<node.mainAction.id>);
 >>
 
 HeadControlledLoopImplLoopEndTasks(node, importManager) ::= <<
-free(result<node.mainAction.id>);
 result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 >>
 
