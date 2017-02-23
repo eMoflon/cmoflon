@@ -1,13 +1,16 @@
+MEMB(memb_entries, TREEENTRY_T, MAX_MATCH_COUNT);
+LIST(list_tree_entries);
+
 /**
  * Initializes the auxiliary data structures required by LMST
  */
 void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 	TREE_T* tree = (TREE_T*) malloc(sizeof(TREE_T));
 	tree->algo = this;
-	MEMB(memb_entries, TREEENTRY_T, MAX_MATCH_COUNT);
+
 	memb_init(&memb_entries);
 	tree->mem = &memb_entries;
-	LIST(list_tree_entries);
+
 	list_init(list_tree_entries);
 
 	// add all nodes to list
@@ -70,7 +73,6 @@ void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 	tree->entries = list_tree_entries;
 	this->tree = tree;
 }
-;
 
 /**
  * Clears the auxiliary data structures required by LMST
@@ -82,7 +84,8 @@ void lmstAlgorithm_cleanup(LMSTALGORITHM_T* this) {
 	while(list_length(entryList) > 0) {
 		memb_free(this->tree->mem, list_pop(entryList));
 	}
-	free(entryList);
+	free(this->tree);
+	this->tree = NULL;
 }
 
 NODE_T* lmstAlgorithm_getNode(LMSTALGORITHM_T* _this) {
