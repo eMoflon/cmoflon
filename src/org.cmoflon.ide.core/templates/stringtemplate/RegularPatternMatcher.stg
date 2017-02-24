@@ -1,9 +1,10 @@
 AllMatches(engine, importManager, body, chain) ::= <<
 match_t* _result;
 if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL)
-	printf("ERROR[topologycontrol]: match-list is full\n");
+	printf("ERROR[topologycontrol]: match list is full\n");
 else {
-	if(_result->match = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*))==NULL){
+	_result->match = (void**) malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
+	if(_result->match == NULL){
 		printf("ERROR[topologycontrol]: could not allocate memory\n");
 		break;
 	}else{
@@ -14,8 +15,8 @@ else {
 >> 
 
 SingleMatch(engine, importManager, body, chain) ::= <<
-void** _result;
-if(_result = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*))==NULL){
+void** _result = (void**) malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
+if(_result == NULL){
 	printf("ERROR[topologycontrol]: could not allocate memory\n");
 	return NULL;
 }else{
@@ -36,10 +37,11 @@ void** <body.header.name><adornment>(<boundSymbolicParameters:{x |<if(x.Type.Lin
 MatchAllMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain, alwaysSuccessful) ::= <<
 list_t <body.header.name><adornment>(<boundSymbolicParameters:{x| <if(x.Type.LinkedElement.EClassIsBuiltIn)><x.Type.LinkedElement.name><else><x.Type.LinkedElement.Name;format="fulluppercase">_T*<endif> <x:/democles/Name(importManager)>};separator=", ">) {
 	<if (chain)><(chain.value.template)(engine, importManager, body, chain)>
-	<else>if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL)
-	printf("ERROR[topologycontrol]: match-list is full\n");)
-	else {
-		if(_result->match = malloc(<length((boundSymbolicParameters))>*sizeof(void*))==NULL){
+	<else>if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL) {
+	    printf("ERROR[topologycontrol]: match-list is full\n");)
+	}else {
+		_result->match = (void**) malloc(<length((boundSymbolicParameters))>*sizeof(void*))
+		if(_result == NULL){
 			printf("ERROR[topologycontrol]: could not allocate memory\n");
 			break;
 		}else{
