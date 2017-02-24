@@ -88,7 +88,7 @@ FlockLab (https://www.flocklab.ethz.ch/) is a wireless sensor testbed at ETH Zur
 1. Create a new test (https://www.flocklab.ethz.ch/user/index.php) by uploading the adjusted xml configuration file.
  * The image ID can be modified as long as the test has not started yet.
 1. After the test is run, you will receive an e-mail with the results in a zip folder.
- * The contents of the *serial.csv* file allow you to debug/analyze the topology control behavior (Watch out for lines containing ```[topologycontrol]```).
+ * The contents of the *serial.csv* file allow you to debug/analyze the topology control behavior (Watch out for lines like ```[topologycontrol-*]```).
 
 ### How to use the evaluation tools
 The ToCoCo evaluation tools help you to analyze the serial logging output of the FlockLab sensor nodes.
