@@ -79,9 +79,16 @@ FlockLab (https://www.flocklab.ethz.ch/) is a wireless sensor testbed at ETH Zur
 
 1. You will need a Flocklab account for testing so create one here: https://www.flocklab.ethz.ch/user/login.php
 1. Follow all the Steps for Cooja until compilation has terminated.
-1. Go to the test image section (https://www.flocklab.ethz.ch/user/images.php) and upload the compiled *app.sky* file, located in *TCEval/src*.
-1. Copy the ImageID into the xml configuration provided in the */resources* folder in the Eclipse Project and then upload it to the test section
-1. After the Test is run, you will receive an e-mail with the results in a zip folder.
+1. Go to the test image section (https://www.flocklab.ethz.ch/user/images.php) and upload the compiled *app.sky* file, located in *$ToCoCo/src*.
+ * As *OS*, choose *TinyOS*.
+ * As *Platform*, choose *Tmote*.
+1. Create a copy of the xml configuration file *org.cmoflon.runtime/resources/Evaluation/flocklabConfig.xml*.
+ * Copy the image ID into the ```<dbImageId/>``` element
+ * (optional) Adjust the duration of the test (```<durationSecs/>```, e.g., 960).
+1. Create a new test (https://www.flocklab.ethz.ch/user/index.php) by uploading the adjusted xml configuration file.
+ * The image ID can be modified as long as the test has not started yet.
+1. After the test is run, you will receive an e-mail with the results in a zip folder.
+ * You may inspect the file *serial.csv* for debugging/analyzing the topology control behavior (Watch out for lines containing ```[topologycontrol]```
 
 ### How to use the evaluation tools
 The ToCoCo evaluation tools help you to analyze the serial logging output of the FlockLab sensor nodes.
