@@ -79,8 +79,6 @@ void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
  */
 void lmstAlgorithm_cleanup(LMSTALGORITHM_T* this) {
 	list_t entryList = this->tree->entries;
-	// add all nodes to list
-	TREEENTRY_T* item_neighbor;
 	while(list_length(entryList) > 0) {
 		memb_free(this->tree->mem, list_pop(entryList));
 	}

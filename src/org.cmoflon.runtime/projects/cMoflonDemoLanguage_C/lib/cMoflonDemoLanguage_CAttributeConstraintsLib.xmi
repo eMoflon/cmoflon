@@ -70,6 +70,18 @@
     <parameterIDs
         identifier="b"/>
   </operationSpecifications>
+  <operationSpecifications
+      constraintSpecifications="//@constraintSpecifications.5"
+      operationIdentifier="same">
+    <operationSpecifications
+        specification="$a$ == $b$"
+        adornmentString="BB"
+        alwaysSuccessful="false"/>
+    <parameterIDs
+        identifier="a"/>
+    <parameterIDs
+        identifier="b"/>
+  </operationSpecifications>
   <constraintSpecifications
       operationSpecificationGroup="//@operationSpecifications.0"
       symbol="max">
@@ -144,6 +156,20 @@
   <constraintSpecifications
       operationSpecificationGroup="//@operationSpecifications.4"
       symbol="xor">
+    <parameterTypes>
+      <type
+          xsi:type="ecore:EDataType"
+          href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </parameterTypes>
+    <parameterTypes>
+      <type
+          xsi:type="ecore:EDataType"
+          href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </parameterTypes>
+  </constraintSpecifications>
+  <constraintSpecifications
+      operationSpecificationGroup="//@operationSpecifications.5"
+      symbol="=">
     <parameterTypes>
       <type
           xsi:type="ecore:EDataType"
