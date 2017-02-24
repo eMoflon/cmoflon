@@ -1,0 +1,5 @@
+PatternCall(engine, importManager, body, chain) ::= <<
+if (<chain.value.operation.origin.type.invokedPattern.name><chain.value.operation.precondition>(<chain.value.operation.parameters:/democles/ParameterName(importManager); separator=", ">) == NULL) {
+	<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+}
+>>

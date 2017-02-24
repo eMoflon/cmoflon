@@ -1,0 +1,101 @@
+group header;
+
+headerDefinition(comp,algo)::=<<
+#ifndef __<comp;format="fulluppercase">__<algo;format="fulluppercase">_H_
+#define __<comp;format="fulluppercase">__<algo;format="fulluppercase">_H_
+
+
+>>
+
+constants(comp,algo,name,value)::=<<
+#ifndef COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">
+#define COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase"> <value>
+#endif
+
+
+>>
+
+include(path)::=<<
+#include <path>
+
+>>
+
+endHeader(comp,algo)::=<<
+
+#endif /* __<comp;format="fulluppercase">__<algo;format="fulluppercase">_H_ */
+>>
+
+getMatch()::=<<
+typedef struct match{
+	struct match_t* next;
+	void** match;
+}match_t;
+
+
+>>
+define(orig,replaced)::=<<
+typedef <replaced> <orig;format="fulluppercase">_T;<\n>
+
+>>
+
+methodDeclaration(methods)::=<<
+//Begin of non SDM implemented methods
+<methods:{method|<if(method.type.builtIn)><method.type.name><else><method.type.name;format="fulluppercase">_T*<endif> <method.owningType.name; format="firstlowercase">_<method.name>(<method.parameters>);};separator="\n">
+//End of non SDM implemented methods
+<\n>
+>>
+
+getDeclarations(fields)::=<<
+
+<fields:{field|//Begin of declarations for <field.name><\n><if(field.type.Boolean)><isDeclarationBool(field)><setterDeclaration(field)><else><if(field.islist)><getterDeclaration(field)><addDeclaration(field)><removeDeclaration(field)><containsDeclaration(field)><isDeclaration(field)><else><getterDeclaration(field)><setterDeclaration(field)><endif><endif>//End of declarations for <field.name>};separator="\n\n">
+<\n>
+>>
+
+getterDeclaration(field)::=<<
+<if(field.islist)>list_t<else><if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif><endif> <field.owningType.name; format="firstlowercase">_get<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this);
+
+>>
+
+isDeclarationBool(field)::=<<
+bool <field.owningType.name; format="firstlowercase">_is<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this);
+
+>>
+
+isDeclaration(field)::=<<
+bool <field.owningType.name; format="firstlowercase">_is<field.name;format="uppercase">(void* candidate, void* _this);
+
+>>
+
+setterDeclaration(field)::=<<
+void <field.owningType.name;format="firstlowercase">_set<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
+
+>>
+
+addDeclaration(field)::=<<
+void <field.owningType.name;format="firstlowercase">_add<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
+
+>>
+
+removeDeclaration(field)::=<<
+void <field.owningType.name;format="firstlowercase">_remove<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> item);
+
+>>
+
+containsDeclaration(fields)::=<<
+bool <field.owningType.name;format="firstlowercase">_contains<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
+
+>>
+
+compareDeclaration(types)::=<<
+//Begin of compare declarations
+<types:{t|int <t.name;format="firstlowercase">_compare(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
+//End of compare declarations
+<\n>
+>>
+
+equalsDeclaration(types)::=<<
+//Begin of equals declarations
+<types:{t|bool <t.name;format="firstlowercase">_equals(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
+//End of equals declarations
+<\n>
+>>

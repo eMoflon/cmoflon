@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="de.walware.statet.r.launchConfigurationTypes.RConsole">
+<stringAttribute key="de.walware.statet.r.debug/RConsole/arguments.options" value="--no-save"/>
+<booleanAttribute key="de.walware.statet.r.debug/RConsole/console.pin" value="false"/>
+<stringAttribute key="de.walware.statet.r.debug/RConsole/type" value="local.rjs-rmi"/>
+<stringAttribute key="de.walware.statet.r/renv/REnvCode" value="default-workbench"/>
+<stringAttribute key="de.walware.statet.r/renv/WorkingDirectory" value="${workspace_loc:/org.cmoflon.runtime/resources/Evaluation/R/}"/>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="R_KEEP_PKG_SOURCE" value="yes"/>
+</mapAttribute>
+<booleanAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_OUTPUT_ON" value="false"/>
+<stringAttribute key="process_factory_id" value="de.walware.statet.nico.LogRuntimeProcessFactory"/>
+</launchConfiguration>
