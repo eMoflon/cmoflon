@@ -1,0 +1,41 @@
+CreateToManyLink(engine, importManager, body, chain) ::= <<
+<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>.<chain.value.operation.type.linkedElement.genModelElement.getAccessor>().add(<first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>);
+<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+>>
+
+CreateToOneLink(engine, importManager, body, chain) ::= <<
+<first(chain.value.operation.parameters):{x|<x.Specification.type.LinkedElement.Name; format="firstlowercase">}>_set<chain.value.operation.type.linkedElement.genModelElement.accessorName; format="uppercase"><if (chain.value.operation.type.linkedElement.genModelElement.collidingSetAccessorOperation)>_<endif>(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, <first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>);
+<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+>>
+
+// EMF code:
+// <importManager.(chain.value.operation.type.linkedElement)> <first(chain.value.operation.parameters):/democles/ParameterName(importManager)> = <importManager.(chain.value.operation.type.linkedElement.genModelElement.genPackage.qualifiedFactoryInterfaceName)>.eINSTANCE.create<chain.value.operation.type.linkedElement.name; format="uppercase">();
+// <if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+// <WriteVariable(varRef, i0, importManager)>
+CreateObject(engine, importManager, body, chain) ::= <<
+printf("INFO[topologycontrol]: Fully-automated object creation is not supported currently! You will need to manually allocate memory for the following variables.");
+<chain.value.operation.parameters:{ varRef | 
+<varRef.specification.type.linkedElement.name; format="fulluppercase">_T* <varRef.specification> = allocate_<varRef.specification>_in_<body.header.name>();}; separator="\n">
+void** _result;
+if(_result = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*))==NULL){
+	printf("ERROR[topologycontrol]: could not allocate memory\n");
+	return NULL;
+}else{
+	<body.header.internalSymbolicParameters:{x  |_result[<i0>]= <if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}>
+	return _result;
+};
+>>
+
+WriteVariable(varRef, index, importManager) ::= <<
+<if(varRef.from.onlyDefined)>// <endif><if(varRef.constructed)><varRef.from.type.name; format="fulluppercase">_T* <endif><varRef.from.name> = (<varRef.from.type.name; format="fulluppercase">_T*) result<varRef.invocation.id>[<varRef.index>];
+>>
+
+ReverseCreateToOneEReference(engine, importManager, body, chain) ::= <<
+<first(rest(chain.value.operation.parameters)):{x|<x.Specification.type.LinkedElement.Name; format="firstlowercase">}>_set<chain.value.operation.type.linkedElement.eOpposite.genModelElement.accessorName; format="uppercase"><if (chain.value.operation.type.linkedElement.genModelElement.collidingSetAccessorOperation)>_<endif>(<first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>, <first(chain.value.operation.parameters):/democles/ParameterName(importManager)>);
+<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+>>
+
+ReverseCreateToManyEReference(engine, importManager, body, chain) ::= <<
+<first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>.<chain.value.operation.type.linkedElement.eOpposite.genModelElement.getAccessor>().add(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>);
+<if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
+>>
