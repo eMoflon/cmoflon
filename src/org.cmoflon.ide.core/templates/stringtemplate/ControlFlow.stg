@@ -31,7 +31,7 @@ CFNodeImplRegularPatternInvocationImpl(node, importManager) ::= <<
 <if (node.mainAction.prev)><node.mainAction.prev:PreviousActions(importManager)><endif>
 void** result<node.mainAction.id> = <node.mainAction:InvokePattern(importManager)>;
 if (result<node.mainAction.id> == NULL) {
-	printf("ERROR[topologycontrol]: Pattern matching in node [<node.origin.name>] failed.");
+	printf("ERROR[topologycontrol]: Pattern matching in node [<node.origin.name>] failed (%s:%d)\n", __FILE__, __LINE__);
 	<VariablesByFailedPatternMatching(node.mainAction)>
 	exit(-1);
 }
@@ -219,7 +219,7 @@ PerformAction(action, importManager) ::= <<
 BindingPatternInvocationImplInForEachImpl(action, importManager) ::= <<
 <if (action.referencedFreeParameters)> match_t* result<action.id> = <endif><InvokePattern(action, importManager)>;
 if (result<action.id> == NULL) {
-	printf("ERROR[topologycontrol]: Pattern matching in node [<node.origin.name>] failed.");
+	printf("ERROR[topologycontrol]: Pattern matching in node [<node.origin.name>] failed (%s:%d)\n", __FILE__, __LINE__);
 	<VariablesByFailedPatternMatching(action)>
 	exit(-1);
 }
