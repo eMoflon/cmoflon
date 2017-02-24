@@ -30,8 +30,9 @@ void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 			}
 		}
 		if (!found) {
-			if ((item_node = memb_alloc(&memb_entries)) == NULL) {
-				printf("ERROR[topologycontrol-lmst]: nodelist is full\n");
+			item_node = memb_alloc(&memb_entries);
+			if (item_node == NULL) {
+				printf("ERROR[topologycontrol][LMST]: node list is full (%s:%d)\n", __FILE__, __LINE__);
 			} else {
 				item_node->node = item_neighbor->node1;
 				item_node->parent = NULL;
@@ -55,8 +56,9 @@ void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 			}
 		}
 		if (!found) {
-			if ((item_node = memb_alloc(&memb_entries)) == NULL) {
-				printf("ERROR[topologycontrol-lmst]: nodelist is full\n");
+			item_node = memb_alloc(&memb_entries);
+			if (item_node == NULL) {
+				printf("ERROR[topologycontrol][LMST]: node list is full (%s:%d)\n", __FILE__, __LINE__);
 			} else {
 				item_node->node = item_neighbor->node2;
 				item_node->parent = NULL;
