@@ -78,7 +78,7 @@ main <- function()
 	
 	printedDataHeader = c(COL_ALGORITHM, COL_SIZE, COL_SIZE_DIFF_TO_NOTC, COL_SIZE_RELDIFF_TO_NOTC, COL_SIZE_DIFF_GEN_TO_MAN, COL_SIZE_RELDIFF_GEN_TO_MAN)
 	
-	intermediateLinePositions = c(2, 4, 6) # stores the pos. of the \toprule,\midrule,\bottomrule lines
+	intermediateLinePositions = c(2, 4) # stores the pos. of the \toprule,\midrule,\bottomrule lines
 	digitsSpec = c(0, 0, 0, 0, 1, 0, 1)
 	alignmentSpec = c("l", "l|", "r|", "r", "r|", "r", "r")
 	
@@ -88,13 +88,14 @@ main <- function()
 	printedData[rowOfNoTC, ][[COL_SIZE_DIFF_TO_NOTC]] = NA
 	printedData[[COL_SIZE_DIFF_GEN_TO_MAN]] = sprintf("\\numprint{%s}", printedData[[COL_SIZE_DIFF_GEN_TO_MAN]])
 	printedData[grep("-man|NoTC", printedData[[COL_ALGORITHM]]), COL_SIZE_DIFF_GEN_TO_MAN] = NA
+	printedData = printedData[-c(rowOfNoTC), ]
 	
 	
 	print("--- RQ1: LaTeX ---")
 	print(printedData)
 	formattedCodeSizeTable = xtable(
 		printedData,
-		caption = sprintf("Code size of the sensor images"),
+		caption = sprintf("Code size of the sensor images (Size of \\NoTC: \\SI{%s}{\\byte})", codeSizeData[rowOfNoTC, ][[COL_SIZE]]),
 		digits = digitsSpec,
 		align=alignmentSpec,
 		label = "tab:RQCode"
