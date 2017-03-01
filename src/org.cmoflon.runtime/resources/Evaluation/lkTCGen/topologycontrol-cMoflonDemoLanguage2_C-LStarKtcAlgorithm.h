@@ -51,7 +51,7 @@
 #endif
 
 #ifndef MAX_MATCH_COUNT
-#define MAX_MATCH_COUNT 20
+#define MAX_MATCH_COUNT 30
 #endif
 typedef struct match{
 	struct match_t* next;
@@ -90,7 +90,9 @@ typedef struct {
 // --- End of default cMoflon type definitions
 
 // --- Begin of user-defined algorithm-independent type definitions (Path: 'injection/custom-typedefs.c')
-// Algorithm-independent type definitions.
+// Required because generated code is replicated to all algorithms (but will not influence the size of the generated image)
+EBoolean lStarKtcAlgorithm_evaluateHopcountConstraint(EInt hopCount1,
+		EInt hopCount2, EInt hopCount3, EDouble stretchFactor);
 // --- End of user-defined algorithm-independent type definitions
 
 // --- Begin of user-defined type definitions for LStarKtcAlgorithm(Path: 'injection/custom-typedefs_LStarKtcAlgorithm.c')

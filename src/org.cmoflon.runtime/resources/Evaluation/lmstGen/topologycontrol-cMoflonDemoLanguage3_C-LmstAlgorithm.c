@@ -158,20 +158,23 @@ void prepareLinks() {
 // --- End of default cMoflon code// --- End of default cMoflon helpers
 
 // --- Begin of user-defined algorithm-independent helpers (Path: 'injection/custom-helpers.c')
-// Algorithm-independent helper definitions.
+// Custom helpers
 // --- End of user-defined algorithm-independent helpers
 
 // --- Begin of user-defined helpers for LmstAlgorithm (Path: 'injection/custom-helpers_LmstAlgorithm.c')
+MEMB(memb_entries, TREEENTRY_T, MAX_MATCH_COUNT);
+LIST(list_tree_entries);
+
 /**
  * Initializes the auxiliary data structures required by LMST
  */
 void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 	TREE_T* tree = (TREE_T*) malloc(sizeof(TREE_T));
 	tree->algo = this;
-	MEMB(memb_entries, TREEENTRY_T, MAX_MATCH_COUNT);
+
 	memb_init(&memb_entries);
 	tree->mem = &memb_entries;
-	LIST(list_tree_entries);
+
 	list_init(list_tree_entries);
 
 	// add all nodes to list
@@ -179,11 +182,10 @@ void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 	for (item_neighbor = list_head(component_neighbordiscovery_neighbors());
 			item_neighbor != NULL;
 			item_neighbor = list_item_next(item_neighbor)) {
-		TREEENTRY_T *item_node = (TREEENTRY_T*) malloc(sizeof(TREEENTRY_T));
-		bool found;
+		TREEENTRY_T *item_node;
+		bool found = false;
 
 		// check for node1
-		found = false;
 		for (item_node = list_head(list_tree_entries); item_node != NULL;
 				item_node = list_item_next(item_node)) {
 			if (networkaddr_equal(item_neighbor->node1, item_node->node)) {
@@ -235,7 +237,6 @@ void lmstAlgorithm_init(LMSTALGORITHM_T* this) {
 	tree->entries = list_tree_entries;
 	this->tree = tree;
 }
-;
 
 /**
  * Clears the auxiliary data structures required by LMST
@@ -244,12 +245,11 @@ void lmstAlgorithm_cleanup(LMSTALGORITHM_T* this) {
 	list_t entryList = this->tree->entries;
 	// add all nodes to list
 	TREEENTRY_T* item_neighbor;
-	for (item_neighbor = list_head(entryList); item_neighbor != NULL; item_neighbor =
-			list_item_next(item_neighbor)) {
-		free(item_neighbor);
+	while(list_length(entryList) > 0) {
 		memb_free(this->tree->mem, list_pop(entryList));
 	}
-	free(entryList);
+	free(this->tree);
+	this->tree = NULL;
 }
 
 NODE_T* lmstAlgorithm_getNode(LMSTALGORITHM_T* _this) {
@@ -302,11 +302,16 @@ bool treeEntry_equals(TREEENTRY_T* _this, TREEENTRY_T* other) {
 void** pattern_LmstAlgorithm_1_1_BindThis_blackBF(LMSTALGORITHM_T* _this) {
 	NODE_T* self = lmstAlgorithm_getNode(_this);
 	if (self != NULL) {
-		void** _result = malloc(2*sizeof(void*));
-		_result[0]= _this;
-		_result[1]= self;
+		void** _result;
+		if((_result = malloc(2*sizeof(void*)))==NULL){
+			printf("ERROR[topologycontrol]: could not allocate memory\n");
+			return NULL;
+		}else{
+			_result[0]= _this;
+			_result[1]= self;
 		 
-		return _result;
+			return _result;
+		}
 	}
 
 	return NULL;
@@ -321,20 +326,30 @@ void** pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_bindingFB(LMSTALGORITHM
 	LINK_T* _localVariable_0 = lmstAlgorithm_findShortestUnconnectedLink(_this);
 	LINK_T* shortestUnconnectedLink = _localVariable_0;
 	if (shortestUnconnectedLink != NULL) {
-		void** _result = malloc(2*sizeof(void*));
-		_result[0]= shortestUnconnectedLink;
-		_result[1]= _this;
+		void** _result;
+		if((_result = malloc(2*sizeof(void*)))==NULL){
+			printf("ERROR[topologycontrol]: could not allocate memory\n");
+			return NULL;
+		}else{
+			_result[0]= shortestUnconnectedLink;
+			_result[1]= _this;
 		 
-		return _result; 
+			return _result;
+		} 
 	}
 	return NULL;
 }
 
 void** pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_blackB(LINK_T* shortestUnconnectedLink) {
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= shortestUnconnectedLink;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= shortestUnconnectedLink;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_bindingAndBlackFB(LMSTALGORITHM_T* _this) {
@@ -342,19 +357,24 @@ void** pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_bindingAndBlackFB(LMSTA
 	if (result_pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_binding != NULL) {
 		LINK_T* shortestUnconnectedLink = (LINK_T*) result_pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_binding[0];
 		  
+		free(result_pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_binding);
 		void** result_pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_black = pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_blackB(shortestUnconnectedLink);
 		if (result_pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_black != NULL) {
 			 
-			void** _result = malloc(2*sizeof(void*));
-			_result[0]= shortestUnconnectedLink;
-			_result[1]= _this;
+			free(result_pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_black);
+			void** _result;
+			if((_result = malloc(2*sizeof(void*)))==NULL){
+				printf("ERROR[topologycontrol]: could not allocate memory\n");
+				return NULL;
+			}else{
+				_result[0]= shortestUnconnectedLink;
+				_result[1]= _this;
 			 
-			return _result;
+				return _result;
+			}
 		}
-		free(result_pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_black);
 
 	}
-	free(result_pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_binding);
 
 	return NULL;
 }
@@ -378,16 +398,21 @@ void** pattern_LmstAlgorithm_1_4_UpdateLMSTEntry_blackBFFFFFB(LMSTALGORITHM_T* _
 									if (node_equals(node1,treeEntry_getNode(lmstEntry1))) {
 										EBoolean lmstEntry1_isInTree = treeEntry_isIsInTree(lmstEntry1);
 										if(eBoolean_equals(lmstEntry1_isInTree, true)){
-											void** _result = malloc(7*sizeof(void*));
-											_result[0]= _this;
-											_result[1]= node1;
-											_result[2]= lmstEntry2;
-											_result[3]= node2;
-											_result[4]= lmst;
-											_result[5]= lmstEntry1;
-											_result[6]= shortestUnconnectedLink;
+											void** _result;
+											if((_result = malloc(7*sizeof(void*)))==NULL){
+												printf("ERROR[topologycontrol]: could not allocate memory\n");
+												return NULL;
+											}else{
+												_result[0]= _this;
+												_result[1]= node1;
+												_result[2]= lmstEntry2;
+												_result[3]= node2;
+												_result[4]= lmst;
+												_result[5]= lmstEntry1;
+												_result[6]= shortestUnconnectedLink;
 											 
-											return _result;
+												return _result;
+											}
 										}	
 
 									}
@@ -409,11 +434,16 @@ void** pattern_LmstAlgorithm_1_4_UpdateLMSTEntry_greenBB(TREEENTRY_T* lmstEntry2
 	treeEntry_setParent(lmstEntry2, shortestUnconnectedLink);
 	EBoolean lmstEntry2_isInTree_prime = true;
 	treeEntry_setIsInTree(lmstEntry2, lmstEntry2_isInTree_prime);
-	void** _result = malloc(2*sizeof(void*));
-	_result[0]= lmstEntry2;
-	_result[1]= shortestUnconnectedLink;
+	void** _result;
+	if((_result = malloc(2*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= lmstEntry2;
+		_result[1]= shortestUnconnectedLink;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LmstAlgorithm_1_5_MarkEdges_blackBFFF(LMSTALGORITHM_T* _this) {
@@ -426,13 +456,18 @@ void** pattern_LmstAlgorithm_1_5_MarkEdges_blackBFFF(LMSTALGORITHM_T* _this) {
 			if (selected != NULL) {
 				LinkState selected_marked = link_getMarked(selected);
 				if (!linkState_equals(selected_marked, ACTIVE)) {
-					void** _result = malloc(4*sizeof(void*));
-					_result[0]= _this;
-					_result[1]= lmst;
-					_result[2]= entry;
-					_result[3]= selected;
+					void** _result;
+					if((_result = malloc(4*sizeof(void*)))==NULL){
+						printf("ERROR[topologycontrol]: could not allocate memory\n");
+						return NULL;
+					}else{
+						_result[0]= _this;
+						_result[1]= lmst;
+						_result[2]= entry;
+						_result[3]= selected;
 					 
-					return _result;
+						return _result;
+					}
 				}
 
 			}
@@ -444,19 +479,29 @@ void** pattern_LmstAlgorithm_1_5_MarkEdges_blackBFFF(LMSTALGORITHM_T* _this) {
 }
 
 void** pattern_LmstAlgorithm_1_6_MarkAllLinksInTreeActive_blackB(LINK_T* selected) {
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= selected;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= selected;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LmstAlgorithm_1_6_MarkAllLinksInTreeActive_greenB(LINK_T* selected) {
 	LinkState selected_marked_prime = ACTIVE;
 	link_setMarked(selected, selected_marked_prime);
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= selected;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= selected;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LmstAlgorithm_1_7_InactivateLinks_blackBFFFF(LMSTALGORITHM_T* _this) {
@@ -472,14 +517,19 @@ void** pattern_LmstAlgorithm_1_7_InactivateLinks_blackBFFFF(LMSTALGORITHM_T* _th
 				for (link = list_head_pred(list_link_node_neighborhood,node,&node_isNeighborhood); link!=NULL; link=list_item_next_pred(link,node,&node_isNeighborhood)) {
 					LinkState link_marked = link_getMarked(link);
 					if(linkState_equals(link_marked, UNCLASSIFIED)){
-						void** _result = malloc(5*sizeof(void*));
-						_result[0]= _this;
-						_result[1]= lmst;
-						_result[2]= entry;
-						_result[3]= node;
-						_result[4]= link;
+						void** _result;
+						if((_result = malloc(5*sizeof(void*)))==NULL){
+							printf("ERROR[topologycontrol]: could not allocate memory\n");
+							return NULL;
+						}else{
+							_result[0]= _this;
+							_result[1]= lmst;
+							_result[2]= entry;
+							_result[3]= node;
+							_result[4]= link;
 						 
-						return _result;
+							return _result;
+						}
 					}	
 
 				}
@@ -492,19 +542,29 @@ void** pattern_LmstAlgorithm_1_7_InactivateLinks_blackBFFFF(LMSTALGORITHM_T* _th
 }
 
 void** pattern_LmstAlgorithm_1_8_InactivateLinks_blackB(LINK_T* link) {
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= link;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= link;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LmstAlgorithm_1_8_InactivateLinks_greenB(LINK_T* link) {
 	LinkState link_marked_prime = INACTIVE;
 	link_setMarked(link, link_marked_prime);
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= link;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= link;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void pattern_LmstAlgorithm_1_9_Cleanup_expressionB(LMSTALGORITHM_T* _this) {
@@ -539,16 +599,21 @@ void** pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_blackBFFFFFF(LM
 												if (!linkState_equals(link_marked, PROCESSED)) {
 													EDouble link_weight = link_getWeight(link);
 													if(link_isWeightDefined(link_weight )){
-													 void** _result = malloc(7*sizeof(void*));
-													 _result[0]= _this;
-													 _result[1]= link;
-													 _result[2]= node1;
-													 _result[3]= node2;
-													 _result[4]= lmst;
-													 _result[5]= lmstEntry1;
-													 _result[6]= lmstEntry2;
+													 void** _result;
+													 if((_result = malloc(7*sizeof(void*)))==NULL){
+													 	printf("ERROR[topologycontrol]: could not allocate memory\n");
+													 	return NULL;
+													 }else{
+													 	_result[0]= _this;
+													 	_result[1]= link;
+													 	_result[2]= node1;
+													 	_result[3]= node2;
+													 	_result[4]= lmst;
+													 	_result[5]= lmstEntry1;
+													 	_result[6]= lmstEntry2;
 													  
-													 return _result; }
+													 	return _result;
+													 } }
 
 												}
 
@@ -574,10 +639,15 @@ void** pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_blackBFFFFFF(LM
 void** pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_greenB(LINK_T* link) {
 	LinkState link_marked_prime = PROCESSED;
 	link_setMarked(link, link_marked_prime);
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= link;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= link;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LmstAlgorithm_2_2_TryToFindAShorterLink_blackBFFFBFF(LINK_T* link, TREE_T* lmst) {
@@ -606,16 +676,21 @@ void** pattern_LmstAlgorithm_2_2_TryToFindAShorterLink_blackBFFFBFF(LINK_T* link
 												EDouble link2_weight = link_getWeight(link2);
 												if(link_isWeightDefined(link2_weight )){
 												 if(link2_weight <link_weight ){
-												  void** _result = malloc(7*sizeof(void*));
-												  _result[0]= link;
-												  _result[1]= link2;
-												  _result[2]= node3;
-												  _result[3]= node4;
-												  _result[4]= lmst;
-												  _result[5]= lmstEntry3;
-												  _result[6]= lmstEntry4;
+												  void** _result;
+												  if((_result = malloc(7*sizeof(void*)))==NULL){
+												  	printf("ERROR[topologycontrol]: could not allocate memory\n");
+												  	return NULL;
+												  }else{
+												  	_result[0]= link;
+												  	_result[1]= link2;
+												  	_result[2]= node3;
+												  	_result[3]= node4;
+												  	_result[4]= lmst;
+												  	_result[5]= lmstEntry3;
+												  	_result[6]= lmstEntry4;
 												   
-												  return _result; } }
+												  	return _result;
+												  } } }
 
 											}
 										}
@@ -647,13 +722,18 @@ void** pattern_LmstAlgorithm_2_4_FindDirtyLink_blackFBFF(TREE_T* lmst) {
 			for (linkDirty = list_head_pred(list_linkDirty_node_neighborhood,node,&node_isNeighborhood); linkDirty!=NULL; linkDirty=list_item_next_pred(linkDirty,node,&node_isNeighborhood)) {
 				LinkState linkDirty_marked = link_getMarked(linkDirty);
 				if (!linkState_equals(linkDirty_marked, UNCLASSIFIED)) {
-					void** _result = malloc(4*sizeof(void*));
-					_result[0]= linkDirty;
-					_result[1]= lmst;
-					_result[2]= entry;
-					_result[3]= node;
+					void** _result;
+					if((_result = malloc(4*sizeof(void*)))==NULL){
+						printf("ERROR[topologycontrol]: could not allocate memory\n");
+						return NULL;
+					}else{
+						_result[0]= linkDirty;
+						_result[1]= lmst;
+						_result[2]= entry;
+						_result[3]= node;
 					 
-					return _result;
+						return _result;
+					}
 				}
 
 			}
@@ -664,19 +744,29 @@ void** pattern_LmstAlgorithm_2_4_FindDirtyLink_blackFBFF(TREE_T* lmst) {
 }
 
 void** pattern_LmstAlgorithm_2_5_SetUnclassified_blackB(LINK_T* linkDirty) {
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= linkDirty;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= linkDirty;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LmstAlgorithm_2_5_SetUnclassified_greenB(LINK_T* linkDirty) {
 	LinkState linkDirty_marked_prime = UNCLASSIFIED;
 	link_setMarked(linkDirty, linkDirty_marked_prime);
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= linkDirty;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= linkDirty;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 LINK_T* pattern_LmstAlgorithm_2_6_expressionFB(LINK_T* link) {
@@ -697,14 +787,19 @@ void** pattern_LmstAlgorithm_2_7_FindDirtyLinks2_blackFBFFF(LMSTALGORITHM_T* _th
 				for (linkDirty = list_head_pred(list_linkDirty_node_neighborhood,node,&node_isNeighborhood); linkDirty!=NULL; linkDirty=list_item_next_pred(linkDirty,node,&node_isNeighborhood)) {
 					LinkState linkDirty_marked = link_getMarked(linkDirty);
 					if (!linkState_equals(linkDirty_marked, UNCLASSIFIED)) {
-						void** _result = malloc(5*sizeof(void*));
-						_result[0]= lmst;
-						_result[1]= _this;
-						_result[2]= linkDirty;
-						_result[3]= entry;
-						_result[4]= node;
+						void** _result;
+						if((_result = malloc(5*sizeof(void*)))==NULL){
+							printf("ERROR[topologycontrol]: could not allocate memory\n");
+							return NULL;
+						}else{
+							_result[0]= lmst;
+							_result[1]= _this;
+							_result[2]= linkDirty;
+							_result[3]= entry;
+							_result[4]= node;
 						 
-						return _result;
+							return _result;
+						}
 					}
 
 				}
@@ -717,19 +812,29 @@ void** pattern_LmstAlgorithm_2_7_FindDirtyLinks2_blackFBFFF(LMSTALGORITHM_T* _th
 }
 
 void** pattern_LmstAlgorithm_2_8_SetUnclassified2_blackB(LINK_T* linkDirty) {
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= linkDirty;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= linkDirty;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LmstAlgorithm_2_8_SetUnclassified2_greenB(LINK_T* linkDirty) {
 	LinkState linkDirty_marked_prime = UNCLASSIFIED;
 	link_setMarked(linkDirty, linkDirty_marked_prime);
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= linkDirty;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= linkDirty;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 LINK_T* pattern_LmstAlgorithm_2_9_expressionF() {
@@ -773,7 +878,6 @@ void lmstAlgorithm_run(LMSTALGORITHM_T* this){
 		free(result4_green);
 	
 	
-		free(result3_bindingAndBlack);
 		result3_bindingAndBlack = pattern_LmstAlgorithm_1_3_FindMinimalOutgoingLink_bindingAndBlackFB(this);
 	}
 	// MarkEdges
@@ -796,7 +900,6 @@ void lmstAlgorithm_run(LMSTALGORITHM_T* this){
 		free(result6_green);
 	
 	
-		free(result5_black);
 		result5_black = pattern_LmstAlgorithm_1_5_MarkEdges_blackBFFF(this);
 	}
 	// InactivateLinks
@@ -820,7 +923,6 @@ void lmstAlgorithm_run(LMSTALGORITHM_T* this){
 		free(result8_green);
 	
 	
-		free(result7_black);
 		result7_black = pattern_LmstAlgorithm_1_7_InactivateLinks_blackBFFFF(this);
 	}
 	// Cleanup
@@ -875,13 +977,11 @@ LINK_T* lmstAlgorithm_findShortestUnconnectedLink(LMSTALGORITHM_T* this){
 				free(result5_green);
 	
 	
-				free(result4_black);
 				result4_black = pattern_LmstAlgorithm_2_4_FindDirtyLink_blackFBFF(lmst);
 			}
 			return pattern_LmstAlgorithm_2_6_expressionFB(link);
 		}
 	
-		free(result1_black);
 		result1_black = pattern_LmstAlgorithm_2_1_IdentifyShortestUnconnectedLink_blackBFFFFFF(this);
 	}
 	// FindDirtyLinks2
@@ -905,7 +1005,6 @@ LINK_T* lmstAlgorithm_findShortestUnconnectedLink(LMSTALGORITHM_T* this){
 		free(result8_green);
 	
 	
-		free(result7_black);
 		result7_black = pattern_LmstAlgorithm_2_7_FindDirtyLinks2_blackFBFFF(this);
 	}
 	return pattern_LmstAlgorithm_2_9_expressionF();
@@ -942,7 +1041,9 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		unsigned long start=RTIMER_NOW();
 		printf("[topologycontrol]: STATUS: Run\n");
 		lmstAlgorithm_run(&tc);
-		printf("[topologycontrol]: TIME: %lu\n",RTIMER_NOW()-start);
+		unsigned long finish=RTIMER_NOW();
+		unsigned long runtime= finish>start? finish-start:start-finish;
+		printf("[topologycontrol]: TIME: %lu\n",runtime);
 		watchdog_start();
 	}
 	PROCESS_END();

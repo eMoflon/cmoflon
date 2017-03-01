@@ -243,7 +243,7 @@ void prepareLinks() {
 // --- End of default cMoflon code// --- End of default cMoflon helpers
 
 // --- Begin of user-defined algorithm-independent helpers (Path: 'injection/custom-helpers.c')
-// Algorithm-independent helper definitions.
+// Custom helpers
 // --- End of user-defined algorithm-independent helpers
 
 // --- Begin of user-defined helpers for LStarKtcAlgorithm (Path: 'injection/custom-helpers_LStarKtcAlgorithm.c')
@@ -339,16 +339,21 @@ void** pattern_LStarKtcAlgorithm_0_1_IdentifyLinksToBeInactivated_blackBFFFFFF(L
 
 					 						  				     kMinWeight =minWeight *this_k ;
 					 						  				     if(e12_weight >kMinWeight ){
-					 						  				      void** _result = malloc(7*sizeof(void*));
-					 						  				      _result[0]= _this;
-					 						  				      _result[1]= this_node;
-					 						  				      _result[2]= n2;
-					 						  				      _result[3]= n3;
-					 						  				      _result[4]= e13;
-					 						  				      _result[5]= e12;
-					 						  				      _result[6]= e32;
+					 						  				      void** _result;
+					 						  				      if((_result = malloc(7*sizeof(void*)))==NULL){
+					 						  				      	printf("ERROR[topologycontrol]: could not allocate memory\n");
+					 						  				      	return NULL;
+					 						  				      }else{
+					 						  				      	_result[0]= _this;
+					 						  				      	_result[1]= this_node;
+					 						  				      	_result[2]= n2;
+					 						  				      	_result[3]= n3;
+					 						  				      	_result[4]= e13;
+					 						  				      	_result[5]= e12;
+					 						  				      	_result[6]= e32;
 					 						  				       
-					 						  				      return _result; }   }  }
+					 						  				      	return _result;
+					 						  				      } }   }  }
 
 					 						  			}
 					 						  		}
@@ -379,19 +384,29 @@ void** pattern_LStarKtcAlgorithm_0_1_IdentifyLinksToBeInactivated_blackBFFFFFF(L
 }
 
 void** pattern_LStarKtcAlgorithm_0_2_InactivateLinks_blackB(LINK_T* e12) {
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= e12;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= e12;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LStarKtcAlgorithm_0_2_InactivateLinks_greenB(LINK_T* e12) {
 	LinkState e12_marked_prime = INACTIVE;
 	link_setMarked(e12, e12_marked_prime);
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= e12;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= e12;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LStarKtcAlgorithm_0_3_IdentifyRemainingUnclassifiedEdges_blackBFF(LSTARKTCALGORITHM_T* _this) {
@@ -402,12 +417,17 @@ void** pattern_LStarKtcAlgorithm_0_3_IdentifyRemainingUnclassifiedEdges_blackBFF
 		for (e12 = list_head_pred(list_e12_this_node_outgoingLinks,this_node,&node_isOutgoingLinks); e12!=NULL; e12=list_item_next_pred(e12,this_node,&node_isOutgoingLinks)) {
 			LinkState e12_marked = link_getMarked(e12);
 			if(linkState_equals(e12_marked, UNCLASSIFIED)){
-				void** _result = malloc(3*sizeof(void*));
-				_result[0]= _this;
-				_result[1]= this_node;
-				_result[2]= e12;
+				void** _result;
+				if((_result = malloc(3*sizeof(void*)))==NULL){
+					printf("ERROR[topologycontrol]: could not allocate memory\n");
+					return NULL;
+				}else{
+					_result[0]= _this;
+					_result[1]= this_node;
+					_result[2]= e12;
 				 
-				return _result;
+					return _result;
+				}
 			}	
 
 		}
@@ -417,19 +437,29 @@ void** pattern_LStarKtcAlgorithm_0_3_IdentifyRemainingUnclassifiedEdges_blackBFF
 }
 
 void** pattern_LStarKtcAlgorithm_0_4_ActivateEdge_blackB(LINK_T* e12) {
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= e12;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= e12;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 void** pattern_LStarKtcAlgorithm_0_4_ActivateEdge_greenB(LINK_T* e12) {
 	LinkState e12_marked_prime = ACTIVE;
 	link_setMarked(e12, e12_marked_prime);
-	void** _result = malloc(1*sizeof(void*));
-	_result[0]= e12;
+	void** _result;
+	if((_result = malloc(1*sizeof(void*)))==NULL){
+		printf("ERROR[topologycontrol]: could not allocate memory\n");
+		return NULL;
+	}else{
+		_result[0]= e12;
 	 
-	return _result;
+		return _result;
+	}
 }
 
 
@@ -457,7 +487,6 @@ void lStarKtcAlgorithm_run(LSTARKTCALGORITHM_T* this){
 		free(result2_green);
 	
 	
-		free(result1_black);
 		result1_black = pattern_LStarKtcAlgorithm_0_1_IdentifyLinksToBeInactivated_blackBFFFFFF(this);
 	}
 	// IdentifyRemainingUnclassifiedEdges
@@ -479,7 +508,6 @@ void lStarKtcAlgorithm_run(LSTARKTCALGORITHM_T* this){
 		free(result4_green);
 	
 	
-		free(result3_black);
 		result3_black = pattern_LStarKtcAlgorithm_0_3_IdentifyRemainingUnclassifiedEdges_blackBFF(this);
 	}
 	return;
@@ -555,7 +583,9 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		unsigned long start=RTIMER_NOW();
 		printf("[topologycontrol]: STATUS: Run\n");
 		lStarKtcAlgorithm_run(&tc);
-		printf("[topologycontrol]: TIME: %lu\n",RTIMER_NOW()-start);
+		unsigned long finish=RTIMER_NOW();
+		unsigned long runtime= finish>start? finish-start:start-finish;
+		printf("[topologycontrol]: TIME: %lu\n",runtime);
 		LINK_T* onehop;
 		for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
 			if(networkaddr_equal(onehop->node1, networkaddr_node_addr()) && onehop->weight_node1_to_node2 == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
