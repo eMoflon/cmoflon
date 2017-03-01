@@ -16,9 +16,9 @@ CreateObject(engine, importManager, body, chain) ::= <<
 printf("INFO[topologycontrol]: Fully-automated object creation is not supported currently! You will need to manually allocate memory for the following variables.");
 <chain.value.operation.parameters:{ varRef | 
 <varRef.specification.type.linkedElement.name; format="fulluppercase">_T* <varRef.specification> = allocate_<varRef.specification>_in_<body.header.name>();}; separator="\n">
-void** _result;
-if(_result = malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*))==NULL){
-	printf("ERROR[topologycontrol]: could not allocate memory\n");
+void** _result = (void**) malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
+if(_result == NULL){
+	printf("ERROR[topologycontrol]: could not allocate memory (%s:%d)\n", __FILE__, __LINE__);
 	return NULL;
 }else{
 	<body.header.internalSymbolicParameters:{x  |_result[<i0>]= <if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}>
