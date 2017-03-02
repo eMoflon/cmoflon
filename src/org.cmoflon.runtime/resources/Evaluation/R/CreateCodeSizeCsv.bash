@@ -6,11 +6,10 @@ csvSep=","
 
 echo $header
 
-#for f in $(find . -type d -mindepth 1 -maxdepth 1 -print);
 for f in kTCMan kTCGen lkTCMan lkTCGen lmstMan lmstGen NoTC;
 do
 
-  outputOfSize=$(size $f/$f.sky | tail -1)
+  outputOfSize=$(size ../$f/$f.sky | tail -1)
   imageFile=$(basename $(echo $outputOfSize | cut -d" " -f6))
   textSize=$(echo $outputOfSize | cut -d" " -f1)
   dataSize=$(echo $outputOfSize | cut -d" " -f2)
