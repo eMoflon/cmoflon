@@ -90,7 +90,9 @@ FlockLab (https://www.flocklab.ethz.ch/) is a wireless sensor testbed at ETH Zur
 1. After the test is run, you will receive an e-mail with the results in a zip folder.
  * The contents of the *serial.csv* file allow you to debug/analyze the topology control behavior (Watch out for lines like ```[topologycontrol-*]```).
 
-### How to use the evaluation tools
+### How to use the evaluation tools (excerpt)
 The ToCoCo evaluation tools help you to analyze the serial logging output of the FlockLab sensor nodes.
 
-(Yet to come...)
+#### Batch compilation
+If you are interested in compiling all of the considered topology control algorithms as a batch, we recommend to use the Bash script that can be found at *$ToCoCo/evaluation/src/BatchCompilation*.
+This script is tailored to the topology control algorithms of the ECMFA evaluation.
