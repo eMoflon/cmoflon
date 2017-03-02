@@ -54,7 +54,7 @@ public class CMoflonProperties
                + "# (e.g., " + PROPERTY_PREFIX_TC_USE_HOPCOUNT + "LStarKtcAlgorithm = true)\n\n" // 
                + "# Set number of matches allowed per foreach invocation\n" //
                + PROPERTY_PM_MAX_MATCH_COUNT + " = " + CMoflonProperties.DEFAULT_MAX_MATCH_COUNT + "\n\n" //
-               + "# Set to true if you desire to use the Evaluation Scripts provided by the ToCoCo Framework. This will add monitoring of runtime and Node Degrees\n\n"
+               + "# Set to true if you desire to use the evaluation scripts provided by the ToCoCo framework. This will add monitoring output of runtime and node degrees\n\n"
                + PROPERTY_INCLUDE_EVALUATION_STATEMENTS + " = " + CMoflonProperties.DEFAULT_INCLUDE_EVALUATION_STATEMENTS + "\n\n" //
                + "# Sets the minimum ID to use as preprocessor constant for the generated TC algorithms (default: " + DEFAULT_TC_MIN_ALGORITHM_ID + ")\n" //
                + PROPERTY_TC_MIN_ALGORITHM_ID + "=" + DEFAULT_TC_MIN_ALGORITHM_ID + "\n\n" //
