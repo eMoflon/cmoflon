@@ -29,9 +29,9 @@ public class CMoflonProperties
 
    public static final String CMOFLON_PROPERTIES_FILENAME = "cMoflon.properties";
 
-   public static final int DEFAULT_MAX_MATCH_COUNT = 20;
-
    public static final String PROPERTY_TC_MIN_ALGORITHM_ID = "tc.minId";
+   
+   public static final int DEFAULT_MAX_MATCH_COUNT = 40;
 
    public static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
@@ -41,20 +41,20 @@ public class CMoflonProperties
    
    private static final boolean DEFAULT_INCLUDE_EVALUATION_STATEMENTS = false;
 
-   private static Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
+   private static final Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
 
-   private static Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();
+   private static final Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();
 
    private static final String DEFAULT_CMOFLON_PROPERTIES_CONTENT = //
          "#Set to 'true' if dropping unidirectional edges is desired \n" //
                + PROPERTY_TC_DROP_UNIDIRECTIONAL_EDGES + " = true\n\n" //
-               + "# Set to True if you want to use hopcounts.\n" //
+               + "# Set to 'true' if you want to use hopcounts.\n" //
                + PROPERTY_TC_USE_HOPCOUNT + " = " + CMoflonProperties.DEFAULT_USE_HOPCOUNT + "\n\n" //
                + "# You may also override this behavior for individual algorithms by using the property prefix '" + PROPERTY_PREFIX_TC_USE_HOPCOUNT + "'.\n" //
                + "# (e.g., " + PROPERTY_PREFIX_TC_USE_HOPCOUNT + "LStarKtcAlgorithm = true)\n\n" // 
                + "# Set number of matches allowed per foreach invocation\n" //
                + PROPERTY_PM_MAX_MATCH_COUNT + " = " + CMoflonProperties.DEFAULT_MAX_MATCH_COUNT + "\n\n" //
-               + "# Set to true if you desire to use the evaluation scripts provided by the ToCoCo framework. This will add monitoring output of runtime and node degrees\n\n"
+               + "# Set to 'true' if you desire to use the evaluation scripts provided by the ToCoCo framework. This will add monitoring output of runtime and node degrees\n\n"
                + PROPERTY_INCLUDE_EVALUATION_STATEMENTS + " = " + CMoflonProperties.DEFAULT_INCLUDE_EVALUATION_STATEMENTS + "\n\n" //
                + "# Sets the minimum ID to use as preprocessor constant for the generated TC algorithms (default: " + DEFAULT_TC_MIN_ALGORITHM_ID + ")\n" //
                + PROPERTY_TC_MIN_ALGORITHM_ID + "=" + DEFAULT_TC_MIN_ALGORITHM_ID + "\n\n" //
