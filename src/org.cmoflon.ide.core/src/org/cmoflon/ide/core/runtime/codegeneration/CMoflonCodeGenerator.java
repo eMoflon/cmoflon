@@ -7,15 +7,17 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -125,26 +127,19 @@ public class CMoflonCodeGenerator
    private final Map<String, String> tcAlgorithmParameters;
 
    private int maximumMatchCount;
-   
+
    private boolean useEvalStatements;
 
    private final Map<String, String> typeMappings;
-   
-   private static String EVAL_STATEMENTS_START ="\t\tlist_t neighbors= component_neighbordiscovery_neighbors();"+nl()
-   												+"\t\tneighbor_t* link;"+nl()
-   												+"\t\tint degree=0;"+nl()
-   												+"\t\tfor(link=list_head(neighbors);link!=NULL;link=list_item_next(link)){"+nl()
-   												+"\t\t\tif(networkaddr_equal(link->node1,networkaddr_node_addr())||networkaddr_equal(link->node2,networkaddr_node_addr()))"+nl()
-   												+"\t\t\t\tdegree++;"+nl()
-   												+"\t\t}"+nl()
-   												+"\t\tprintf(\"[topologycontrol]: DEGREE: %d\\n\",degree);"+nl()
-   												+"\t\tunsigned long start=RTIMER_NOW();"+nl()
-   												+"\t\tprintf(\"[topologycontrol]: STATUS: Run\\n\");"+nl();
-   
-   private static String EVAL_STATEMENTS_END =  "\t\tunsigned long finish=RTIMER_NOW();"+nl()
-   												+"\t\tunsigned long runtime= finish>start? finish-start:start-finish;"+nl()
-   												+"\t\tprintf(\"[topologycontrol]: TIME: %lu\\n\",runtime);"+nl();
 
+   private static String EVAL_STATEMENTS_START = "\t\tlist_t neighbors= component_neighbordiscovery_neighbors();" + nl() + "\t\tneighbor_t* link;" + nl()
+         + "\t\tint degree=0;" + nl() + "\t\tfor(link=list_head(neighbors);link!=NULL;link=list_item_next(link)){" + nl()
+         + "\t\t\tif(networkaddr_equal(link->node1,networkaddr_node_addr())||networkaddr_equal(link->node2,networkaddr_node_addr()))" + nl()
+         + "\t\t\t\tdegree++;" + nl() + "\t\t}" + nl() + "\t\tprintf(\"[topologycontrol]: DEGREE: %d\\n\",degree);" + nl()
+         + "\t\tunsigned long start=RTIMER_NOW();" + nl() + "\t\tprintf(\"[topologycontrol]: STATUS: Run\\n\");" + nl();
+
+   private static String EVAL_STATEMENTS_END = "\t\tunsigned long finish=RTIMER_NOW();" + nl()
+         + "\t\tunsigned long runtime= finish>start? finish-start:start-finish;" + nl() + "\t\tprintf(\"[topologycontrol]: TIME: %lu\\n\",runtime);" + nl();
 
    /**
     * Constants mapping
@@ -167,6 +162,8 @@ public class CMoflonCodeGenerator
    private String tcAlgorithmParentClassName;
 
    private GenClass tcAlgorithmParentGenClass;
+
+   private SimpleDateFormat timeFormatter;
 
    public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel, Descriptor codeGenerationEngine)
    {
@@ -218,7 +215,7 @@ public class CMoflonCodeGenerator
                this.minTcComponentConstant = Integer.parseInt(value);
                break;
             case CMoflonProperties.PROPERTY_INCLUDE_EVALUATION_STATEMENTS:
-            	this.useEvalStatements = Boolean.parseBoolean(value);
+               this.useEvalStatements = Boolean.parseBoolean(value);
             }
             if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_PARAMETERS))
             {
@@ -235,9 +232,8 @@ public class CMoflonCodeGenerator
             }
 
          }
-
-         this.constantsMapping.put("updateinterval", "300");
          this.builtInTypes = determinBuiltInTypes();
+         this.timeFormatter = new SimpleDateFormat("YYYY-MM-DD'T'hh:mm:ss");
       } catch (final CoreException e)
       {
          throw new UncheckedCoreException(e);
@@ -266,13 +262,13 @@ public class CMoflonCodeGenerator
    private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus codeGenerationResult, final IProgressMonitor monitor) throws CoreException
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Generating code for " + tcAlgorithm, 100);
-   
+
       subMon.worked(10);
-   
+
       generateHeaderFile(tcAlgorithm, subMon.split(45));
-   
+
       generateSourceFile(tcAlgorithm, subMon.split(45));
-   
+
       return Status.OK_STATUS;
    }
 
@@ -311,8 +307,7 @@ public class CMoflonCodeGenerator
             .filter(genClass -> isTrueSubtypeOfTCAlgorithmParentClass(genClass)).forEach(genClass -> tcAlgorithmCandidateClasses.add(genClass)));
       LogUtils.error(logger, "Topology class '%s' (specified in %s) cannot be found in GenModel or is not a subtype of '"
             + this.tcAlgorithmParentGenClass.getName() + "' and will be ignored.", nameOfInappropriateClass, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME);
-      LogUtils.error(logger,
-            "Candidates are " + tcAlgorithmCandidateClasses.stream().map(cand -> "'" + cand.getName() + "'").collect(Collectors.joining(", ")),
+      LogUtils.error(logger, "Candidates are " + tcAlgorithmCandidateClasses.stream().map(cand -> "'" + cand.getName() + "'").collect(Collectors.joining(", ")),
             nameOfInappropriateClass, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME);
    }
 
@@ -324,9 +319,9 @@ public class CMoflonCodeGenerator
    private void initializeCaches()
    {
       initializeCachedMetamodelElementLists();
-   
+
       initializeCachedPatternMatchingCode();
-      
+
       this.blockDeclarations = this.getBlockDeclarations(this.cachedConcreteClasses);
    }
 
@@ -377,7 +372,7 @@ public class CMoflonCodeGenerator
             }
          }
       }
-   
+
       this.cachedPatternMatchingCode = generatedCode.toString();
    }
 
@@ -438,9 +433,9 @@ public class CMoflonCodeGenerator
       final StringBuilder contents = new StringBuilder();
 
       final String componentBasename = getAlgorithmBasename(tcAlgorithm);
+      contents.append(getDateCommentCode());
       contents.append("#include \"" + componentBasename + ".h" + "\"" + nl());
 
-      final String patternMatchingCode = getPatternMatchingCode();
       contents.append(getListAndBlockDeclarations(templateGroup));
 
       if (useHopCount(tcAlgorithm))
@@ -449,7 +444,7 @@ public class CMoflonCodeGenerator
       }
       contents.append(getDefaultHelperMethods());
       contents.append(getUserDefinedHelperMethods(tcAlgorithm));
-      contents.append(patternMatchingCode);
+      contents.append(getPatternMatchingCode());
       contents.append(this.cachedPatternMatchingCode);
       contents.append(getInitMethod(templateGroup));
       contents.append(getProcessPreludeCode(tcAlgorithm, templateGroup));
@@ -471,14 +466,6 @@ public class CMoflonCodeGenerator
 
    }
 
-   private boolean useHopCount(String algorithmName)
-   {
-      if (this.useHopCountProcessPerAlgorithm.containsKey(algorithmName))
-         return this.useHopCountProcessPerAlgorithm.get(algorithmName);
-      else
-         return this.useHopcounts;
-   }
-
    /**
     * Generates the Header File including, constants, includes, method
     * declarations, accessor declarations as well as declarations for compare
@@ -493,6 +480,7 @@ public class CMoflonCodeGenerator
       templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
 
       final StringBuilder contents = new StringBuilder();
+      contents.append(getDateCommentCode());
       contents.append(getIncludeGuardCode(tcAlgorithm, templateGroup));
       contents.append(getIncludesCode(templateGroup));
       contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
@@ -522,6 +510,19 @@ public class CMoflonCodeGenerator
       }
    }
 
+   private boolean useHopCount(final String algorithmName)
+   {
+      if (this.useHopCountProcessPerAlgorithm.containsKey(algorithmName))
+         return this.useHopCountProcessPerAlgorithm.get(algorithmName);
+      else
+         return this.useHopcounts;
+   }
+
+   private String getDateCommentCode()
+   {
+      return String.format("// Generated using cMoflon on %s%s", this.timeFormatter.format(new Date()), nl());
+   }
+
    private void generateSampleFiles(final IProgressMonitor monitor) throws CoreException
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Generate sample files", 1);
@@ -535,10 +536,11 @@ public class CMoflonCodeGenerator
       }
       final String content = StringUtils.join(linesForSampleFile, nl());
       IFile sampleFile = project.getFile(appConfConstants);
-      if(sampleFile.exists()){
-    	  sampleFile.setContents(new ReaderInputStream(new StringReader(content.toString())), true, true, subMon.split(2));
-      }
-      else WorkspaceHelper.addFile(project, appConfConstants, content, subMon.split(1));
+      if (sampleFile.exists())
+      {
+         sampleFile.setContents(new ReaderInputStream(new StringReader(content.toString())), true, true, subMon.split(2));
+      } else
+         WorkspaceHelper.addFile(project, appConfConstants, content, subMon.split(1));
 
    }
 
@@ -630,18 +632,19 @@ public class CMoflonCodeGenerator
       final ST template = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT);
       final String algorithmInvocation = this.tcAlgorithmParameters.get(tcAlgorithm);
       processBodyCode.append(getParameters(algorithmInvocation, tcAlgorithm, template));
-      if(this.useEvalStatements){
-    	  processBodyCode.append(EVAL_STATEMENTS_START);
-    	  processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());
-    	  processBodyCode.append(EVAL_STATEMENTS_END);
-      }
-      else{
-    	  processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());
+      if (this.useEvalStatements)
+      {
+         processBodyCode.append(EVAL_STATEMENTS_START);
+         processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());
+         processBodyCode.append(EVAL_STATEMENTS_END);
+      } else
+      {
+         processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());
       }
       return processBodyCode.toString();
    }
 
-private String getPatternMatchingCode()
+   private String getPatternMatchingCode()
    {
       StringBuilder allinjectedCode = new StringBuilder();
       for (final GenClass genClass : this.cachedConcreteClasses)
@@ -817,8 +820,6 @@ private String getPatternMatchingCode()
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            //if (searchPlanAdapter.getBody().getHeader().getName().contains("LmstAlgorithm_1_3_FindMinimalOutgoingLink_binding"))
-            //   st.inspect();
             code.append(st.render());
             code.append(nl());
             code.append(nl());
