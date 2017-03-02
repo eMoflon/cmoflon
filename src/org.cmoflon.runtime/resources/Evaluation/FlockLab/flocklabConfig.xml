@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testConf xmlns="http://www.flocklab.ethz.ch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.flocklab.ethz.ch xml/flocklab.xsd">
+	<!-- General configuration -->
+	<generalConf>
+		<name>Cmoflon kTC patternmatching Evaluation</name>
+		<description>
+			Large Generated. Evaluation of kTC code generated from a PatternMatcher. Results evaluated are Runtime, ErrorRate and the resulting topology.
+		</description>
+		<scheduleAsap>
+			<durationSecs>1800</durationSecs>
+		</scheduleAsap>
+		<emailResults>yes</emailResults>
+	</generalConf>
+	
+	<!-- Target configuration -->
+	<targetConf>
+		<obsIds>033 032 031 028 027 026 025 024 023 022 020 019 018 017 016 015 014 013 011 010 008 007 006 004 003 002 001</obsIds>
+		<dbImageId><!-- Insert Image ID here --></dbImageId>
+	</targetConf>
+<serialConf>
+	<obsIds>033 032 031 028 027 026 025 024 023 022 020 019 018 017 016 015 014 013 011 010 008 007 006 004 003 002 001</obsIds>
+	<baudrate>115200</baudrate>
+	<mode>ascii</mode>
+	<remoteIp>127.0.0.1</remoteIp>
+</serialConf>
+</testConf>

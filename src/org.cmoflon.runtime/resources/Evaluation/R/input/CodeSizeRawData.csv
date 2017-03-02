@@ -1,8 +1,8 @@
 ImageFile,Algorithm,TextInByte,DataInByte,BssInByte,TotalInByte
 kTCMan.sky,kTC-man,38901,234,9224,48359
-kTCGen.sky,kTC-gen,40551,234,9226,50011
+kTCGen.sky,kTC-gen,40663,234,9226,50123
 lkTCMan.sky,l*-kTC-man,40049,244,9474,49767
-lkTCGen.sky,l*-kTC-gen,41887,244,9476,51607
+lkTCGen.sky,l*-kTC-gen,42003,244,9476,51723
 lmstMan.sky,LMST-man,39153,242,9436,48831
-lmstGen.sky,LMST-gen,42853,242,9668,52763
+lmstGen.sky,LMST-gen,42557,242,9668,52467
 NoTC.sky,NoTC,36683,234,9212,46129
