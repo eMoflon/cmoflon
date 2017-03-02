@@ -1,5 +1,6 @@
-#ifndef __TOPOLOGYCONTROL__KTCALGORITHM_H_
-#define __TOPOLOGYCONTROL__KTCALGORITHM_H_
+// Generated using cMoflon on 2017-03-61T03:03:14
+#ifndef __TOPOLOGYCONTROL__LSTARKTCALGORITHM_H_
+#define __TOPOLOGYCONTROL__LSTARKTCALGORITHM_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,17 +14,46 @@
 #include "../../lib/neighbors.h"
 #include "../../lib/networkaddr.h"
 #include "dev/watchdog.h"
+#include "../../lib/uniqueid.h"
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_K
-#define COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_K 1.2
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_SMALLDELAY_MAX
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_SMALLDELAY_MAX 65
 #endif
 
-#ifndef COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL
-#define COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL 300
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_PERIODIC_MIN
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_PERIODIC_MIN 270
+#endif
+
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_STRETCHFACTOR
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_STRETCHFACTOR 1.5
+#endif
+
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_IMMEDIATE_MAX
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_IMMEDIATE_MAX 10 
+#endif
+
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_IMMEDIATE_MIN
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_IMMEDIATE_MIN 1
+#endif
+
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_K
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_K 1.2
+#endif
+
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_PERIODIC_MAX
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_PERIODIC_MAX 330
+#endif
+
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_UPDATEINTERVAL
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_UPDATEINTERVAL 300
+#endif
+
+#ifndef COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_SMALLDELAY_MIN
+#define COMPONENT_TOPOLOGYCONTROL_LSTARKTCALGORITHM_BROADCASTHOPCOUNT_SMALLDELAY_MIN 55
 #endif
 
 #ifndef MAX_MATCH_COUNT
-#define MAX_MATCH_COUNT 30
+#define MAX_MATCH_COUNT 40
 #endif
 typedef struct match{
 	struct match_t* next;
@@ -67,20 +97,27 @@ EBoolean lStarKtcAlgorithm_evaluateHopcountConstraint(EInt hopCount1,
 		EInt hopCount2, EInt hopCount3, EDouble stretchFactor);
 // --- End of user-defined algorithm-independent type definitions
 
-// --- Begin of user-defined type definitions for KtcAlgorithm(Path: 'injection/custom-typedefs_KtcAlgorithm.c')
-typedef struct LSTARKTCALGORITHM_T LSTARKTCALGORITHM_T;
+// --- Begin of user-defined type definitions for LStarKtcAlgorithm(Path: 'injection/custom-typedefs_LStarKtcAlgorithm.c')
+typedef struct KTCALGORITHM_T KTCALGORITHM_T;
 typedef struct LMSTALGORITHM_T LMSTALGORITHM_T;
 typedef struct TREE_T TREE_T;
 typedef struct TREEENTRY_T TREEENTRY_T;
 
-typedef struct  {
+typedef struct {
 	EDouble k;
+	EDouble stretchFactor;
 	NODE_T* node;
-}KTCALGORITHM_T;
-// --- End of user-defined type definitions for KtcAlgorithm
+}LSTARKTCALGORITHM_T;
+// --- End of user-defined type definitions for LStarKtcAlgorithm
 
 //Begin of non SDM implemented methods
+void lmstAlgorithm_init(LMSTALGORITHM_T* this);
+void lmstAlgorithm_run(LMSTALGORITHM_T* this);
+LINK_T* lmstAlgorithm_findShortestUnconnectedLink(LMSTALGORITHM_T* this);
+void lmstAlgorithm_cleanup(LMSTALGORITHM_T* this);
+void lmstAlgorithm_setAllLinksToUnclassified(LMSTALGORITHM_T* this, TREE_T* tree);
 void ktcAlgorithm_run(KTCALGORITHM_T* this);
+void lStarKtcAlgorithm_run(LSTARKTCALGORITHM_T* this);
 //End of non SDM implemented methods
 
 //Begin of declarations for hopcount
@@ -132,6 +169,49 @@ NODE_T* link_getSource(LINK_T* _this);
 void link_setSource(LINK_T* _this, NODE_T* value);
 //End of declarations for source
 
+//Begin of declarations for node
+NODE_T* lmstAlgorithm_getNode(LMSTALGORITHM_T* _this);
+void lmstAlgorithm_setNode(LMSTALGORITHM_T* _this, NODE_T* value);
+//End of declarations for node
+
+//Begin of declarations for tree
+TREE_T* lmstAlgorithm_getTree(LMSTALGORITHM_T* _this);
+void lmstAlgorithm_setTree(LMSTALGORITHM_T* _this, TREE_T* value);
+//End of declarations for tree
+
+//Begin of declarations for algorithm
+LMSTALGORITHM_T* tree_getAlgorithm(TREE_T* _this);
+void tree_setAlgorithm(TREE_T* _this, LMSTALGORITHM_T* value);
+//End of declarations for algorithm
+
+//Begin of declarations for entries
+list_t tree_getEntries(TREE_T* _this);
+void tree_addEntries(TREE_T* _this, TREEENTRY_T* value);
+void tree_removeEntries(TREE_T* _this, TREEENTRY_T* item);
+bool tree_containsEntries(TREE_T* _this, TREEENTRY_T* value);
+bool tree_isEntries(void* candidate, void* _this);
+//End of declarations for entries
+
+//Begin of declarations for isInTree
+bool treeEntry_isIsInTree(TREEENTRY_T* _this);
+void treeEntry_setIsInTree(TREEENTRY_T* _this, EBoolean value);
+//End of declarations for isInTree
+
+//Begin of declarations for tree
+TREE_T* treeEntry_getTree(TREEENTRY_T* _this);
+void treeEntry_setTree(TREEENTRY_T* _this, TREE_T* value);
+//End of declarations for tree
+
+//Begin of declarations for node
+NODE_T* treeEntry_getNode(TREEENTRY_T* _this);
+void treeEntry_setNode(TREEENTRY_T* _this, NODE_T* value);
+//End of declarations for node
+
+//Begin of declarations for parent
+LINK_T* treeEntry_getParent(TREEENTRY_T* _this);
+void treeEntry_setParent(TREEENTRY_T* _this, LINK_T* value);
+//End of declarations for parent
+
 //Begin of declarations for k
 EDouble ktcAlgorithm_getK(KTCALGORITHM_T* _this);
 void ktcAlgorithm_setK(KTCALGORITHM_T* _this, EDouble value);
@@ -140,6 +220,21 @@ void ktcAlgorithm_setK(KTCALGORITHM_T* _this, EDouble value);
 //Begin of declarations for node
 NODE_T* ktcAlgorithm_getNode(KTCALGORITHM_T* _this);
 void ktcAlgorithm_setNode(KTCALGORITHM_T* _this, NODE_T* value);
+//End of declarations for node
+
+//Begin of declarations for k
+EDouble lStarKtcAlgorithm_getK(LSTARKTCALGORITHM_T* _this);
+void lStarKtcAlgorithm_setK(LSTARKTCALGORITHM_T* _this, EDouble value);
+//End of declarations for k
+
+//Begin of declarations for stretchFactor
+EDouble lStarKtcAlgorithm_getStretchFactor(LSTARKTCALGORITHM_T* _this);
+void lStarKtcAlgorithm_setStretchFactor(LSTARKTCALGORITHM_T* _this, EDouble value);
+//End of declarations for stretchFactor
+
+//Begin of declarations for node
+NODE_T* lStarKtcAlgorithm_getNode(LSTARKTCALGORITHM_T* _this);
+void lStarKtcAlgorithm_setNode(LSTARKTCALGORITHM_T* _this, NODE_T* value);
 //End of declarations for node
 
 //Begin of compare declarations
@@ -155,7 +250,11 @@ int eString_compare(EString _this, EString other);
 int node_compare(NODE_T* _this, NODE_T* other);
 int link_compare(LINK_T* _this, LINK_T* other);
 int topologyControlAlgorithm_compare(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
+int lmstAlgorithm_compare(LMSTALGORITHM_T* _this, LMSTALGORITHM_T* other);
+int tree_compare(TREE_T* _this, TREE_T* other);
+int treeEntry_compare(TREEENTRY_T* _this, TREEENTRY_T* other);
 int ktcAlgorithm_compare(KTCALGORITHM_T* _this, KTCALGORITHM_T* other);
+int lStarKtcAlgorithm_compare(LSTARKTCALGORITHM_T* _this, LSTARKTCALGORITHM_T* other);
 //End of compare declarations
 
 //Begin of equals declarations
@@ -171,7 +270,11 @@ bool eString_equals(EString _this, EString other);
 bool node_equals(NODE_T* _this, NODE_T* other);
 bool link_equals(LINK_T* _this, LINK_T* other);
 bool topologyControlAlgorithm_equals(TOPOLOGYCONTROLALGORITHM_T* _this, TOPOLOGYCONTROLALGORITHM_T* other);
+bool lmstAlgorithm_equals(LMSTALGORITHM_T* _this, LMSTALGORITHM_T* other);
+bool tree_equals(TREE_T* _this, TREE_T* other);
+bool treeEntry_equals(TREEENTRY_T* _this, TREEENTRY_T* other);
 bool ktcAlgorithm_equals(KTCALGORITHM_T* _this, KTCALGORITHM_T* other);
+bool lStarKtcAlgorithm_equals(LSTARKTCALGORITHM_T* _this, LSTARKTCALGORITHM_T* other);
 //End of equals declarations
 
-#endif /* __TOPOLOGYCONTROL__KTCALGORITHM_H_ */
+#endif /* __TOPOLOGYCONTROL__LSTARKTCALGORITHM_H_ */
