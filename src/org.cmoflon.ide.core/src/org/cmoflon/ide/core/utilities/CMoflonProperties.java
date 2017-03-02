@@ -33,17 +33,17 @@ public class CMoflonProperties
 
    public static final String PROPERTY_TC_MIN_ALGORITHM_ID = "tc.minId";
 
-   private static final boolean DEFAULT_USE_HOPCOUNT = false;
-
    public static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
    public static final String PROPERTY_INCLUDE_EVALUATION_STATEMENTS = "tc.useEvaluationStatements";
 
+   private static final boolean DEFAULT_USE_HOPCOUNT = false;
+   
    private static final boolean DEFAULT_INCLUDE_EVALUATION_STATEMENTS = false;
 
-   public static Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
+   private static Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
 
-   public static Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();
+   private static Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();
 
    private static final String DEFAULT_CMOFLON_PROPERTIES_CONTENT = //
          "#Set to 'true' if dropping unidirectional edges is desired \n" //
