@@ -4,7 +4,7 @@
    <description name="cMoflon update site" url="https://raw.githubusercontent.com/eMoflon/cmoflon/update-site">
       This is the main update site of cMoflon
    </description>
-   <feature url="features/org.cmoflon.feature_1.0.0.201703031055.jar" id="org.cmoflon.feature" version="1.0.0.201703031055">
+   <feature url="features/org.cmoflon.feature_1.0.0.qualifier.jar" id="org.cmoflon.feature" version="1.0.0.qualifier">
       <category name="org.cmoflon.category.main"/>
    </feature>
    <category-def name="org.cmoflon.category.main" label="cMoflon">
