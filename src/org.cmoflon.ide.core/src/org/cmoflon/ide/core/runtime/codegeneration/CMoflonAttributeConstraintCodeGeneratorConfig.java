@@ -57,9 +57,9 @@ import org.moflon.sdm.democles.literalexpressionsolver.LiteralexpressionsolverFa
 public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGeneratorConfig
 {
 
-   protected final WeightedOperationBuilder<GeneratorOperation> builder = new AttributeEnabledWeightedOperationBuilder<GeneratorOperation>();
+   protected final WeightedOperationBuilder<GeneratorOperation> builder;
 
-   protected final DefaultAlgorithm<SimpleCombiner, GeneratorOperation> algorithm = new DefaultAlgorithm<SimpleCombiner, GeneratorOperation>(builder);
+   protected final DefaultAlgorithm<SimpleCombiner, GeneratorOperation> algorithm;
    // ***************************************************
    // Pattern matcher configuration
    // ***************************************************
@@ -87,6 +87,8 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
       {
          throw new RuntimeException("Parameter project must be defined for AttributeConstraintCodeGeneratorConfig");
       }
+      this.builder = new AttributeEnabledWeightedOperationBuilder<GeneratorOperation>();
+      this.algorithm = new DefaultAlgorithm<SimpleCombiner, GeneratorOperation>(builder);
 
       //load attribute constraint libraries first loaded has higher priority 
       attributeConstraintLibUtil.init(resourceSet, project);
