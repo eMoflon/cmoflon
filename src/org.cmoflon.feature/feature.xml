@@ -29,7 +29,7 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
    </url>
 
    <requires>
-      <import feature="org.moflon.ide.feature" version="2.25.0" match="greaterOrEqual"/>
+      <import feature="org.moflon.ide.feature" version="2.28.0"/>
    </requires>
 
    <plugin
