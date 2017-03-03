@@ -2,7 +2,7 @@
 <feature
       id="org.cmoflon.feature"
       label="cMoflon Feature"
-      version="0.0.1.qualifier"
+      version="1.0.0.qualifier"
       provider-name="Real-Time Systems Lab, TU Darmstadt"
       plugin="org.cmoflon.ide.ui">
 

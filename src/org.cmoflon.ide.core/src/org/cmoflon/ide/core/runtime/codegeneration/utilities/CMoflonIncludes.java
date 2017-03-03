@@ -13,33 +13,35 @@ public class CMoflonIncludes
 
    public enum Components {
       TOPOLOGYCONTROL, APPLICATION, RADIO, NEIGHBORDISCOVERY, NETWORK, POWERCONTROL
-   };
+   }
 
    //These are the Includes that should be relevant for ANY Contiki Application
-   public static String STDLIB = "<stdlib.h>";
+   private static final String STDLIB = "<stdlib.h>";
 
-   public static String STDIO = "<stdio.h>";
+   private static final String STDIO = "<stdio.h>";
 
-   public static String CONTIKI = "\"contiki.h\"";
+   private static final String CONTIKI = "\"contiki.h\"";
 
-   public static String CONTIKILIB = "\"contiki-lib.h\"";
+   private static final String CONTIKILIB = "\"contiki-lib.h\"";
 
-   public static String APPCONF = "\"../../app-conf.h\"";
+   private static final String APPCONF = "\"../../app-conf.h\"";
 
-   public static String BOOT = "\"../../lib/boot.h\"";
+   private static final String BOOT = "\"../../lib/boot.h\"";
 
-   public static String COMPONENTS = "\"../../lib/components.h\"";
+   private static final String COMPONENTS = "\"../../lib/components.h\"";
 
-   public static String UTILITIES = "\"../../lib/utilities.h\"";
+   private static final String UTILITIES = "\"../../lib/utilities.h\"";
+   
+   private static final String UNIQUE_ID = "\"../../lib/uniqueid.h\"";
 
-   public static String FLOAT = "<float.h>";
+   private static final String FLOAT = "<float.h>";
 
    //These are the Includes that should be relevant for Applications of type Neighbordiscovery
-   public static String WATCHDOG = "\"dev/watchdog.h\"";
+   private static final String WATCHDOG = "\"dev/watchdog.h\"";
 
-   public static String NEIGHBORS = "\"../../lib/neighbors.h\"";
+   private static final String NEIGHBORS = "\"../../lib/neighbors.h\"";
 
-   public static String NETWORKADDR = "\"../../lib/networkaddr.h\"";
+   private static final String NETWORKADDR = "\"../../lib/networkaddr.h\"";
 
    public static List<String> getCMoflonIncludes()
    {
@@ -70,6 +72,7 @@ public class CMoflonIncludes
          result.add(NEIGHBORS);
          result.add(NETWORKADDR);
          result.add(WATCHDOG);
+         result.add(UNIQUE_ID);
          return result;
       case APPLICATION:
          return result;

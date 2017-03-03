@@ -1,0 +1,18 @@
+2017-03-03 cMoflon 1.0.0 --- First release of cMoflon
+
+Features
+* Metamodeling
+ * EClasses, EReferences
+ * No special treatment of containment 
+ 
+* SDM
+ * Black, binding: full
+ * Red, green: Full support for EReferences; For EClass object variables, function prototypes are being generated
+ * Static memory allocation for match sets resulting from foreach story nodes
+ 
+Limitations
+* Metamodeling
+ * No (multiple) inheritance
+ * No many-valued EReferences ending at Node (missing 'next' pointer in ToCoCo)
+  
+ 
