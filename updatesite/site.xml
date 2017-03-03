@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site>
+<site
+      associateSitesURL="https://emoflon.github.io/cmoflon/update-site/associateSites.xml">
    <description name="cMoflon update site" url="https://raw.githubusercontent.com/eMoflon/cmoflon/update-site">
       This is the main update site of cMoflon
    </description>
-   <feature url="features/org.cmoflon.feature_0.0.1.201701232259.jar" id="org.cmoflon.feature" version="0.0.1.201701232259">
+   <feature url="features/org.cmoflon.feature_1.0.0.201703031001.jar" id="org.cmoflon.feature" version="1.0.0.201703031001">
       <category name="org.cmoflon.category.main"/>
    </feature>
    <category-def name="org.cmoflon.category.main" label="cMoflon">
