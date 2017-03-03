@@ -7,7 +7,13 @@ The target programmling language is (embedded) C.
 ## Troubleshooting
 If you encounter any problems, please post an issue (https://github.com/eMoflon/cmoflon/issues) or send me (Roland Kluge) a message
 
+## SHARE VM
+(Yet to come...) We invite you to try out cMoflon using the following SHARE VM.
+
 ## Short walk through
+The following steps will enable you to generate code for the specifications shown in ECMFA'17 (under submission).
+If you want to run the generated code in the testbed, follow the steps in the *Complete walkthrough* section.
+
 1. **Install Eclipse with Modeling Components Neon.2 (or newer)**
   * All Eclipse packages are available here: https://eclipse.org/downloads/
 1. **Install Enterprise Architect 12 (or later)**
@@ -27,9 +33,6 @@ If you encounter any problems, please post an issue (https://github.com/eMoflon/
   1. After the build was successful,...
     * ...the project *cMoflonDemoLanguage_C* contains the generated C code (/gen folder), and 
     * ...the project *cMoflonDemoLanguage* contains the corresponding generated EMF-based code (/gen folder).
-
-## SHARE VM
-(Yet to come...) We invite you to try out cMoflon using the following SHARE VM.
 
 ## Complete walkthrough
 
