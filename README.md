@@ -10,6 +10,11 @@ If you encounter any problems, please post an issue (https://github.com/eMoflon/
 ## SHARE VM
 (Yet to come...) We invite you to try out cMoflon using the following SHARE VM.
 
+## Size comparison of eMoflon and cMoflon
+We have counted the lines of code in the code bases of eMoflon 2.28.0 and cMoflon 1.0.0.
+The results can be found at the following location:
+https://github.com/eMoflon/cmoflon/raw/master/ECMFA2017/SizeComparisonCMoflonVsEMoflon.xlsx
+
 ## Short walk through
 The following steps will enable you to generate code for the specifications shown in ECMFA'17 (under submission).
 If you want to run the generated code in the testbed, follow the steps in the *Complete walkthrough* section.
