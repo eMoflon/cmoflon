@@ -4,7 +4,7 @@ cMoflon is a variant of [eMoflon](https://emoflon.github.io).
 In cMoflon, topology control algorithms are specified using Ecore and Story-Driven Modeling, a programmed graph transformation dialect.
 The target programmling language is (embedded) C.
 
-[![Project Stats](https://www.openhub.net/p/mindroid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/cmoflon)
+[![Project Stats](https://www.openhub.net/p/cmoflon/widgets/project_thin_badge.gif)](https://www.openhub.net/p/cmoflon)
 
 ## Supplementary material for ECMFA 2017
 We have set up a separate document that links to supplementary material (e.g, a SHARE VM) related to the cMoflon paper at ECMFA 2017:
