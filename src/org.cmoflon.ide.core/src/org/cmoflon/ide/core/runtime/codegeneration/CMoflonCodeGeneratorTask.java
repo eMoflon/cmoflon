@@ -34,6 +34,7 @@ import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 import org.moflon.core.utilities.LogUtils;
+import org.moflon.core.utilities.preferences.EMoflonPreferencesStorage;
 
 /**
  * The task that controls the cMoflon code generation process
@@ -43,29 +44,32 @@ import org.moflon.core.utilities.LogUtils;
  */
 public class CMoflonCodeGeneratorTask implements ITask
 {
-   private int timeoutForValidationTaskInMillis = 0;
-
    private static final Logger logger = Logger.getLogger(CMoflonCodeGeneratorTask.class);
 
    private final IFile ecoreFile;
 
    private final ResourceSet resourceSet;
 
+   private final EMoflonPreferencesStorage preferencesStorage;
+   
    private List<Resource> resources;
 
    private MoflonPropertiesContainer moflonProperties;
 
    private GenModel genModel;
 
+
    /**
     * Initializes the code generation task
     * @param ecoreFile the ECore file to generate code for
     * @param resourceSet the {@link ResourceSet} of the running build process
+    * @param preferencesStorage the container that stores IDE preferences
     */
-   public CMoflonCodeGeneratorTask(final IFile ecoreFile, final ResourceSet resourceSet)
+   public CMoflonCodeGeneratorTask(final IFile ecoreFile, final ResourceSet resourceSet, final EMoflonPreferencesStorage preferencesStorage)
    {
       this.ecoreFile = ecoreFile;
       this.resourceSet = resourceSet;
+      this.preferencesStorage = preferencesStorage;
    }
 
    /**
@@ -142,7 +146,7 @@ public class CMoflonCodeGeneratorTask implements ITask
 
          // (1) Instantiate code generation engine
          final CMoflonAttributeConstraintCodeGeneratorConfig defaultCodeGeneratorConfig = new CMoflonAttributeConstraintCodeGeneratorConfig(resourceSet,
-               ecoreFile.getProject());
+               ecoreFile.getProject(), preferencesStorage);
          MethodBodyHandler methodBodyHandler = new DemoclesMethodBodyHandler(resourceSet, defaultCodeGeneratorConfig);
          subMon.worked(5);
 
@@ -159,7 +163,7 @@ public class CMoflonCodeGeneratorTask implements ITask
          JobGroup jobGroup = new JobGroup("Validation job group", 1, 1);
          validationJob.setJobGroup(jobGroup);
          validationJob.schedule();
-         jobGroup.join(timeoutForValidationTaskInMillis, subMon.split(10));
+         jobGroup.join(preferencesStorage.getValidationTimeout(), subMon.split(10));
          final IStatus validatorStatus = validationJob.getResult();
 
          if (validatorStatus == null)
@@ -171,7 +175,7 @@ public class CMoflonCodeGeneratorTask implements ITask
             {
                // Simply ignore it
             }
-            throw new OperationCanceledException("Validation took longer than " + (timeoutForValidationTaskInMillis / 1000)
+            throw new OperationCanceledException("Validation took longer than " + (preferencesStorage.getValidationTimeout() / 1000)
                   + " seconds. This could(!) mean that some of your patterns have no valid search plan. You may increase the timeout value using the eMoflon property page");
          } else if (subMon.isCanceled())
          {
@@ -233,11 +237,6 @@ public class CMoflonCodeGeneratorTask implements ITask
    public String getTaskName()
    {
       return "CMoflonCodeGeneration";
-   }
-
-   public void setValidationTimeout(final int timeoutInMillis)
-   {
-      this.timeoutForValidationTaskInMillis = timeoutInMillis;
    }
 
    private List<Resource> getAllResources()
