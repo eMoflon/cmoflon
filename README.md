@@ -6,16 +6,12 @@ The target programmling language is (embedded) C.
 
 [![Project Stats](https://www.openhub.net/p/mindroid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/cmoflon)
 
+## Supplementary material for ECMFA 2017
+We have set up a separate document that links to supplementary material (e.g, a SHARE VM) related to the cMoflon paper at ECMFA 2017:
+https://github.com/eMoflon/cmoflon/blob/master/ECMFA2017/README_ECMFA2017.md
+
 ## Troubleshooting
 If you encounter any problems, please post an issue (https://github.com/eMoflon/cmoflon/issues) or send me (Roland Kluge) a message
-
-## SHARE VM
-(Yet to come...) We invite you to try out cMoflon using the following SHARE VM.
-
-## Size comparison of eMoflon and cMoflon
-We have counted the lines of code in the code bases of eMoflon 2.28.0 and cMoflon 1.0.0.
-The results can be found at the following location:
-https://github.com/eMoflon/cmoflon/raw/master/ECMFA2017/SizeComparisonCMoflonVsEMoflon.xlsx
 
 ## Short walk through
 The following steps will enable you to generate code for the specifications shown in ECMFA'17 (under submission).
