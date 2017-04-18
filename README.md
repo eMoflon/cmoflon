@@ -21,7 +21,7 @@ If you want to run the generated code in the testbed, follow the steps in the *C
   * All Eclipse packages are available here: https://eclipse.org/downloads/
 1. **Install Enterprise Architect 12 (or later)**
   * A 30-days trial version of Enterprise Architect is available here: https://www.sparxsystems.de/uml/download-trial/
-1. **Install eMoflon 2.28.0 (or later)**
+1. **Install eMoflon 2.28.0 or 2.29.0 (NOT later)**
   * To install eMoflon in Eclipse use the following update site: http://emoflon.github.io/eclipse-plugin/emoflon_2.28.0/updatesite/
   * You only need to install the feature *eMoflon Core*
   * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.github.io/eclipse-plugin/emoflon_2.28.0/updatesite/ea-ecore-addin.zip
@@ -54,7 +54,7 @@ This version of cMoflon has been tested with Eclipse Neon.2 (4.6.2) and eMoflon 
 1. **Install cMoflon 1.0.0**
   * Stable update site:
   * Unstable update Site: http://emoflon.github.io/cmoflon/updatesite/
-  * You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.
+  <!--* You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.-->
 1. **Get Contiki 3.0**
  * Download the *Instant Contiki 3.0* VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
  * You will need Virtual Box to run the VM (https://www.virtualbox.org/)
