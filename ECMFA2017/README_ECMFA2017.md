@@ -2,7 +2,9 @@
 
 ## SHARE VM (UNDER CONSTRUCTION)
 We invite you to try out cMoflon using the following SHARE VM:
-<a href="http://is.ieis.tue.nl/staff/pvgorp/share/?page=ConfigureNewSession&vdi=XP-TUe_RK_cMoflon_ECMFA2017.vdi" title="" target="_blank">XP-TUe_RK_cMoflon_ECMFA2017.vdi</a> in <a href="http://fmt.cs.utwente.nl/redmine/projects/grabats/wiki" target="_blank"><img src="http://is.ieis.tue.nl/staff/pvgorp/share/images/share-logo-16full.png" alt="Online demo in SHARE" title="Sharing Hosted Autonomous Research Environments" border="0" style="vertical-align: text-top"></a>
+* URL: <a href="http://is.ieis.tue.nl/staff/pvgorp/share/?page=ConfigureNewSession&vdi=XP-TUe_RK_cMoflon_ECMFA2017.vdi" title="" target="_blank">XP-TUe_RK_cMoflon_ECMFA2017.vdi</a> in <a href="http://fmt.cs.utwente.nl/redmine/projects/grabats/wiki" target="_blank"><img src="http://is.ieis.tue.nl/staff/pvgorp/share/images/share-logo-16full.png" alt="Online demo in SHARE" title="Sharing Hosted Autonomous Research Environments" border="0" style="vertical-align: text-top"></a>
+* User: sharevm[A}es[D}tu-darmstadt[D}de ([A} = @, [D} = ., [E} = !)
+* Passsword: ShareVM[A}RealTime[E}
 
 
 ## Size comparison of eMoflon and cMoflon
