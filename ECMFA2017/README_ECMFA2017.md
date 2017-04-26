@@ -44,6 +44,7 @@ We invite you to try out cMoflon using the following SHARE VM:
 * The *components* folder is structured along the main components in ToCoCo.
 * The *components/topologycontrol* folder contains the manually implemented topology control algorithms (a-)kTC, l*-kTC, LMST, and NoTC.
    * To use the generated topology control algorithms, the generated .c and .h files need to be placed in this folder and the *Makefile* needs to be adjusted accorindly.
+   
 ![Screenshot of ToCoCo project](https://raw.githubusercontent.com/eMoflon/cmoflon/master/ECMFA2017/ScreenshotToCoCoSource.png)
 
 ## Size comparison of eMoflon and cMoflon
