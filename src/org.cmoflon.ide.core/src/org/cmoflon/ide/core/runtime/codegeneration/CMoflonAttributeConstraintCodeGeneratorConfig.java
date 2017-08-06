@@ -17,9 +17,9 @@ import org.gervarro.democles.plan.WeightedOperationBuilder;
 import org.gervarro.democles.plan.common.DefaultAlgorithm;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
 import org.moflon.compiler.sdm.democles.PatternMatcherCompiler;
-import org.moflon.compiler.sdm.democles.TemplateConfigurationProvider;
 import org.moflon.compiler.sdm.democles.attributes.AttributeConstraintsOperationBuilder;
 import org.moflon.compiler.sdm.democles.attributes.AttributeEnabledWeightedOperationBuilder;
+import org.moflon.core.utilities.preferences.EMoflonPreferencesStorage;
 import org.moflon.sdm.compiler.democles.pattern.BindingPatternTransformer;
 import org.moflon.sdm.compiler.democles.pattern.DefaultExpressionTransformer;
 import org.moflon.sdm.compiler.democles.pattern.GreenPatternTransformer;
@@ -52,21 +52,18 @@ import org.moflon.sdm.democles.literalexpressionsolver.ConstantTransformer;
 import org.moflon.sdm.democles.literalexpressionsolver.LiteralexpressionsolverFactory;
 
 /**
+ * Attribute-enabled cMoflon code generator configuration
+ * 
  * @author David Giessing
  */
 public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGeneratorConfig
 {
 
-   protected final WeightedOperationBuilder<GeneratorOperation> builder;
+   private final WeightedOperationBuilder<GeneratorOperation> builder;
 
-   protected final DefaultAlgorithm<SimpleCombiner, GeneratorOperation> algorithm;
-   // ***************************************************
-   // Pattern matcher configuration
-   // ***************************************************
+   private final DefaultAlgorithm<SimpleCombiner, GeneratorOperation> algorithm;
 
-   // Constraint modules
-   //private final AttributeVariableConstraintLibrary attributeVariableConstraintLibrary;
-   final AttributeVariableConstraintsModule attributeVariableConstraintsModule;
+   private final AttributeVariableConstraintsModule attributeVariableConstraintsModule;
 
    // Operation modules (constraint to operation (constraint + adornment) mappings)
    private final AttributeConstraintsOperationBuilder attributeConstraintsOperationBuilder = new AttributeConstraintsOperationBuilder();
@@ -77,12 +74,12 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
    //Constraint type module
    private final AttributeVariableConstraintsTypeModule attributeVariableConstraintsTypeModule;
 
-   protected AttributeConstraintLibUtilImpl attributeConstraintLibUtil = (AttributeConstraintLibUtilImpl) ConstraintstodemoclesFactory.eINSTANCE
+   private AttributeConstraintLibUtilImpl attributeConstraintLibUtil = (AttributeConstraintLibUtilImpl) ConstraintstodemoclesFactory.eINSTANCE
          .createAttributeConstraintLibUtil();
 
-   public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet, final IProject project)
+   public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet, final IProject project, final EMoflonPreferencesStorage preferencesStorage)
    {
-      super(resourceSet);
+      super(resourceSet, preferencesStorage);
       if (project == null)
       {
          throw new RuntimeException("Parameter project must be defined for AttributeConstraintCodeGeneratorConfig");
@@ -296,7 +293,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
    }
 
    @Override
-   public TemplateConfigurationProvider createTemplateConfiguration(final GenModel genModel)
+   public CMoflonTemplateConfiguration createTemplateConfiguration(final GenModel genModel)
    {
       return new CMoflonAttributeConstraintTemplateConfig(genModel, attributeVariableConstraintLibraries);
    }

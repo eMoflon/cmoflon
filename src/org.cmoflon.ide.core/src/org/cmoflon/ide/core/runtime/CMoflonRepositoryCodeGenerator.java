@@ -19,7 +19,7 @@ import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
 import org.moflon.core.utilities.MoflonUtil;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.core.utilities.eMoflonEMFUtil;
-import org.moflon.ide.core.preferences.EMoflonPreferencesStorage;
+import org.moflon.core.utilities.preferences.EMoflonPreferencesStorage;
 import org.osgi.framework.FrameworkUtil;
 
 /**
@@ -57,8 +57,7 @@ public class CMoflonRepositoryCodeGenerator
          final ResourceSet resourceSet = CodeGeneratorPlugin.createDefaultResourceSet();
          eMoflonEMFUtil.installCrossReferencers(resourceSet);
          subMon.worked(1);
-         final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet);
-         gen.setValidationTimeout(EMoflonPreferencesStorage.getInstance().getValidationTimeout());
+         final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet, EMoflonPreferencesStorage.getInstance());
          final IStatus status = gen.run(subMon.split(1));
          if (status.matches(IStatus.ERROR))
          {
