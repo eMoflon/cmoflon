@@ -64,7 +64,7 @@ public class CMoflonCodeGeneratorConfig extends DefaultValidatorConfig
     */
    public CMoflonCodeGeneratorConfig(final ResourceSet resourceSet, final EMoflonPreferencesStorage preferencesStorage)
    {
-      super(resourceSet);
+      super(resourceSet, preferencesStorage);
 
       this.preferencesStorage = preferencesStorage;
    }
@@ -160,7 +160,7 @@ public class CMoflonCodeGeneratorConfig extends DefaultValidatorConfig
     * Returns the cached preferences store
     * @return
     */
-   protected final EMoflonPreferencesStorage getPreferencesStorage()
+   public final EMoflonPreferencesStorage getPreferencesStorage()
    {
       return preferencesStorage;
    }
