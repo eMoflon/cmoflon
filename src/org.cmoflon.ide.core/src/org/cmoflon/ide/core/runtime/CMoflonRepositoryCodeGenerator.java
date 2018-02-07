@@ -57,7 +57,7 @@ public class CMoflonRepositoryCodeGenerator
          final ResourceSet resourceSet = CodeGeneratorPlugin.createDefaultResourceSet();
          eMoflonEMFUtil.installCrossReferencers(resourceSet);
          subMon.worked(1);
-         final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet, EMoflonPreferencesStorage.getInstance());
+         final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet, new EMoflonPreferencesStorage());
          final IStatus status = gen.run(subMon.split(1));
          if (status.matches(IStatus.ERROR))
          {
