@@ -19,7 +19,7 @@ import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
 import org.moflon.compiler.sdm.democles.PatternMatcherCompiler;
 import org.moflon.compiler.sdm.democles.attributes.AttributeConstraintsOperationBuilder;
 import org.moflon.compiler.sdm.democles.attributes.AttributeEnabledWeightedOperationBuilder;
-import org.moflon.core.utilities.preferences.EMoflonPreferencesStorage;
+import org.moflon.core.preferences.EMoflonPreferencesStorage;
 import org.moflon.sdm.compiler.democles.pattern.BindingPatternTransformer;
 import org.moflon.sdm.compiler.democles.pattern.DefaultExpressionTransformer;
 import org.moflon.sdm.compiler.democles.pattern.GreenPatternTransformer;
@@ -53,7 +53,7 @@ import org.moflon.sdm.democles.literalexpressionsolver.LiteralexpressionsolverFa
 
 /**
  * Attribute-enabled cMoflon code generator configuration
- * 
+ *
  * @author David Giessing
  */
 public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGeneratorConfig
@@ -87,7 +87,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
       this.builder = new AttributeEnabledWeightedOperationBuilder<GeneratorOperation>();
       this.algorithm = new DefaultAlgorithm<SimpleCombiner, GeneratorOperation>(builder);
 
-      //load attribute constraint libraries first loaded has higher priority 
+      //load attribute constraint libraries first loaded has higher priority
       attributeConstraintLibUtil.init(resourceSet, project);
       if (attributeConstraintLibUtil.getUserDefinedAttributeConstraintLibrary() != null)
       {

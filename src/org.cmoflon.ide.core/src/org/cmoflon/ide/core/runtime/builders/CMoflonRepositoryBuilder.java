@@ -19,17 +19,16 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.gervarro.eclipse.workspace.util.AntPatternCondition;
-import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
+import org.moflon.core.build.AbstractVisitorBuilder;
 import org.moflon.core.utilities.ErrorReporter;
 import org.moflon.core.utilities.WorkspaceHelper;
-import org.moflon.ide.core.runtime.builders.AbstractVisitorBuilder;
 import org.moflon.ide.core.runtime.builders.RepositoryBuilder;
 
 /**
- * Builder for projects with {@link CMoflonRepositoryNature}. 
+ * Builder for projects with {@link CMoflonRepositoryNature}.
  * Similar to {@link RepositoryBuilder}.
  * Triggers {@link CMoflonRepositoryCodeGenerator}.
- * 
+ *
  * @author David Giessing
  * @author Roland Kluge
  */
@@ -78,11 +77,11 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
 
          CMoflonProjectCreator.createFoldersIfNecessary(getProject(), subMon.split(1));
          CMoflonProjectCreator.createFilesIfNecessary(getProject(), subMon.split(1));
-         
+
          final CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
-         
+
          final IStatus status = generator.generateCode(subMon.split(50), CMoflonWorkspaceHelper.getCMoflonPropertiesFile(getProject()));
-         
+
          handleErrorsAndWarnings(status, ecoreFile);
       } catch (final CoreException e)
       {
@@ -92,14 +91,14 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
 
    /**
     * Handles errors and warning produced by the code generation task
-    * 
+    *
     * @param status
     */
    private void handleErrorsAndWarnings(final IStatus status, final IFile ecoreFile) throws CoreException
    {
       if (indicatesThatValidationCrashed(status))
       {
-         throw new CoreException(new Status(IStatus.ERROR, CodeGeneratorPlugin.getModuleID(), status.getMessage(), status.getException().getCause()));
+         throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), status.getMessage(), status.getException().getCause()));
       }
       if (status.matches(IStatus.ERROR))
       {

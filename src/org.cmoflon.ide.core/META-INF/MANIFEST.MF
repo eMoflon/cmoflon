@@ -24,7 +24,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.moflon.core.mocatomoflon,
  MocaTree,
  org.moflon.sdm.compiler.eclipse,
- org.moflon.ide.plugins;bundle-version="2.1.1",
  SDMLanguage,
  org.moflon.sdm.compiler.democles.validation.result,
  org.moflon.sdm.runtime.democles,
@@ -39,7 +38,13 @@ Require-Bundle: org.eclipse.core.runtime,
  org.moflon.sdm.constraints.scopevalidation;bundle-version="2.0.0",
  org.moflon.sdm.democles.literalexpressionsolver;bundle-version="2.0.0",
  org.moflon.ide.core;bundle-version="2.1.2",
- org.moflon.tgg.language;bundle-version="2.1.0"
+ org.moflon.tgg.language;bundle-version="2.1.0",
+ org.moflon.core.build;bundle-version="1.0.0",
+ org.moflon.core.plugins;bundle-version="2.2.0",
+ org.moflon.core.preferences;bundle-version="1.0.0",
+ org.moflon.emf.codegen;bundle-version="1.0.0",
+ org.moflon.emf.injection.ide;bundle-version="1.0.0",
+ org.moflon.emf.build;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: 

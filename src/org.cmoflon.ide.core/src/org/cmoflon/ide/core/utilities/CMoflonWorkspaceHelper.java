@@ -17,12 +17,12 @@ import org.moflon.core.utilities.WorkspaceHelper;
  * @author David Giessing
  * @author Roland Kluge
  */
-public class CMoflonWorkspaceHelper extends WorkspaceHelper
+public class CMoflonWorkspaceHelper
 {
 
    /**
     * Returns the cMoflon-specific properties of the given project
-    * 
+    *
     * @param project the project
     * @return the cMoflon properties
     * @throws CoreException e.g., if an IOException occurred
@@ -36,7 +36,7 @@ public class CMoflonWorkspaceHelper extends WorkspaceHelper
       {
          stream = file.getContents();
          properties.load(stream);
-      
+
       } catch (final IOException e)
       {
          throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(CMoflonWorkspaceHelper.class), "Failed to read properties from " + file, e));

@@ -77,7 +77,7 @@ import org.stringtemplate.v4.STGroup;
 
 /**
  * Generates the source and the header File.
- * 
+ *
  * @author David Giessing
  * @author Roland Kluge
  */
@@ -109,7 +109,7 @@ public class CMoflonCodeGenerator
     * Algorithm-specific overrides for {@link #useHopcounts}.
     * Key: algorithm name
     * Value: true if hop counts are relevant for the algorithm
-    * 
+    *
     * If this map does not contain an entry for a given algorithm, {@link #useHopcounts} will be used
     */
    private Map<String, Boolean> useHopCountProcessPerAlgorithm;
@@ -422,7 +422,7 @@ public class CMoflonCodeGenerator
     *            process
     * @param genClass
     *            the genClass the code is generated for.
-    * @throws CoreException 
+    * @throws CoreException
     */
    private void generateSourceFile(final String tcAlgorithm, final IProgressMonitor monitor) throws CoreException
    {
@@ -526,7 +526,7 @@ public class CMoflonCodeGenerator
    private void generateSampleFiles(final IProgressMonitor monitor) throws CoreException
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Generate sample files", 1);
-      final String appConfConstants = CMoflonWorkspaceHelper.GEN_FOLDER + "/app-conf-constants.h.sample";
+      final String appConfConstants = WorkspaceHelper.GEN_FOLDER + "/app-conf-constants.h.sample";
       final List<String> linesForSampleFile = new ArrayList<>(Arrays.asList("#define TOPOLOGYCONTROL_LINKS_HAVE_STATES"));
       int tcAlgorithmId = this.minTcComponentConstant;
       for (final String tcAlgorithm : this.tcClasses)
@@ -575,7 +575,7 @@ public class CMoflonCodeGenerator
    /**
     * This methods gets all Fields of a GenClass, including Reference fields as
     * FieldAttributes usable in the StringTemplates
-    * 
+    *
     * @param genClass
     *            the genClass
     * @return a Collection of FieldAttributes
@@ -603,7 +603,7 @@ public class CMoflonCodeGenerator
 
    private String getProjectRelativePathForAlgorithm(String algorithmName)
    {
-      return CMoflonWorkspaceHelper.GEN_FOLDER + "/";
+      return WorkspaceHelper.GEN_FOLDER + "/";
    }
 
    private String getAlgorithmBasename(final String algorithmName)
@@ -688,7 +688,7 @@ public class CMoflonCodeGenerator
 
    /**
     * Returns the prefix is placed in front of the method name when generating invocations of functions that represent methods
-    * 
+    *
     * @param clazz the surround class of the method
     * @return
     */
@@ -710,7 +710,7 @@ public class CMoflonCodeGenerator
    /**
     * This method generates the List and memory block allocations needed by the
     * generated Code.
-    * 
+    *
     * @return a String containing the List and Block declarations.
     */
    private String getListAndBlockDeclarations(final STGroup templateGroup)
@@ -739,8 +739,8 @@ public class CMoflonCodeGenerator
 
    /**
     * Gets an initializer method for the Blocks and Lists declarated
-    * @param templateGroup 
-    * 
+    * @param templateGroup
+    *
     * @return
     */
    private String getInitMethod(final STGroup templateGroup)
@@ -754,7 +754,7 @@ public class CMoflonCodeGenerator
     * Gets parameters for a method call inside the process structure.
     * Parameters are either defined directly in the properties or listed in the
     * constants
-    * 
+    *
     * @param property
     *            the String CSV containing the parameters
     * @param component
@@ -795,7 +795,7 @@ public class CMoflonCodeGenerator
 
    /**
     * Returns the implementations of the patterns
-    * 
+    *
     * @param genClass
     * @return returns the pattern matching code as string
     */
@@ -858,7 +858,7 @@ public class CMoflonCodeGenerator
    /**
     * Generates the Method Body for an eOperation or returns a Default text if
     * it is not properly implemented
-    * 
+    *
     * @param eOperation
     * @return the code for the eop or MoflonUtil.DEFAULT_METHOD_BODY
     */
@@ -991,7 +991,7 @@ public class CMoflonCodeGenerator
 
    /**
     * Gets a List of Types to generate compare and equals methods for
-    * 
+    *
     * @param genmodel
     *            to derive generated types from
     * @return
@@ -1017,7 +1017,7 @@ public class CMoflonCodeGenerator
 
    /**
     * Checks whether a type is a built in ECore Type or not
-    * 
+    *
     * @param t
     *            the type to check
     * @return true if it is built in else false
@@ -1029,7 +1029,7 @@ public class CMoflonCodeGenerator
 
    /**
     * Obtains the method parameters for a given EOperation
-    * 
+    *
     * @param eOperation
     *            the EOperation to obtain the parameters from
     * @return the Parameters as String

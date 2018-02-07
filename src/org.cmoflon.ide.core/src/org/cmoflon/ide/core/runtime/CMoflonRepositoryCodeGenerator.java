@@ -15,16 +15,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
-import org.moflon.core.utilities.MoflonUtil;
+import org.moflon.core.preferences.EMoflonPreferencesStorage;
+import org.moflon.core.utilities.MoflonConventions;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.core.utilities.eMoflonEMFUtil;
-import org.moflon.core.utilities.preferences.EMoflonPreferencesStorage;
 import org.osgi.framework.FrameworkUtil;
 
 /**
  * Mimics {@link RepositoryCodeGenerator}. Needed to invoke {@link CMoflonCodeGenerator}
- * 
+ *
  * @author David Giessing
  * @author Roland Kluge
  */
@@ -54,7 +53,7 @@ public class CMoflonRepositoryCodeGenerator
                   + ",  as no Ecore file according to naming convention (capitalizeFirstLetter.lastSegmentOf.projectName) was found!");
          }
 
-         final ResourceSet resourceSet = CodeGeneratorPlugin.createDefaultResourceSet();
+         final ResourceSet resourceSet = eMoflonEMFUtil.createDefaultResourceSet();
          eMoflonEMFUtil.installCrossReferencers(resourceSet);
          subMon.worked(1);
          final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet, new EMoflonPreferencesStorage());
@@ -85,7 +84,7 @@ public class CMoflonRepositoryCodeGenerator
 
    private static IFile getEcoreFile(final IProject p)
    {
-      String ecoreFileName = MoflonUtil.getDefaultNameOfFileInProjectWithoutExtension(p.getName());
+      String ecoreFileName = MoflonConventions.getDefaultNameOfFileInProjectWithoutExtension(p.getName());
       return p.getFolder(WorkspaceHelper.MODEL_FOLDER).getFile(ecoreFileName + WorkspaceHelper.ECORE_FILE_EXTENSION);
    }
 

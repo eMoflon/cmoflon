@@ -9,11 +9,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
-import org.moflon.codegen.eclipse.GenericMonitoredResourceLoader;
-import org.moflon.codegen.eclipse.MonitoredMetamodelLoader;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
-import org.moflon.dependency.PackageRemappingDependency;
+import org.moflon.core.utilities.MoflonConventions;
+import org.moflon.core.utilities.eMoflonEMFUtil;
+import org.moflon.emf.build.GenericMonitoredResourceLoader;
+import org.moflon.emf.build.MonitoredMetamodelLoader;
+import org.moflon.emf.codegen.dependency.PackageRemappingDependency;
 
 /**
  * Mimics {@link MonitoredMetamodelLoader}, it is needed to recreate this class because of the changed project natures.
@@ -36,14 +37,14 @@ public class CMoflonMonitoredMetamodelLoader extends GenericMonitoredResourceLoa
       {
          if (isValidProject(workspaceProject))
          {
-            final URI projectURI = CodeGeneratorPlugin.lookupProjectURI(workspaceProject);
-            final URI metamodelURI = CodeGeneratorPlugin.getDefaultProjectRelativeEcoreFileURI(workspaceProject).resolve(projectURI);
-            new PackageRemappingDependency(metamodelURI, false, false).getResource(resourceSet, false, true);
+            final URI projectURI = eMoflonEMFUtil.lookupProjectURI(workspaceProject);
+            final URI metamodelURI = MoflonConventions.getDefaultProjectRelativeEcoreFileURI(workspaceProject).resolve(projectURI);
+            new PackageRemappingDependency(metamodelURI, false, false).getResource(getResourceSet(), false, true);
          }
          subMon.worked(1);
       }
    }
-   
+
    @Override
    protected boolean isValidProject(IProject project)
    {

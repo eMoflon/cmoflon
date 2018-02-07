@@ -9,7 +9,9 @@ Require-Bundle: org.eclipse.ui,
  org.apache.log4j;bundle-version="1.2.15",
  org.cmoflon.ide.core;bundle-version="2.0.0",
  org.moflon.core.utilities;bundle-version="1.3.0",
- org.moflon.ide.ui;bundle-version="2.0.0"
+ org.moflon.ide.ui;bundle-version="2.0.0",
+ org.moflon.core.ui;bundle-version="1.0.0",
+ org.moflon.ide.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: 
