@@ -59,7 +59,6 @@ mainLoop(hopcount, component, algo)::=<<
 	while(1) {
 		<if(hopcount)>PROCESS_WAIT_EVENT();<else>PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&waittime));
 		etimer_reset(&waittime);<endif>
-		init();
 		// a small delay for the base station to start broadcasting that all motes have booted and can receive this information
 		<if(hopcount)>if(etimer_expired(&etimer_hopcountstart)) {
 			if(networkaddr_equal(component_network_address_basestation(), networkaddr_node_addr())) {
@@ -94,6 +93,7 @@ mainLoop(hopcount, component, algo)::=<<
 >>
 
 watchdogStart(hopcount)::=<<
+		cleanup();
 		watchdog_start();
 		<if(hopcount)>}<endif>
 	}
@@ -102,6 +102,7 @@ watchdogStart(hopcount)::=<<
 
 watchdogStop()::=<<
 		watchdog_stop();
+		init();
 
 
 >>
