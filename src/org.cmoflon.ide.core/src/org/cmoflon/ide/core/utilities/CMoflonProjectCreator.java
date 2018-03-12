@@ -20,19 +20,19 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.moflon.core.build.MoflonProjectCreator;
+import org.moflon.core.plugins.PluginProducerWorkspaceRunnable;
+import org.moflon.core.plugins.PluginProperties;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 import org.moflon.core.propertycontainer.SDMCodeGeneratorIds;
-import org.moflon.core.utilities.MoflonUtilitiesActivator;
+import org.moflon.core.utilities.MoflonConventions;
 import org.moflon.core.utilities.WorkspaceHelper;
-import org.moflon.ide.core.runtime.MoflonProjectCreator;
-import org.moflon.util.plugins.MetamodelProperties;
-import org.moflon.util.plugins.PluginProducerWorkspaceRunnable;
 
 /**
  * Replaces {@link MoflonProjectCreator}. Replacement was necessary as addNatureAndBuilders is declared private and can therefore not be overriden.
  * Also adds the default property files needed for code generation.
- * 
+ *
  * @author David Giessing
  * @author Roland Kluge
  */
@@ -43,16 +43,16 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
 
    private static final String DEFAULT_GITIGNORE_CONTENT = StringUtils.join(Arrays.asList("/gen", "/model/*.ecore", "/model/*.genmodel"), "\n");
 
-   private final MetamodelProperties metamodelProperties;
+   private final PluginProperties pluginProperties;
 
-   public CMoflonProjectCreator(MetamodelProperties metamodelProperties)
+   public CMoflonProjectCreator(PluginProperties PluginProperties)
    {
-      this.metamodelProperties = metamodelProperties;
+      this.pluginProperties = PluginProperties;
    }
 
    private String getProjectName()
    {
-      return metamodelProperties.getProjectName();
+      return this.pluginProperties.getProjectName();
    }
 
    @Override
@@ -72,18 +72,17 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       createFoldersIfNecessary(project, subMon.split(1));
       createFilesIfNecessary(project, subMon.split(1));
 
-      createPluginSpecificFiles(project, this.metamodelProperties, subMon.split(1));
-      createMoflonProperties(project, this.metamodelProperties, subMon.split(1));
+      createPluginSpecificFiles(project, this.pluginProperties, subMon.split(1));
+      createMoflonProperties(project, this.pluginProperties, subMon.split(1));
 
    }
 
-   private static void createMoflonProperties(final IProject project, final MetamodelProperties metamodelProperties, final IProgressMonitor monitor)
+   private static void createMoflonProperties(final IProject project, final PluginProperties PluginProperties, final IProgressMonitor monitor)
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Creating moflon.properties.xmi", 2);
-      if (!project.getFile(MoflonPropertiesContainerHelper.MOFLON_CONFIG_FILE).exists())
+      if (!project.getFile(MoflonConventions.MOFLON_CONFIG_FILE).exists())
       {
-         final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(project.getName(),
-               metamodelProperties.getMetamodelProjectName());
+         final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(project);
          moflonProperties.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES);
          subMon.worked(1);
 
@@ -118,7 +117,7 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
          try
          {
             final String pluginId = WorkspaceHelper.getPluginId(CMoflonProjectCreator.class);
-            final InputStream stream = MoflonUtilitiesActivator.getPathRelToPlugIn(PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY, pluginId).openStream();
+            final InputStream stream = WorkspaceHelper.getPathRelToPlugIn(PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY, pluginId).openStream();
             try
             {
                file.create(stream, true, subMon.split(1));
@@ -163,11 +162,11 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       return workspaceProject;
    }
 
-   public static void createPluginSpecificFiles(final IProject project, final MetamodelProperties metamodelProperties, final IProgressMonitor monitor)
+   public static void createPluginSpecificFiles(final IProject project, final PluginProperties PluginProperties, final IProgressMonitor monitor)
          throws CoreException
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Creating folders within project", 3);
-      final PluginProducerWorkspaceRunnable pluginProducer = new CMoflonPluginProducerWorkspaceRunnable(project, metamodelProperties);
+      final PluginProducerWorkspaceRunnable pluginProducer = new CMoflonPluginProducerWorkspaceRunnable(project, PluginProperties);
       try
       {
          pluginProducer.run(subMon.split(2));

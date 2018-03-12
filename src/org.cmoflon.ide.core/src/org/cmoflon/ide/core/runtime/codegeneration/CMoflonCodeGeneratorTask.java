@@ -26,19 +26,21 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.gervarro.eclipse.task.ITask;
 import org.moflon.codegen.MethodBodyHandler;
 import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
-import org.moflon.codegen.eclipse.GenericMoflonProcess;
-import org.moflon.codegen.eclipse.MonitoredGenModelBuilder;
-import org.moflon.codegen.eclipse.MonitoredMetamodelLoader;
 import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
+import org.moflon.core.preferences.EMoflonPreferencesStorage;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
-import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 import org.moflon.core.utilities.LogUtils;
-import org.moflon.core.utilities.preferences.EMoflonPreferencesStorage;
+import org.moflon.core.utilities.MoflonConventions;
+import org.moflon.core.utilities.WorkspaceHelper;
+import org.moflon.core.utilities.eMoflonEMFUtil;
+import org.moflon.emf.build.GenericMoflonProcess;
+import org.moflon.emf.build.MonitoredGenModelBuilder;
+import org.moflon.emf.build.MonitoredMetamodelLoader;
 
 /**
  * The task that controls the cMoflon code generation process
- * 
+ *
  * @author David Giessing
  * @author Roland Kluge
  */
@@ -51,7 +53,7 @@ public class CMoflonCodeGeneratorTask implements ITask
    private final ResourceSet resourceSet;
 
    private final EMoflonPreferencesStorage preferencesStorage;
-   
+
    private List<Resource> resources;
 
    private MoflonPropertiesContainer moflonProperties;
@@ -87,8 +89,8 @@ public class CMoflonCodeGeneratorTask implements ITask
          // (1) Loads moflon.properties file
          final IProject project = ecoreFile.getProject();
          final URI projectURI = URI.createPlatformResourceURI(project.getName() + "/", true);
-         final URI moflonPropertiesURI = URI.createURI(MoflonPropertiesContainerHelper.MOFLON_CONFIG_FILE).resolve(projectURI);
-         final Resource moflonPropertiesResource = CodeGeneratorPlugin.createDefaultResourceSet().getResource(moflonPropertiesURI, true);
+         final URI moflonPropertiesURI = URI.createURI(MoflonConventions.MOFLON_CONFIG_FILE).resolve(projectURI);
+         final Resource moflonPropertiesResource = eMoflonEMFUtil.createDefaultResourceSet().getResource(moflonPropertiesURI, true);
          this.moflonProperties = (MoflonPropertiesContainer) moflonPropertiesResource.getContents().get(0);
 
          subMon.worked(1);
@@ -99,10 +101,10 @@ public class CMoflonCodeGeneratorTask implements ITask
       } catch (WrappedException wrappedException)
       {
          final Exception exception = wrappedException.exception();
-         return new Status(IStatus.ERROR, CodeGeneratorPlugin.getModuleID(), exception.getMessage(), exception);
+         return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), exception.getMessage(), exception);
       } catch (RuntimeException runtimeException)
       {
-         return new Status(IStatus.ERROR, CodeGeneratorPlugin.getModuleID(), runtimeException.getMessage(), runtimeException);
+         return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), runtimeException.getMessage(), runtimeException);
       }
 
       // (2) Load metamodel

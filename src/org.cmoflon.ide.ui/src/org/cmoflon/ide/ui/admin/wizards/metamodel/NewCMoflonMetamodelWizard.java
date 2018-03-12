@@ -23,8 +23,8 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.moflon.core.utilities.LogUtils;
-import org.moflon.core.utilities.MoflonUtilitiesActivator;
 import org.moflon.core.utilities.WorkspaceHelper;
+import org.moflon.ide.core.runtime.natures.MetamodelNature;
 import org.moflon.ide.ui.admin.wizards.metamodel.NewMetamodelProjectInfoPage;
 
 /**
@@ -101,13 +101,13 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 
          IProject newProjectHandle = createProject(projectName, WorkspaceHelper.getPluginId(getClass()), location, subMon.split(1));
 
-         final URL pathToDefaultEapFile = MoflonUtilitiesActivator.getPathRelToPlugIn(PATH_TO_DEFAULT_SPECIFICATION, WorkspaceHelper.getPluginId(getClass()));
+         final URL pathToDefaultEapFile = WorkspaceHelper.getPathRelToPlugIn(PATH_TO_DEFAULT_SPECIFICATION, WorkspaceHelper.getPluginId(getClass()));
          WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap", pathToDefaultEapFile, WorkspaceHelper.getPluginId(getClass()), subMon.split(1));
 
          WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp\n*.ldb\n", subMon.split(1));
 
          WorkspaceHelper.addNature(newProjectHandle, CMoflonMetamodelNature.NATURE_ID, subMon.split(1));
-         WorkspaceHelper.addNature(newProjectHandle, WorkspaceHelper.METAMODEL_NATURE_ID, subMon.split(1));
+         WorkspaceHelper.addNature(newProjectHandle, MetamodelNature.getId(), subMon.split(1));
 
          newProjectHandle.refreshLocal(IResource.DEPTH_INFINITE, subMon.split(1));
 
@@ -123,7 +123,7 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 
    /**
     * Creates a new project in current workspace
-    * 
+    *
     * @param projectName
     *           name of the new project
     * @param monitor

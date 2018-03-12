@@ -11,7 +11,7 @@
             canFinishEarly="false"
             category="org.moflon.ide.ui.category"
             class="org.cmoflon.ide.ui.admin.wizards.metamodel.NewCMoflonMetamodelWizard"
-            finalPerspective="org.moflon.ide.ui.perspective"
+            finalPerspective="org.moflon.ide.ui.MoflonPerspective"
             hasPages="true"
             icon="resources/icons/NewCMoflonMetamodelProject.png"
             id="org.cmoflon.ide.ui.admin.wizards.metamodel.NewCMoflonMetamodelWizard"

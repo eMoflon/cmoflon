@@ -7,13 +7,11 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.ResourceFillingMocaCMoflonTransformation;
 import org.cmoflon.ide.core.runtime.natures.CMoflonMetamodelNature;
-import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -24,25 +22,26 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.gervarro.eclipse.task.ITask;
 import org.gervarro.eclipse.task.ProgressMonitoringJob;
-import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
 import org.moflon.codegen.eclipse.ValidationStatus;
+import org.moflon.core.plugins.PluginProperties;
 import org.moflon.core.utilities.ErrorReporter;
+import org.moflon.core.utilities.ProblemMarkerUtil;
+import org.moflon.core.utilities.ProgressMonitorUtil;
 import org.moflon.core.utilities.WorkspaceHelper;
-import org.moflon.eclipse.resource.SDMEnhancedEcoreResource;
-import org.moflon.ide.core.CoreActivator;
+import org.moflon.core.utilities.eMoflonEMFUtil;
+import org.moflon.emf.codegen.dependency.SDMEnhancedEcoreResource;
 import org.moflon.ide.core.properties.MetamodelProjectUtil;
 import org.moflon.ide.core.runtime.ProjectDependencyAnalyzer;
 import org.moflon.ide.core.runtime.builders.MetamodelBuilder;
 import org.moflon.sdm.compiler.democles.validation.result.ErrorMessage;
-import org.moflon.util.plugins.MetamodelProperties;
 
 import MocaTree.Node;
 
 /**
- * Builder for projects with {@link CMoflonMetamodelNature}. 
+ * Builder for projects with {@link CMoflonMetamodelNature}.
  * Similar to eMoflon's {@link MetamodelBuilder}.
  * Triggers the {@link ResourceFillingMocaCMoflonTransformation}.
- * 
+ *
  * @author David Giessing
  * @author Roland Kluge
  */
@@ -53,24 +52,18 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
    private static final Logger logger = Logger.getLogger(CMoflonMetamodelBuilder.class);
 
    @Override
-   public void clean(final IProgressMonitor monitor) throws CoreException
-   {
-      MetamodelProjectUtil.cleanTempFolder(getProject(), monitor);
-   }
-
-   @Override
    protected void processResource(final IResource mocaFile, final int kind, Map<String, String> args, final IProgressMonitor monitor)
    {
       final MultiStatus mocaToMoflonStatus = new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, getClass().getName() + " failed", null);
 
-      final String mocaFilePath = WorkspaceHelper.TEMP_FOLDER + "/" + getProject().getName() + WorkspaceHelper.MOCA_XMI_FILE_EXTENSION;
+      final String mocaFilePath = MetamodelBuilder.TEMP_FOLDER + "/" + getProject().getName() + MetamodelBuilder.MOCA_XMI_FILE_EXTENSION;
       if (mocaFile instanceof IFile && mocaFilePath.equals(mocaFile.getProjectRelativePath().toString()) && mocaFile.isAccessible())
       {
          try
          {
             final SubMonitor subMon = SubMonitor.convert(monitor, "Processing .temp", 140);
 
-            if (CMoflonWorkspaceHelper.getExportedMocaTree(this.getProject()).exists())
+            if (MetamodelProjectUtil.getExportedMocaTree(this.getProject()).exists())
             {
                deleteProblemMarkers();
 
@@ -78,13 +71,16 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                final URI projectURI = URI.createURI(getProject().getName() + "/", true).resolve(workspaceURI);
 
                // Create and initialize resource set
-               final ResourceSet set = CodeGeneratorPlugin.createDefaultResourceSet();
+               final ResourceSet set = eMoflonEMFUtil.createDefaultResourceSet();
 
                // Load Moca tree in read-only mode
                final URI mocaFileURI = URI.createURI(mocaFilePath, true).resolve(projectURI);
                final Resource mocaTreeResource = set.getResource(mocaFileURI, true);
                final CMoflonMocaTreeEAPropertiesReader mocaTreeReader = new CMoflonMocaTreeEAPropertiesReader();
-               final Map<String, MetamodelProperties> properties = mocaTreeReader.getProperties((Node) mocaTreeResource.getContents().get(0));
+               final Node mocaTreeRoot = (Node) mocaTreeResource.getContents().get(0);
+               //TODO@dgiessing: I have move the 'update MOCA tree' logic out of the overriden 'getProperties' method, which is now called 'updateProperties'
+               CMoflonMocaTreeEAPropertiesReader.updateProperties(mocaTreeRoot);
+               final Map<String, PluginProperties> properties = mocaTreeReader.getProperties(getProject());
 
                final IProgressMonitor exporterSubMonitor = subMon.split(100);
                exporterSubMonitor.beginTask("Running MOCA-to-cMoflon transformation", properties.keySet().size());
@@ -99,7 +95,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                if (exporter.getEpackages().isEmpty())
                {
                   final String errorMessage = "Unable to transform exported files to Ecore models";
-                  CoreActivator.createProblemMarker(mocaFile, errorMessage, IMarker.SEVERITY_ERROR, mocaFile.getProjectRelativePath().toString());
+                  ProblemMarkerUtil.createProblemMarker(mocaFile, errorMessage, IMarker.SEVERITY_ERROR, mocaFile.getProjectRelativePath().toString());
                   logger.error(errorMessage);
                   return;
                }
@@ -116,7 +112,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                taskArray = exporter.getMetamodelLoaderTasks().toArray(taskArray);
                final IStatus metamodelLoaderStatus = ProgressMonitoringJob.executeSyncSubTasks(taskArray,
                      new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, "Resource loading failed", null), subMon.newChild(5));
-               CoreActivator.checkCancellation(subMon);
+               ProgressMonitorUtil.checkCancellation(subMon);
                if (!metamodelLoaderStatus.isOK())
                {
                   if (kind == IncrementalProjectBuilder.FULL_BUILD && !triggerProjects.isEmpty())
@@ -137,7 +133,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                triggerProjects.clear();
                final IStatus projectDependencyAnalyzerStatus = ProgressMonitoringJob.executeSyncSubTasks(dependencyAnalyzers,
                      new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, "Dependency analysis failed", null), subMon.newChild(5));
-               CoreActivator.checkCancellation(subMon);
+               ProgressMonitorUtil.checkCancellation(subMon);
                if (!projectDependencyAnalyzerStatus.isOK())
                {
                   processProblemStatus(projectDependencyAnalyzerStatus, mocaFile);
