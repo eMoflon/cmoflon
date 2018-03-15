@@ -24,7 +24,9 @@ import org.gervarro.eclipse.task.ITask;
 import org.gervarro.eclipse.task.ProgressMonitoringJob;
 import org.moflon.codegen.eclipse.ValidationStatus;
 import org.moflon.core.plugins.PluginProperties;
+import org.moflon.core.preferences.EMoflonPreferencesStorage;
 import org.moflon.core.utilities.ErrorReporter;
+import org.moflon.core.utilities.MoflonConventions;
 import org.moflon.core.utilities.ProblemMarkerUtil;
 import org.moflon.core.utilities.ProgressMonitorUtil;
 import org.moflon.core.utilities.WorkspaceHelper;
@@ -175,7 +177,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
     */
    private void handleErrorsInEclipse(final IStatus validationStatus)
    {
-      final IFile ecoreFile = WorkspaceHelper.getDefaultEcoreFile(getProject());
+      final IFile ecoreFile = MoflonConventions.getDefaultEcoreFile(getProject());
       final ErrorReporter eclipseErrorReporter = (ErrorReporter) Platform.getAdapterManager().loadAdapter(ecoreFile,
             "org.moflon.compiler.sdm.democles.eclipse.EclipseErrorReporter");
       if (eclipseErrorReporter != null)
