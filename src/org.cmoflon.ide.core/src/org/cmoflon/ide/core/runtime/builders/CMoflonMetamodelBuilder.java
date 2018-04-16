@@ -58,7 +58,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
    {
       final MultiStatus mocaToMoflonStatus = new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, getClass().getName() + " failed", null);
 
-      final String mocaFilePath = MetamodelBuilder.TEMP_FOLDER + "/" + getProject().getName() + MetamodelBuilder.MOCA_XMI_FILE_EXTENSION;
+      final String mocaFilePath = MetamodelBuilder.TEMP_FOLDER + "/" + getProject().getName() +"."+ MetamodelBuilder.MOCA_XMI_FILE_EXTENSION;
       if (mocaFile instanceof IFile && mocaFilePath.equals(mocaFile.getProjectRelativePath().toString()) && mocaFile.isAccessible())
       {
          try
