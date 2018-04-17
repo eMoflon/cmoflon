@@ -7,6 +7,7 @@ import org.moflon.ide.core.properties.MocaTreeEAPropertiesReader;
 import MocaTree.Attribute;
 import MocaTree.Node;
 import MocaTree.Text;
+import MocaTree.impl.NodeImpl;
 
 /**
  * This cMoflon-specific
@@ -26,7 +27,7 @@ public class CMoflonMocaTreeEAPropertiesReader extends MocaTreeEAPropertiesReade
 
    public static void updateProperties(final Node mocaTreeRoot) throws CoreException
    {
-      for (final Text child : mocaTreeRoot.getChildren())
+      for (final Text child : ((NodeImpl) mocaTreeRoot.getChildren().get(0)).getChildren())
       {
          final Node node = (Node) child;
          if (!node.getAttribute(MOCA_TREE_ATTRIBUTE_WORKINGSET).iterator().next().getValue()

@@ -28,7 +28,7 @@ import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 import org.moflon.core.propertycontainer.SDMCodeGeneratorIds;
 import org.moflon.core.utilities.MoflonConventions;
 import org.moflon.core.utilities.WorkspaceHelper;
-
+//TODO: subclass MoflonProjectCreator
 /**
  * Replaces {@link MoflonProjectCreator}. Replacement was necessary as addNatureAndBuilders is declared private and can therefore not be overriden.
  * Also adds the default property files needed for code generation.
@@ -83,7 +83,7 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       if (!project.getFile(MoflonConventions.MOFLON_CONFIG_FILE).exists())
       {
          final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(project);
-         moflonProperties.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES);
+			moflonProperties.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES);
          subMon.worked(1);
 
          MoflonPropertiesContainerHelper.save(moflonProperties, subMon.split(1));

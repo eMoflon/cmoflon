@@ -81,7 +81,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                final CMoflonMocaTreeEAPropertiesReader mocaTreeReader = new CMoflonMocaTreeEAPropertiesReader();
                final Node mocaTreeRoot = (Node) mocaTreeResource.getContents().get(0);
                //TODO@dgiessing: I have move the 'update MOCA tree' logic out of the overriden 'getProperties' method, which is now called 'updateProperties'
-               CMoflonMocaTreeEAPropertiesReader.updateProperties(mocaTreeRoot);
+               //CMoflonMocaTreeEAPropertiesReader.updateProperties(mocaTreeRoot);
                final Map<String, PluginProperties> properties = mocaTreeReader.getProperties(getProject());
 
                final IProgressMonitor exporterSubMonitor = subMon.split(100);
