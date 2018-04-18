@@ -2,10 +2,12 @@ package org.cmoflon.ide.core.utilities;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cmoflon.ide.core.build.CMoflonPluginProducerWorkspaceRunnable;
+import org.cmoflon.ide.core.runtime.builders.CMoflonRepositoryBuilder;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -20,7 +22,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.gervarro.eclipse.workspace.autosetup.PluginProjectConfigurator;
+import org.gervarro.eclipse.workspace.util.WorkspaceTask;
 import org.moflon.core.build.MoflonProjectCreator;
+import org.moflon.core.build.nature.MoflonProjectConfigurator;
+import org.moflon.core.build.nature.ProjectNatureAndBuilderConfiguratorTask;
 import org.moflon.core.plugins.PluginProducerWorkspaceRunnable;
 import org.moflon.core.plugins.PluginProperties;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
@@ -28,6 +34,7 @@ import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
 import org.moflon.core.propertycontainer.SDMCodeGeneratorIds;
 import org.moflon.core.utilities.MoflonConventions;
 import org.moflon.core.utilities.WorkspaceHelper;
+import org.moflon.ide.core.project.RepositoryProjectCreator;
 //TODO: subclass MoflonProjectCreator
 /**
  * Replaces {@link MoflonProjectCreator}. Replacement was necessary as addNatureAndBuilders is declared private and can therefore not be overriden.
@@ -36,24 +43,22 @@ import org.moflon.core.utilities.WorkspaceHelper;
  * @author David Giessing
  * @author Roland Kluge
  */
-public class CMoflonProjectCreator implements IWorkspaceRunnable
+public class CMoflonProjectCreator extends RepositoryProjectCreator
 {
-
+   private MoflonProjectConfigurator moflonProjectConfigurator;
+	
    private static final String PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY = "resources/DefaultCMoflonAttributeConstraintsLib.xmi";
 
    private static final String DEFAULT_GITIGNORE_CONTENT = StringUtils.join(Arrays.asList("/gen", "/model/*.ecore", "/model/*.genmodel"), "\n");
 
    private final PluginProperties pluginProperties;
 
-   public CMoflonProjectCreator(PluginProperties PluginProperties)
-   {
-      this.pluginProperties = PluginProperties;
-   }
-
-   private String getProjectName()
-   {
-      return this.pluginProperties.getProjectName();
-   }
+   public CMoflonProjectCreator(IProject project, PluginProperties projectProperties,
+			MoflonProjectConfigurator projectConfigurator) {
+		super(project, projectProperties, projectConfigurator);
+		this.pluginProperties = projectProperties;
+		this.moflonProjectConfigurator=projectConfigurator;
+	}
 
    @Override
    public void run(final IProgressMonitor monitor) throws CoreException
@@ -61,33 +66,37 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       final IProject project = getProject();
       if (project.exists())
          return;
+      
+      	final String projectName = pluginProperties.getProjectName();
+		final SubMonitor subMon = SubMonitor.convert(monitor, "Creating project " + projectName, 13);
 
-      final SubMonitor subMon = SubMonitor.convert(monitor, "Creating project " + getProjectName(), 7);
-      final IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(getProjectName());
-
-      project.create(description, IWorkspace.AVOID_UPDATE, subMon.split(1));
-      project.open(IWorkspace.AVOID_UPDATE, subMon.split(1));
-      WorkspaceHelper.addNature(project, CMoflonRepositoryNature.NATURE_ID, subMon.split(1));
-
+		// (1) Create project
+		final IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(projectName);
+		project.create(description, IWorkspace.AVOID_UPDATE, subMon.split(1));
+		project.open(IWorkspace.AVOID_UPDATE, subMon.split(1));
+      
+      final ProjectNatureAndBuilderConfiguratorTask natureAndBuilderConfiguratorTask = new ProjectNatureAndBuilderConfiguratorTask(
+				project, false);
+      PluginProjectConfigurator pluginConfigurator = new PluginProjectConfigurator();
+      natureAndBuilderConfiguratorTask.updateNatureIDs(moflonProjectConfigurator, true);
+      natureAndBuilderConfiguratorTask.updateBuildSpecs(moflonProjectConfigurator, true);
+      natureAndBuilderConfiguratorTask.updateNatureIDs(pluginConfigurator, true);
+      natureAndBuilderConfiguratorTask.updateBuildSpecs(pluginConfigurator, true);
+      WorkspaceTask.executeInCurrentThread(natureAndBuilderConfiguratorTask, IWorkspace.AVOID_UPDATE,
+				subMon.split(1));
+      
       createFoldersIfNecessary(project, subMon.split(1));
       createFilesIfNecessary(project, subMon.split(1));
-
+      addGitignoreFile(project, subMon.split(2));
+	  addGitKeepFiles(project, subMon.split(2));
       createPluginSpecificFiles(project, this.pluginProperties, subMon.split(1));
-      createMoflonProperties(project, this.pluginProperties, subMon.split(1));
+      
+      final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper
+				.loadOrCreatePropertiesContainer(getProject(),
+						MoflonConventions.getDefaultMoflonPropertiesFile(getProject()));
+		initializeMoflonProperties(moflonProperties);
+		MoflonPropertiesContainerHelper.save(moflonProperties, subMon.split(1));
 
-   }
-
-   private static void createMoflonProperties(final IProject project, final PluginProperties PluginProperties, final IProgressMonitor monitor)
-   {
-      final SubMonitor subMon = SubMonitor.convert(monitor, "Creating moflon.properties.xmi", 2);
-      if (!project.getFile(MoflonConventions.MOFLON_CONFIG_FILE).exists())
-      {
-         final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper.createDefaultPropertiesContainer(project);
-			moflonProperties.getSdmCodegeneratorHandlerId().setValue(SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES);
-         subMon.worked(1);
-
-         MoflonPropertiesContainerHelper.save(moflonProperties, subMon.split(1));
-      }
    }
 
    public static void createFilesIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException
@@ -132,8 +141,9 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
          }
       }
    }
-
-   public static void createFoldersIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException
+   
+   @Override
+   public void createFoldersIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Creating folders within project", 3);
       WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getGenFolder(project), subMon.newChild(1));
@@ -148,18 +158,6 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       {
          WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n", new NullProgressMonitor());
       }
-   }
-
-   /**
-    * Returns a handle to the project to create
-    * @return
-    */
-   private IProject getProject()
-   {
-      final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-      final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-      final IProject workspaceProject = workspaceRoot.getProject(getProjectName());
-      return workspaceProject;
    }
 
    public static void createPluginSpecificFiles(final IProject project, final PluginProperties PluginProperties, final IProgressMonitor monitor)
@@ -178,4 +176,14 @@ public class CMoflonProjectCreator implements IWorkspaceRunnable
       clearBuildProperties(project);
       subMon.worked(1);
    }
+
+@Override
+protected String getNatureId() throws CoreException {
+	return CMoflonRepositoryNature.NATURE_ID;
+}
+
+@Override
+protected String getBuilderId() throws CoreException {
+	return CMoflonRepositoryBuilder.BUILDER_ID;
+}
 }

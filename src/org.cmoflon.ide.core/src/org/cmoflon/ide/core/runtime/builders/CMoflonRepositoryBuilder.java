@@ -5,7 +5,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.CMoflonRepositoryCodeGenerator;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
-import org.cmoflon.ide.core.utilities.CMoflonProjectCreator;
 import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -74,10 +73,6 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
       {
          final SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 53);
          logger.info("Generating code for " + this.getProject());
-
-         CMoflonProjectCreator.createFoldersIfNecessary(getProject(), subMon.split(1));
-         CMoflonProjectCreator.createFilesIfNecessary(getProject(), subMon.split(1));
-
          final CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
 
          final IStatus status = generator.generateCode(subMon.split(50), CMoflonWorkspaceHelper.getCMoflonPropertiesFile(getProject()));

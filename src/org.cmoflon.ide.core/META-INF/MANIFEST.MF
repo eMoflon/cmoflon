@@ -41,7 +41,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.moflon.tgg.language;bundle-version="2.1.0",
  SDMLanguage;bundle-version="2.0.0",
  org.moflon.emf.injection.ide;bundle-version="1.0.0",
- org.moflon.ide.core
+ org.moflon.ide.core,
+ org.gervarro.eclipse.workspace.autosetup;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: 
