@@ -33,6 +33,7 @@ import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.core.utilities.eMoflonEMFUtil;
 import org.moflon.emf.codegen.dependency.SDMEnhancedEcoreResource;
 import org.moflon.ide.core.properties.MetamodelProjectUtil;
+import org.moflon.ide.core.properties.MocaTreeEAPropertiesReader;
 import org.moflon.ide.core.runtime.ProjectDependencyAnalyzer;
 import org.moflon.ide.core.runtime.builders.MetamodelBuilder;
 import org.moflon.sdm.compiler.democles.validation.result.ErrorMessage;
@@ -78,10 +79,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder
                // Load Moca tree in read-only mode
                final URI mocaFileURI = URI.createURI(mocaFilePath, true).resolve(projectURI);
                final Resource mocaTreeResource = set.getResource(mocaFileURI, true);
-               final CMoflonMocaTreeEAPropertiesReader mocaTreeReader = new CMoflonMocaTreeEAPropertiesReader();
-               final Node mocaTreeRoot = (Node) mocaTreeResource.getContents().get(0);
-               //TODO@dgiessing: I have move the 'update MOCA tree' logic out of the overriden 'getProperties' method, which is now called 'updateProperties'
-               //CMoflonMocaTreeEAPropertiesReader.updateProperties(mocaTreeRoot);
+               final MocaTreeEAPropertiesReader mocaTreeReader = new MocaTreeEAPropertiesReader();
                final Map<String, PluginProperties> properties = mocaTreeReader.getProperties(getProject());
 
                final IProgressMonitor exporterSubMonitor = subMon.split(100);
