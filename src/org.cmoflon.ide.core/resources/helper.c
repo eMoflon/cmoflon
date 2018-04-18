@@ -153,6 +153,7 @@ void prepareLinks() {
 }
 // TODO: this should be included or activated via flags only
 void init(){
+#ifdef GENERATE_DUPLICATES
 	list_t neighbors=component_neighbordiscovery_neighbors();
 	neighbor_t* onehop;
 	int count=0;
@@ -185,9 +186,11 @@ void init(){
 		list_add(neighbors, onehop);
 	}
 	printf("Duplicated %d out of %d links.\n",realcount,count);
+#endif
 }
 
 void cleanup(){
+#ifdef GENERATE_DUPLICATES
 	list_t neighbors=component_neighbordiscovery_neighbors();
 	neighbor_t* list_item;
 	for(list_item=list_head(list_duplicates);list_item!=NULL;list_item=list_item_next(list_item)){
@@ -196,5 +199,6 @@ void cleanup(){
 	while(list_length(list_duplicates) > 0) {
 		free(list_pop(list_duplicates));
 	}
+#endif
 }
 // --- End of default cMoflon code

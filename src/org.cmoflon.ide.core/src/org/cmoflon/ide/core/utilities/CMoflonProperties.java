@@ -19,6 +19,8 @@ public class CMoflonProperties
    public static final String PROPERTY_TC_ALGORITHMS = "tc.algorithms";
 
    public static final String PROPERTY_PM_MAX_MATCH_COUNT = "pm.maxmatches";
+   
+   public static final String PROPERTY_TC_DUPLICATE_EDGES = "tc.generateDuplicates";
 
    /**
     * Properties starting with this prefix are treated as mappings from EClasses to C types
@@ -48,6 +50,8 @@ public class CMoflonProperties
    private static final String DEFAULT_CMOFLON_PROPERTIES_CONTENT = //
          "#Set to 'true' if dropping unidirectional edges is desired \n" //
                + PROPERTY_TC_DROP_UNIDIRECTIONAL_EDGES + " = true\n\n" //
+               +"#Set to 'true' if you need edges duplicated such that both directions are in the set and traversable \n" //
+               + PROPERTY_TC_DUPLICATE_EDGES + " = false\n\n" //
                + "# Set to 'true' if you want to use hopcounts.\n" //
                + PROPERTY_TC_USE_HOPCOUNT + " = " + CMoflonProperties.DEFAULT_USE_HOPCOUNT + "\n\n" //
                + "# You may also override this behavior for individual algorithms by using the property prefix '" + PROPERTY_PREFIX_TC_USE_HOPCOUNT + "'.\n" //
