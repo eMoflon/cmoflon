@@ -452,6 +452,7 @@ public class CMoflonCodeGenerator
       contents.append(getPatternMatchingCode());
       contents.append(this.cachedPatternMatchingCode);
       contents.append(getInitMethod(templateGroup));
+      contents.append(getCleanupMethod(templateGroup));
       contents.append(getProcessPreludeCode(tcAlgorithm, templateGroup));
       contents.append(getProcessBodyCode(tcAlgorithm, templateGroup));
       contents.append(getProcessClosingCode(tcAlgorithm, templateGroup));
@@ -753,7 +754,21 @@ public class CMoflonCodeGenerator
    {
       final ST init = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.INIT);
       init.add("blocks", this.blockDeclarations);
+      init.add("duplicates",this.generateDuplicates);
       return init.render();
+   }
+   
+   /**
+    * Gets a cleanup method for eventual duplicates
+    * @param templateGroup
+    *
+    * @return
+    */
+   private String getCleanupMethod(final STGroup templateGroup)
+   {
+      final ST cleanup = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.CLEANUP);
+      cleanup.add("duplicates",this.generateDuplicates);
+      return cleanup.render();
    }
 
    /**
