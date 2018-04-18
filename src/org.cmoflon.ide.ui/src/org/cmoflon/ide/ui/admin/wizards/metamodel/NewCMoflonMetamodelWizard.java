@@ -107,7 +107,6 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
          WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp\n*.ldb\n", subMon.split(1));
 
          WorkspaceHelper.addNature(newProjectHandle, CMoflonMetamodelNature.NATURE_ID, subMon.split(1));
-         WorkspaceHelper.addNature(newProjectHandle, MetamodelNature.getId(), subMon.split(1));
 
          newProjectHandle.refreshLocal(IResource.DEPTH_INFINITE, subMon.split(1));
 
