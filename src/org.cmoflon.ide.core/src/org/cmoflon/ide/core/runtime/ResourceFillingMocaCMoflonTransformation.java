@@ -3,6 +3,7 @@ package org.cmoflon.ide.core.runtime;
 import java.util.Map;
 
 import org.cmoflon.ide.core.runtime.builders.CMoflonMetamodelBuilder;
+import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
 import org.cmoflon.ide.core.utilities.CMoflonProjectCreator;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -15,6 +16,7 @@ import org.moflon.core.plugins.PluginProperties;
 import org.moflon.core.utilities.UncheckedCoreException;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.core.properties.MocaTreeConstants;
+import org.moflon.ide.core.properties.PluginPropertiesHelper;
 import org.moflon.ide.core.runtime.BasicResourceFillingMocaToMoflonTransformation;
 import org.moflon.ide.core.runtime.MetamodelLoader;
 import org.moflon.ide.core.runtime.ProjectDependencyAnalyzer;
@@ -54,7 +56,7 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
       try
       {
          final PluginProperties properties = eMoflonPropertiesMap.get(project.getName());
-         final CMoflonProjectCreator createMoflonProject = new CMoflonProjectCreator(properties);
+         final CMoflonProjectCreator createMoflonProject = new CMoflonProjectCreator(project,properties,new CMoflonRepositoryNature());
          ResourcesPlugin.getWorkspace().run(createMoflonProject, new NullProgressMonitor());
       } catch (final CoreException e)
       {
@@ -65,14 +67,6 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
    @Override
    protected void handleOpenProject(final Node node, final IProject project)
    {
-      try
-      {
-         CMoflonProjectCreator.createFilesIfNecessary(project, new NullProgressMonitor());
-         CMoflonProjectCreator.createFoldersIfNecessary(project, new NullProgressMonitor());
-      } catch (final CoreException e)
-      {
-         this.reportError(e);
-      }
    }
 
    @Override
