@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.cmoflon.feature_2.0.0.qualifier.jar" id="org.cmoflon.feature" version="2.0.0.qualifier">
+      <category name="org.cmoflon.category"/>
+   </feature>
+   <category-def name="org.cmoflon.category" label="cMoflon">
+      <description>
+         Core Components of cMoflon
+      </description>
+   </category-def>
+   <repository-reference location="http://emoflon.org/emoflon-core-updatesite/stable/updatesite/" enabled="true" />
+   <repository-reference location="http://emoflon.org/eclipse-plugin/beta/updatesite/" enabled="true" />
+</site>

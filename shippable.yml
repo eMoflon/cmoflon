@@ -1,0 +1,19 @@
+language: none
+
+build:
+  pre_ci_boot:
+    image_name: emoflon/emoflon-ci-from-github
+    image_tag: latest
+    pull: true
+
+  ci:
+    - bash ./shippable.bash
+
+integrations:
+  # See http://docs.shippable.com/ci/email-notifications/
+  notifications:
+    - integrationName: email
+      type: email
+      sendConsoleLogs: true
+      recipients:
+        --last_committer
