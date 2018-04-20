@@ -25,7 +25,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.gervarro.eclipse.task.ITask;
 import org.moflon.codegen.MethodBodyHandler;
-import org.moflon.codegen.eclipse.CodeGeneratorPlugin;
 import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
 import org.moflon.core.preferences.EMoflonPreferencesStorage;
@@ -224,14 +223,14 @@ public class CMoflonCodeGeneratorTask implements ITask
          final double timeInSeconds = (tic - toc) / 1e9;
          LogUtils.info(logger, String.format(Locale.US, "Completed in %.3fs", timeInSeconds));
 
-         return validatorStatus.isOK() ? new Status(IStatus.OK, CodeGeneratorPlugin.getModuleID(), "Code generation succeeded")
-               : new MultiStatus(CodeGeneratorPlugin.getModuleID(), validatorStatus.getCode(), new IStatus[] { validatorStatus },
+         return validatorStatus.isOK() ? new Status(IStatus.OK, WorkspaceHelper.getPluginId(getClass()), "Code generation succeeded")
+               : new MultiStatus(WorkspaceHelper.getPluginId(getClass()), validatorStatus.getCode(), new IStatus[] { validatorStatus },
                      "Code generation warnings/errors", null);
       } catch (final Exception e)
       {
          if (e instanceof NullPointerException)
             LogUtils.error(logger, e);
-         return new Status(IStatus.ERROR, CodeGeneratorPlugin.getModuleID(), IStatus.ERROR, e.getClass().getName() + ": " + e.getMessage(), e);
+         return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), IStatus.ERROR, e.getClass().getName() + ": " + e.getMessage(), e);
       }
    }
 
