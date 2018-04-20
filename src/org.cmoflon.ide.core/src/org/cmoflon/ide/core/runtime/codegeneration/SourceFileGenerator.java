@@ -35,6 +35,8 @@ public class SourceFileGenerator
    public static final String GUARD_END= "guardEnd";
 
    public static final String HOPCOUNT = "hopcount";
+   
+   public static final String CLEANUP = "cleanup";
 
    //TODO@rkluge contains general as well as specific parts, should be splitted later on
    /**

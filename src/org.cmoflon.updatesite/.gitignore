@@ -1,6 +1,8 @@
+/target
 /build
 /features
 /plugins
+/**/.polyglot.build.properties
 artifacts.jar
 content.jar
 logs.zip

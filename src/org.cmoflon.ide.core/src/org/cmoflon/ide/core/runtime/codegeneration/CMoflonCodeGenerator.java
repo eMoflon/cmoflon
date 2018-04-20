@@ -129,6 +129,8 @@ public class CMoflonCodeGenerator
    private int maximumMatchCount;
 
    private boolean useEvalStatements;
+   
+   private boolean generateDuplicates;
 
    private final Map<String, String> typeMappings;
 
@@ -216,6 +218,9 @@ public class CMoflonCodeGenerator
                break;
             case CMoflonProperties.PROPERTY_INCLUDE_EVALUATION_STATEMENTS:
                this.useEvalStatements = Boolean.parseBoolean(value);
+               break;
+            case CMoflonProperties.PROPERTY_TC_DUPLICATE_EDGES:
+            	this.generateDuplicates=Boolean.parseBoolean(value);
             }
             if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_PARAMETERS))
             {
@@ -447,6 +452,7 @@ public class CMoflonCodeGenerator
       contents.append(getPatternMatchingCode());
       contents.append(this.cachedPatternMatchingCode);
       contents.append(getInitMethod(templateGroup));
+      contents.append(getCleanupMethod(templateGroup));
       contents.append(getProcessPreludeCode(tcAlgorithm, templateGroup));
       contents.append(getProcessBodyCode(tcAlgorithm, templateGroup));
       contents.append(getProcessClosingCode(tcAlgorithm, templateGroup));
@@ -485,6 +491,7 @@ public class CMoflonCodeGenerator
       contents.append(getIncludesCode(templateGroup));
       contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
       contents.append(getMaxMatchCountDefinition());
+      contents.append(getGenerateDuplicatesDefinition());
       contents.append(getMatchTypeDefinitionCode(templateGroup));
       contents.append(getTypeMappingCode(templateGroup));
       contents.append(HeaderFileGenerator.getAllBuiltInMappings());
@@ -747,7 +754,21 @@ public class CMoflonCodeGenerator
    {
       final ST init = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.INIT);
       init.add("blocks", this.blockDeclarations);
+      init.add("duplicates",this.generateDuplicates);
       return init.render();
+   }
+   
+   /**
+    * Gets a cleanup method for eventual duplicates
+    * @param templateGroup
+    *
+    * @return
+    */
+   private String getCleanupMethod(final STGroup templateGroup)
+   {
+      final ST cleanup = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.CLEANUP);
+      cleanup.add("duplicates",this.generateDuplicates);
+      return cleanup.render();
    }
 
    /**
@@ -927,6 +948,18 @@ public class CMoflonCodeGenerator
       mycontents.append(String.format("#define MAX_MATCH_COUNT %d%s", this.maximumMatchCount, nl()));
       mycontents.append("#endif" + nl());
       return mycontents.toString();
+   }
+   
+   private String getGenerateDuplicatesDefinition() {
+	   if(this.generateDuplicates) {
+		   final StringBuilder mycontents = new StringBuilder();
+		   mycontents.append("#ifndef GENERATE_DUPLICATES");
+		   mycontents.append(nl());
+		   mycontents.append("#define GENERATE_DUPLICATES"+nl());
+		   mycontents.append("#endif"+nl());
+		   return mycontents.toString();
+	   }
+	   else return "";
    }
 
    private String getTypeMappingCode(STGroup templateGroup)
