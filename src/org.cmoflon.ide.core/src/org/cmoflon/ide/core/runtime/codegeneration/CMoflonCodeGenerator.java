@@ -259,6 +259,9 @@ public class CMoflonCodeGenerator
       final MultiStatus codeGenerationResult = new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, "Code generation failed", null);
 
       initializeCaches();
+      
+      if(this.reduceCodeSize)
+    	  generateCMoflonHeader();
 
       for (final String tcClass : this.tcClasses)
       {
@@ -272,7 +275,50 @@ public class CMoflonCodeGenerator
       return codeGenerationResult;
    }
 
-   private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus codeGenerationResult, final IProgressMonitor monitor) throws CoreException
+   private void generateCMoflonHeader() {
+	      final SubMonitor subMon = SubMonitor.convert(monitor, "Generate cMoflon header ", 10);
+	      final STGroup templateGroup = getTemplateConfigurationProvider().getTemplateGroup(CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR);
+	      templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
+
+	      final StringBuilder contents = new StringBuilder();
+	      contents.append(getDateCommentCode());
+	      //TODO: fix this for cMoflonHeader
+	      contents.append(getIncludeGuardCode(tcAlgorithm, templateGroup));
+	      //TODO: eventually fix this for cMoflonHeader
+	      contents.append(getIncludesCode(templateGroup));
+	      //TODO: fix this for cMoflonHeader
+	      contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
+	      contents.append(getMaxMatchCountDefinition());
+	      contents.append(getGenerateDuplicatesDefinition());
+	      contents.append(getMatchTypeDefinitionCode(templateGroup));
+	      contents.append(getTypeMappingCode(templateGroup));
+	      contents.append(HeaderFileGenerator.getAllBuiltInMappings());
+	      contents.append(getDefaultTypedefs());
+	      contents.append(getUserDefinedTypedefs(tcAlgorithm));
+	      contents.append(getUnimplementedMethodsCode(templateGroup));
+	      contents.append(getAccessorsCode(templateGroup));
+	      contents.append(getComparisonFunctionsCode(templateGroup));
+	      contents.append(getEqualsFunctionsCode(templateGroup));
+	      contents.append(getHeaderTail(tcAlgorithm, templateGroup));
+	      subMon.worked(8);
+
+	      final String parentFolderForAlgorithm = getProjectRelativePathForAlgorithm(tcAlgorithm);
+	      final String outputFileName = parentFolderForAlgorithm + getAlgorithmBasename(tcAlgorithm) + ".h";
+	      final IFile headerFile = project.getFile(outputFileName);
+	      if (!headerFile.exists())
+	      {
+	         WorkspaceHelper.addAllFolders(project, parentFolderForAlgorithm, subMon.split(1));
+	         WorkspaceHelper.addFile(project, outputFileName, contents.toString(), subMon.split(1));
+	      } else
+	      {
+	         headerFile.setContents(new ReaderInputStream(new StringReader(contents.toString())), true, true, subMon.split(2));
+	      }
+	   }
+
+	
+}
+
+private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus codeGenerationResult, final IProgressMonitor monitor) throws CoreException
    {
       final SubMonitor subMon = SubMonitor.convert(monitor, "Generating code for " + tcAlgorithm, 100);
 
@@ -505,6 +551,7 @@ public class CMoflonCodeGenerator
       templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
 
       final StringBuilder contents = new StringBuilder();
+      //TODO: guard depending on reduceCodeSize
       contents.append(getDateCommentCode());
       contents.append(getIncludeGuardCode(tcAlgorithm, templateGroup));
       contents.append(getIncludesCode(templateGroup));
