@@ -179,7 +179,7 @@ void cleanup(){
 	while(list_length(list_duplicates) > 0) {
 		free(list_pop(list_duplicates));
 	}
-#endif<endif>
+#endif<endif> 
 }
 
 >>
