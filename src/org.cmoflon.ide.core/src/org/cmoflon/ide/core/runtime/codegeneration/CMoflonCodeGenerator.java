@@ -167,6 +167,8 @@ public class CMoflonCodeGenerator
 
    private SimpleDateFormat timeFormatter;
 
+   private boolean reduceCodeSize;
+
    public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel, Descriptor codeGenerationEngine)
    {
       try
@@ -221,6 +223,9 @@ public class CMoflonCodeGenerator
                break;
             case CMoflonProperties.PROPERTY_TC_DUPLICATE_EDGES:
             	this.generateDuplicates=Boolean.parseBoolean(value);
+            	break;
+            case CMoflonProperties.PROPERTY_REDUCE_CODE_SIZE:
+            	this.reduceCodeSize=Boolean.parseBoolean(value);
             }
             if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_PARAMETERS))
             {
@@ -325,12 +330,10 @@ public class CMoflonCodeGenerator
    {
       initializeCachedMetamodelElementLists();
 
-      initializeCachedPatternMatchingCode();
-
       this.blockDeclarations = this.getBlockDeclarations(this.cachedConcreteClasses);
    }
 
-   private void initializeCachedPatternMatchingCode()
+   private String getSDMImplementedMethods(String tcAlgorithmName)
    {
       final StringBuilder generatedCode = new StringBuilder();
       for (final GenPackage genPackage : this.genModel.getGenPackages())
@@ -344,9 +347,10 @@ public class CMoflonCodeGenerator
                   final String generatedMethodBody = getGeneratedMethodBody(genOperation.getEcoreOperation());
                   if (!generatedMethodBody.equals(MoflonUtil.DEFAULT_METHOD_BODY))
                   {
+                	 StringBuilder intermediateBuffer = new StringBuilder();
                      LogUtils.info(logger, "Generate method body for '%s::%s'", genClass.getName(), genOperation.getName());
-                     generatedCode.append(nl());
-                     generatedCode.append(genOperation.getTypeParameters(genClass));
+                     intermediateBuffer.append(nl());
+                     intermediateBuffer.append(genOperation.getTypeParameters(genClass));
                      String[] typechain = genOperation.getImportedType(genClass).split("\\.");
                      String type = "";
                      if (typechain.length == 0)
@@ -355,20 +359,24 @@ public class CMoflonCodeGenerator
                         type = typechain[typechain.length - 1];
                      if (!isBuiltInType(type) && !type.equalsIgnoreCase("void"))
                         type = getTypeName(type) + "*";
-                     generatedCode.append(type);
-                     generatedCode.append(" ");
+                     intermediateBuffer.append(type);
+                     intermediateBuffer.append(" ");
                      final String functionName = getClassPrefixForMethods(genOperation.getEcoreOperation().getEContainingClass().getName())
                            + genOperation.getName();
-                     generatedCode.append(functionName);
-                     generatedCode.append(("("));
-                     generatedCode.append(getParametersFromEcore(genOperation.getEcoreOperation()));
-                     generatedCode.append(("){" + nl()));
+                     intermediateBuffer.append(functionName);
+                     if(this.reduceCodeSize&&functionName.contains("Algorithm")&&!Pattern.compile(Pattern.quote(tcAlgorithmName), Pattern.CASE_INSENSITIVE).matcher(functionName).find()) {
+                    	 continue;
+                     }
+                     intermediateBuffer.append(("("));
+                     intermediateBuffer.append(getParametersFromEcore(genOperation.getEcoreOperation()));
+                     intermediateBuffer.append(("){" + nl()));
                      for (final String line : generatedMethodBody.trim().replaceAll("\\r", "").split(Pattern.quote(nl())))
                      {
-                        generatedCode.append("\t" + line);
-                        generatedCode.append(nl());
+                    	 intermediateBuffer.append("\t" + line);
+                    	 intermediateBuffer.append(nl());
                      }
-                     generatedCode.append(nl() + "}" + nl());
+                     intermediateBuffer.append(nl() + "}" + nl());
+                     generatedCode.append(intermediateBuffer.toString());
                   } else
                   {
                      LogUtils.info(logger, "Skip method body due to missing specification: '%s::%s'", genClass.getName(), genOperation.getName());
@@ -378,7 +386,7 @@ public class CMoflonCodeGenerator
          }
       }
 
-      this.cachedPatternMatchingCode = generatedCode.toString();
+      return generatedCode.toString();
    }
 
    private void initializeCachedMetamodelElementLists()
@@ -449,8 +457,8 @@ public class CMoflonCodeGenerator
       }
       contents.append(getDefaultHelperMethods());
       contents.append(getUserDefinedHelperMethods(tcAlgorithm));
-      contents.append(getPatternMatchingCode());
-      contents.append(this.cachedPatternMatchingCode);
+      contents.append(getPatternMatchingCode(tcAlgorithm));
+      contents.append(getSDMImplementedMethods(tcAlgorithm));
       contents.append(getInitMethod(templateGroup));
       contents.append(getCleanupMethod(templateGroup));
       contents.append(getProcessPreludeCode(tcAlgorithm, templateGroup));
@@ -651,12 +659,12 @@ public class CMoflonCodeGenerator
       return processBodyCode.toString();
    }
 
-   private String getPatternMatchingCode()
+   private String getPatternMatchingCode(String tcAlgorithmName)
    {
       StringBuilder allinjectedCode = new StringBuilder();
       for (final GenClass genClass : this.cachedConcreteClasses)
       {
-         final String injectedCode = getPatternImplementationCode(genClass);
+         final String injectedCode = getPatternImplementationCode(genClass,tcAlgorithmName);
          if (injectedCode != null)
          {
             allinjectedCode.append(injectedCode);
@@ -820,7 +828,7 @@ public class CMoflonCodeGenerator
     * @param genClass
     * @return returns the pattern matching code as string
     */
-   private String getPatternImplementationCode(final GenClass genClass)
+   private String getPatternImplementationCode(final GenClass genClass,String tcAlgorithmName)
    {
       // Produces pattern matching code
       final StringBuilder code = new StringBuilder();
@@ -841,7 +849,11 @@ public class CMoflonCodeGenerator
             {
                st.add(entry.getKey(), entry.getValue());
             }
-            code.append(st.render());
+            String result=st.render();
+            //code.append(st.render());
+            if(this.reduceCodeSize&&!result.contains(tcAlgorithmName))
+            	continue;
+            code.append(result);
             code.append(nl());
             code.append(nl());
          }

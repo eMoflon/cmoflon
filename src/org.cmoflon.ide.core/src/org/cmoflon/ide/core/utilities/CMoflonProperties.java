@@ -9,6 +9,8 @@ public class CMoflonProperties
 {
 
    public static final String PROPERTY_PREFIX_FOR_CONSTANTS = "const-";
+   
+   public static final String PROPERTY_REDUCE_CODE_SIZE = "cMoflon.reduceCodeSize";
 
    public static final String PROPERTY_TC_USE_HOPCOUNT = "tc.enableHopcountProcess";
 
@@ -68,6 +70,8 @@ public class CMoflonProperties
                + "# (e.g., " + PROPERTY_PREFIX_PARAMETERS + "KtcAlgorithm=" + PROPERTY_PREFIX_FOR_CONSTANTS + "k\n\n"
                + "# It is also possible to define constants. A constant declaration must look as follows: const-[constname]\n" //
                + "# (e.g., " + PROPERTY_PREFIX_FOR_CONSTANTS + "k=3.0)\n" //
+               + "Set to 'false' if you want the complete amount of generated code in every source file, not only the code specific to each TC algorithm\n"
+               + PROPERTY_REDUCE_CODE_SIZE + " = true\n\n" //
                + getCMoflonPropertiesLinesForDefaultConstants() //
                + "\n\n" //
                + "# " + " Type mapping definitions follow \n"//
