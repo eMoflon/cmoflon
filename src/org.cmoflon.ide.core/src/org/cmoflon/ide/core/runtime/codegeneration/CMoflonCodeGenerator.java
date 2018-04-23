@@ -153,13 +153,13 @@ public class CMoflonCodeGenerator
    // Stores the initial id to assign to the first generated TC algorithm
    private int minTcComponentConstant = CMoflonProperties.DEFAULT_TC_MIN_ALGORITHM_ID;
 
-   private List<MethodAttribute> cachedMethodSignatures;
+   private Map<String,List<MethodAttribute> > cachedMethodSignatures;
 
    private List<FieldAttribute> cachedFields;
 
    private List<GenClass> cachedConcreteClasses;
 
-   private String cachedPatternMatchingCode;
+   private Map<String,StringBuilder> cachedPatternMatchingCode;
 
    private String tcAlgorithmParentClassName;
 
@@ -168,6 +168,8 @@ public class CMoflonCodeGenerator
    private SimpleDateFormat timeFormatter;
 
    private boolean reduceCodeSize;
+   
+   private static String TC_INDEPENDANT ="TC_INDEPENDANT";  
 
    public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel, Descriptor codeGenerationEngine)
    {
@@ -182,9 +184,10 @@ public class CMoflonCodeGenerator
          this.useHopCountProcessPerAlgorithm = new HashMap<>();
          this.tcClasses = new ArrayList<>();
          this.blockDeclarations = new ArrayList<>();
-         this.cachedMethodSignatures = new ArrayList<>();
+         this.cachedMethodSignatures = new HashMap<String, List<MethodAttribute>>();
          this.cachedFields = new ArrayList<>();
          this.cachedConcreteClasses = new ArrayList<>();
+         this.cachedPatternMatchingCode=new HashMap<String, StringBuilder>();
          this.tcAlgorithmParentClassName = "TopologyControlAlgorithm";
          this.tcAlgorithmParentGenClass = this.determineTopologyControlParentClass();
          if (this.tcAlgorithmParentGenClass == null)
@@ -329,19 +332,25 @@ public class CMoflonCodeGenerator
    private void initializeCaches()
    {
       initializeCachedMetamodelElementLists();
-
+      initializeCachedPatternMatchingCode();
       this.blockDeclarations = this.getBlockDeclarations(this.cachedConcreteClasses);
    }
 
-   private String getSDMImplementedMethods(String tcAlgorithmName)
+   private void initializeCachedPatternMatchingCode()
    {
-      final StringBuilder generatedCode = new StringBuilder();
+	  //Initialize StringBuilder
+	  for(String tcAlgorithm:tcClasses) {
+		  this.cachedPatternMatchingCode.put(tcAlgorithm, new StringBuilder());
+	  }
+	  this.cachedPatternMatchingCode.put(CMoflonCodeGenerator.TC_INDEPENDANT, new StringBuilder());
+
       for (final GenPackage genPackage : this.genModel.getGenPackages())
       {
          for (final GenClass genClass : genPackage.getGenClasses())
          {
             if (!genClass.isAbstract())
             {
+            	String tcAlgorithmName=this.getTCAlgorithmNameForGenClass(genClass);
                for (final GenOperation genOperation : genClass.getGenOperations())
                {
                   final String generatedMethodBody = getGeneratedMethodBody(genOperation.getEcoreOperation());
@@ -364,9 +373,6 @@ public class CMoflonCodeGenerator
                      final String functionName = getClassPrefixForMethods(genOperation.getEcoreOperation().getEContainingClass().getName())
                            + genOperation.getName();
                      intermediateBuffer.append(functionName);
-                     if(this.reduceCodeSize&&functionName.contains("Algorithm")&&!Pattern.compile(Pattern.quote(tcAlgorithmName), Pattern.CASE_INSENSITIVE).matcher(functionName).find()) {
-                    	 continue;
-                     }
                      intermediateBuffer.append(("("));
                      intermediateBuffer.append(getParametersFromEcore(genOperation.getEcoreOperation()));
                      intermediateBuffer.append(("){" + nl()));
@@ -376,7 +382,9 @@ public class CMoflonCodeGenerator
                     	 intermediateBuffer.append(nl());
                      }
                      intermediateBuffer.append(nl() + "}" + nl());
-                     generatedCode.append(intermediateBuffer.toString());
+                     //Append Generated Code
+                     StringBuilder cachedPatternMatchingCodeForTCAlgorithm=this.cachedPatternMatchingCode.get(tcAlgorithmName);
+                     cachedPatternMatchingCodeForTCAlgorithm.append(intermediateBuffer.toString());
                   } else
                   {
                      LogUtils.info(logger, "Skip method body due to missing specification: '%s::%s'", genClass.getName(), genOperation.getName());
@@ -385,14 +393,18 @@ public class CMoflonCodeGenerator
             }
          }
       }
-
-      return generatedCode.toString();
+      
    }
 
    private void initializeCachedMetamodelElementLists()
    {
+	  for(String tcAlgorithm:this.tcClasses) {
+		  this.cachedMethodSignatures.put(tcAlgorithm, new ArrayList<MethodAttribute>());
+	  }
+	  this.cachedMethodSignatures.put(CMoflonCodeGenerator.TC_INDEPENDANT, new ArrayList<MethodAttribute>());
       genModel.getGenPackages().forEach(genPackage -> genPackage.getGenClasses().forEach(genClass -> {
-         if (!genClass.isAbstract())
+    	 String tcAlgorithmName=this.getTCAlgorithmNameForGenClass(genClass);
+    	 if (!genClass.isAbstract())
          {
             cachedConcreteClasses.add(genClass);
             cachedFields.addAll(getFields(genClass));
@@ -401,8 +413,7 @@ public class CMoflonCodeGenerator
                final String operationTypeName = operationType == null ? "void" : operationType.getName();
                final boolean isOperationTypeBuiltIn = operationType == null ? true : isBuiltInType(operationTypeName);
                final String genClassName = genOperation.getGenClass().getName();
-
-               cachedMethodSignatures.add(new MethodAttribute(new Type(isBuiltInType(genClassName), genClassName),
+               cachedMethodSignatures.get(tcAlgorithmName).add(new MethodAttribute(new Type(isBuiltInType(genClassName), genClassName),
                      new Type(isOperationTypeBuiltIn, operationTypeName), genOperation.getName(), getParametersFromEcore(genOperation.getEcoreOperation())));
             });
          }
@@ -458,7 +469,7 @@ public class CMoflonCodeGenerator
       contents.append(getDefaultHelperMethods());
       contents.append(getUserDefinedHelperMethods(tcAlgorithm));
       contents.append(getPatternMatchingCode(tcAlgorithm));
-      contents.append(getSDMImplementedMethods(tcAlgorithm));
+      contents.append(this.cachedPatternMatchingCode.get(tcAlgorithm).toString());
       contents.append(getInitMethod(templateGroup));
       contents.append(getCleanupMethod(templateGroup));
       contents.append(getProcessPreludeCode(tcAlgorithm, templateGroup));
@@ -659,12 +670,14 @@ public class CMoflonCodeGenerator
       return processBodyCode.toString();
    }
 
-   private String getPatternMatchingCode(String tcAlgorithmName)
+   private String getPatternMatchingCode(String tcAlgorithm)
    {
       StringBuilder allinjectedCode = new StringBuilder();
       for (final GenClass genClass : this.cachedConcreteClasses)
       {
-         final String injectedCode = getPatternImplementationCode(genClass,tcAlgorithmName);
+    	 if(isIrrelevantForAlgorithm(genClass,tcAlgorithm))
+    		 continue;
+         final String injectedCode = getPatternImplementationCode(genClass);
          if (injectedCode != null)
          {
             allinjectedCode.append(injectedCode);
@@ -828,7 +841,7 @@ public class CMoflonCodeGenerator
     * @param genClass
     * @return returns the pattern matching code as string
     */
-   private String getPatternImplementationCode(final GenClass genClass,String tcAlgorithmName)
+   private String getPatternImplementationCode(final GenClass genClass)
    {
       // Produces pattern matching code
       final StringBuilder code = new StringBuilder();
@@ -851,8 +864,6 @@ public class CMoflonCodeGenerator
             }
             String result=st.render();
             //code.append(st.render());
-            if(this.reduceCodeSize&&!result.contains(tcAlgorithmName))
-            	continue;
             code.append(result);
             code.append(nl());
             code.append(nl());
@@ -860,8 +871,20 @@ public class CMoflonCodeGenerator
       }
       return code.length() > 0 ? code.toString() : null;
    }
+   
+   /**
+    * Checks whether the content refers to the tcAlgorithm with name name
+    * @param content	the generated code
+    * @param name	the name of the current tcAlgorithm
+    * @return	true if code size reduction is activated an the content does not refer to the current algorithm but another tcalgorithm
+    */
+   private boolean isIrrelevantForAlgorithm(GenClass genClass,String currentTCAlgorithm) {
+	if(this.reduceCodeSize&&isTrueSubtypeOfTCAlgorithmParentClass(genClass)&&!genClass.getName().contentEquals(currentTCAlgorithm))
+		return true;
+	else return false;
+}
 
-   private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteClasses)
+private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteClasses)
    {
       final List<String> blockDeclarations = new ArrayList<>();
       for (final GenClass genClass : cachedConcreteClasses)
@@ -1280,5 +1303,18 @@ public class CMoflonCodeGenerator
    {
       return "\n";
    }
-
+   
+   /**
+    * Gets the name of the TCAlgorithm of a GenClass or the TC_INDEPENDANT constant if the GenClass is no TCAlgorithm
+    * @param genClass
+    * @return
+    */
+   private String getTCAlgorithmNameForGenClass(GenClass genClass){
+	   String tcAlgorithmName=CMoflonCodeGenerator.TC_INDEPENDANT;
+	   	for(String tcAlgorithm:tcClasses) {
+			if(genClass.getName().contentEquals(tcAlgorithm))
+				tcAlgorithmName=tcAlgorithm;
+		}
+	   	return tcAlgorithmName;
+   }
 }
