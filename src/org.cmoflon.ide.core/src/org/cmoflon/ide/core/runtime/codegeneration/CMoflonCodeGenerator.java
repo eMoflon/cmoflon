@@ -261,7 +261,7 @@ public class CMoflonCodeGenerator
       initializeCaches();
       
       if(this.reduceCodeSize)
-    	  generateCMoflonHeader();
+    	  generateCMoflonHeader(subMon.split(1));
 
       for (final String tcClass : this.tcClasses)
       {
@@ -275,35 +275,35 @@ public class CMoflonCodeGenerator
       return codeGenerationResult;
    }
 
-   private void generateCMoflonHeader() {
+private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreException{
 	      final SubMonitor subMon = SubMonitor.convert(monitor, "Generate cMoflon header ", 10);
-	      final STGroup templateGroup = getTemplateConfigurationProvider().getTemplateGroup(CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR);
+	      final STGroup templateGroup = getTemplateConfigurationProvider().getTemplateGroup(CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR);
 	      templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
 
 	      final StringBuilder contents = new StringBuilder();
 	      contents.append(getDateCommentCode());
 	      //TODO: fix this for cMoflonHeader
-	      contents.append(getIncludeGuardCode(tcAlgorithm, templateGroup));
+	      contents.append(getIncludeGuardCode(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
 	      //TODO: eventually fix this for cMoflonHeader
-	      contents.append(getIncludesCode(templateGroup));
+	      //contents.append(getIncludesCode(templateGroup));
 	      //TODO: fix this for cMoflonHeader
-	      contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
-	      contents.append(getMaxMatchCountDefinition());
-	      contents.append(getGenerateDuplicatesDefinition());
-	      contents.append(getMatchTypeDefinitionCode(templateGroup));
-	      contents.append(getTypeMappingCode(templateGroup));
-	      contents.append(HeaderFileGenerator.getAllBuiltInMappings());
-	      contents.append(getDefaultTypedefs());
-	      contents.append(getUserDefinedTypedefs(tcAlgorithm));
-	      contents.append(getUnimplementedMethodsCode(templateGroup));
-	      contents.append(getAccessorsCode(templateGroup));
-	      contents.append(getComparisonFunctionsCode(templateGroup));
-	      contents.append(getEqualsFunctionsCode(templateGroup));
-	      contents.append(getHeaderTail(tcAlgorithm, templateGroup));
+	      //contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
+	      //contents.append(getMaxMatchCountDefinition());
+	      //contents.append(getGenerateDuplicatesDefinition());
+	      //contents.append(getMatchTypeDefinitionCode(templateGroup));
+	      //contents.append(getTypeMappingCode(templateGroup));
+	      //contents.append(HeaderFileGenerator.getAllBuiltInMappings());
+	      //contents.append(getDefaultTypedefs());
+	      //contents.append(getUserDefinedTypedefs(tcAlgorithm));
+	      //contents.append(getUnimplementedMethodsCode(templateGroup));
+	      //contents.append(getAccessorsCode(templateGroup));
+	      //contents.append(getComparisonFunctionsCode(templateGroup));
+	      //contents.append(getEqualsFunctionsCode(templateGroup));
+	      contents.append(getHeaderTail(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
 	      subMon.worked(8);
 
-	      final String parentFolderForAlgorithm = getProjectRelativePathForAlgorithm(tcAlgorithm);
-	      final String outputFileName = parentFolderForAlgorithm + getAlgorithmBasename(tcAlgorithm) + ".h";
+	      final String parentFolderForAlgorithm = getProjectRelativePathForAlgorithm(CMoflonCodeGenerator.TC_INDEPENDANT);
+	      final String outputFileName = parentFolderForAlgorithm+"cMoflon.h";
 	      final IFile headerFile = project.getFile(outputFileName);
 	      if (!headerFile.exists())
 	      {
@@ -314,9 +314,6 @@ public class CMoflonCodeGenerator
 	         headerFile.setContents(new ReaderInputStream(new StringReader(contents.toString())), true, true, subMon.split(2));
 	      }
 	   }
-
-	
-}
 
 private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus codeGenerationResult, final IProgressMonitor monitor) throws CoreException
    {
@@ -996,9 +993,15 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 
    private String getIncludeGuardCode(String algorithmName, final STGroup templateGroup)
    {
-      ST definition = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_BEGIN);
-      definition.add("comp", getComponentName().toUpperCase());
-      definition.add("algo", algorithmName.toUpperCase());
+	  ST definition;
+	  if(reduceCodeSize&&algorithmName.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+			  definition = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.HEADER_DEFINITION);  
+	  }
+	  else {
+		  definition = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.HEADER_DEFINITION);
+	      definition.add("comp", getComponentName().toUpperCase());
+	      definition.add("algo", algorithmName.toUpperCase());
+	  }
       String guardCode = definition.render();
       return guardCode;
    }
@@ -1098,9 +1101,15 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 
    private String getHeaderTail(String algorithmName, STGroup stg)
    {
-      final ST end = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_END);
-      end.add("comp", getComponentName().toUpperCase());
-      end.add("algo", algorithmName.toUpperCase());
+	  ST end;
+	  if(this.reduceCodeSize&&algorithmName.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+		  end = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.CONSTANTS_END);
+	  }
+	  else {
+		  end = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_END);
+	      end.add("comp", getComponentName().toUpperCase());
+	      end.add("algo", algorithmName.toUpperCase());
+	  }
       return end.render() + nl();
    }
 

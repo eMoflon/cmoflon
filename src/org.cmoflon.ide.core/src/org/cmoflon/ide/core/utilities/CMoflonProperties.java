@@ -69,11 +69,11 @@ public class CMoflonProperties
                + "# Place the parameters for the topology control algorithm call here as CSV\n" //
                + "# (e.g., " + PROPERTY_PREFIX_PARAMETERS + "KtcAlgorithm=" + PROPERTY_PREFIX_FOR_CONSTANTS + "k\n\n"
                + "# It is also possible to define constants. A constant declaration must look as follows: const-[constname]\n" //
-               + "# (e.g., " + PROPERTY_PREFIX_FOR_CONSTANTS + "k=3.0)\n" //
-               + "Set to 'false' if you want the complete amount of generated code in every source file, not only the code specific to each TC algorithm\n"
-               + PROPERTY_REDUCE_CODE_SIZE + " = true\n\n" //
+               + "# (e.g., " + PROPERTY_PREFIX_FOR_CONSTANTS + "k=3.0)\n" //               
                + getCMoflonPropertiesLinesForDefaultConstants() //
                + "\n\n" //
+               + "# Set to 'false' if you want the complete amount of generated code in every source file, not only the code specific to each TC algorithm\n"
+               + PROPERTY_REDUCE_CODE_SIZE + " = true\n\n" //
                + "# " + " Type mapping definitions follow \n"//
                + "# The Key is the EClass, and the value is the C Struct you want it to be mapped to.\n" //
                + "# Default: " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Node = " + DEFAULT_TYPE_MAPPINGS.get("Node") + " and " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Link = " + DEFAULT_TYPE_MAPPINGS.get("Link")

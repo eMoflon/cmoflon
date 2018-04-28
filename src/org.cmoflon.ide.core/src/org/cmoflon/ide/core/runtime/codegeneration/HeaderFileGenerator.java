@@ -9,7 +9,7 @@ import org.stringtemplate.v4.ST;
 public class HeaderFileGenerator
 {
    // Template names follow
-   public static final String CONSTANTS_BEGIN = "headerDefinition";
+   public static final String HEADER_DEFINITION = "headerDefinition";
 
    public static final String CONSTANTS_DEFINTION = "constants";
 

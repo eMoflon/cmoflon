@@ -1,0 +1,18 @@
+group cMoflonHeader;
+
+headerDefinition()::=<<
+#ifndef __CMOFLON_H_
+#define __CMOFLON_H_
+
+
+>>
+
+endHeader()::=<<
+
+#endif /* __CMOFLON_H_ */
+>>
+
+include(path)::=<<
+#include <path>
+
+>>
