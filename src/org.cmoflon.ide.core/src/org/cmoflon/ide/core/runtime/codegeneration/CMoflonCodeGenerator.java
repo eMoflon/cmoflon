@@ -291,7 +291,7 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      //contents.append(getGenerateDuplicatesDefinition());
 	      //contents.append(getMatchTypeDefinitionCode(templateGroup));
 	      //contents.append(getTypeMappingCode(templateGroup));
-	      //contents.append(HeaderFileGenerator.getAllBuiltInMappings());
+	      contents.append(getAllBuiltInMappings(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getDefaultTypedefs(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getUserDefinedTypedefs(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getUnimplementedMethodsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
@@ -571,7 +571,7 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       contents.append(getGenerateDuplicatesDefinition());
       contents.append(getMatchTypeDefinitionCode(templateGroup));
       contents.append(getTypeMappingCode(templateGroup));
-      contents.append(HeaderFileGenerator.getAllBuiltInMappings());
+      contents.append(getAllBuiltInMappings(tcAlgorithm));
       contents.append(getDefaultTypedefs(tcAlgorithm));
       contents.append(getUserDefinedTypedefs(tcAlgorithm));
       contents.append(getUnimplementedMethodsCode(templateGroup,tcAlgorithm));
@@ -1524,5 +1524,22 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 				tcAlgorithmName=tcAlgorithm;
 		}
 	   	return tcAlgorithmName;
+   }
+
+/**
+    * Gets a String with Typedefs from EType to the C language Type.
+    */
+   public String getAllBuiltInMappings(String tcAlgorithm)
+   {
+      final StringBuilder result = new StringBuilder();
+      if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)||!this.reduceCodeSize) {
+	      for (final CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values())
+	      {
+	         result.append("typedef " + CMoflonBuiltInTypes.getCType(t) + " " + t.name() + ";");
+	         result.append(nl());
+	         result.append(nl());
+	      }
+      }
+      return result.toString();
    }
 }

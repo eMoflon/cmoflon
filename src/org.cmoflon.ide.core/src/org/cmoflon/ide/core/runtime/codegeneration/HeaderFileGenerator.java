@@ -40,21 +40,6 @@ public class HeaderFileGenerator
    }
 
    /**
-    * Gets a String with Typedefs from EType to the C language Type.
-    */
-   public static String getAllBuiltInMappings()
-   {
-      final StringBuilder result = new StringBuilder();
-      for (final CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values())
-      {
-         result.append("typedef " + CMoflonBuiltInTypes.getCType(t) + " " + t.name() + ";");
-         result.append(CMoflonCodeGenerator.nl());
-         result.append(CMoflonCodeGenerator.nl());
-      }
-      return result.toString();
-   }
-
-   /**
     * Generates the general Includes for CMoflon as well as the Component Specific stuff
     * @param comp The desired Component
     * @param include	The StringTemplate for the includes
