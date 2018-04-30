@@ -293,7 +293,7 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      //contents.append(getTypeMappingCode(templateGroup));
 	      //contents.append(HeaderFileGenerator.getAllBuiltInMappings());
 	      //contents.append(getDefaultTypedefs());
-	      //contents.append(getUserDefinedTypedefs(tcAlgorithm));
+	      contents.append(getUserDefinedTypedefs(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getUnimplementedMethodsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getAccessorsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getComparisonFunctionsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
@@ -563,7 +563,6 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
 
       final StringBuilder contents = new StringBuilder();
-      //TODO: guard depending on reduceCodeSize
       contents.append(getDateCommentCode());
       contents.append(getIncludeGuardCode(tcAlgorithm, templateGroup));
       contents.append(getIncludesCode(templateGroup,tcAlgorithm));
@@ -1096,6 +1095,7 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 
    private String getUnimplementedMethodsCode(final STGroup stg,final String tcAlgorithm)
    {
+	   //FIXME: currently all methods are classified as unimplemented, but maybe this is needed as forward declaration
 	   ST methoddecls;
 	      StringBuilder builder = new StringBuilder();
 		   if(this.reduceCodeSize) {
@@ -1427,57 +1427,80 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
    private String getUserDefinedTypedefs(final String tcAlgorithm) throws CoreException
    {
       final StringBuilder result = new StringBuilder();
+      //Insert custom algorithm-independent typedefs
       {
-         final String projectRelativePath = "injection/custom-typedefs.c";
-         result.append("// --- Begin of user-defined algorithm-independent type definitions (Path: '" + projectRelativePath + "')" + nl());
-         final IFile helperFile = this.project.getFile(projectRelativePath);
-         if (helperFile.exists())
-         {
-            InputStream stream = helperFile.getContents();
-            try
-            {
-               result.append(IOUtils.toString(stream));
-            } catch (IOException e)
-            {
-               throw new CoreException(
-                     new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Failed to read user-defined helpers " + helperFile, e));
-            } finally
-            {
-               IOUtils.closeQuietly(stream);
-            }
-         } else
-         {
-            createInjectionFolder();
-            WorkspaceHelper.addFile(project, projectRelativePath, "// Algorithm-independent type definitions." + nl(), new NullProgressMonitor());
-         }
-         result.append("// --- End of user-defined algorithm-independent type definitions" + nl());
-         result.append(nl());
+    	  final String projectRelativePath = "injection/custom-typedefs.c";
+          result.append("// --- Begin of user-defined algorithm-independent type definitions (Path: '" + projectRelativePath + "')" + nl());
+          final IFile helperFile = this.project.getFile(projectRelativePath);
+          if (helperFile.exists())
+          {
+             InputStream stream = helperFile.getContents();
+             try
+             {
+                result.append(IOUtils.toString(stream));
+             } catch (IOException e)
+             {
+                throw new CoreException(
+                      new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Failed to read user-defined helpers " + helperFile, e));
+             } finally
+             {
+                IOUtils.closeQuietly(stream);
+             }
+          } else
+          {
+             createInjectionFolder();
+             WorkspaceHelper.addFile(project, projectRelativePath, "// Algorithm-independent type definitions." + nl(), new NullProgressMonitor());
+          }
+          result.append("// --- End of user-defined algorithm-independent type definitions" + nl());
+          result.append(nl());
+    	 if(this.reduceCodeSize) {
+    		 if(tcAlgorithm.contentEquals(TC_INDEPENDANT)) {
+    			 ;
+    		 }
+    		 else {
+    			 result.delete(0, result.length());
+    		 }
+    	 }
+    	 else {
+    		 ;
+    	 }
       }
       {
-         final String projectRelativePath = "injection/custom-typedefs_" + tcAlgorithm + ".c";
-         result.append("// --- Begin of user-defined type definitions for " + tcAlgorithm + "(Path: '" + projectRelativePath + "')" + nl());
-         final IFile helperFile = this.project.getFile(projectRelativePath);
-         if (helperFile.exists())
-         {
-            InputStream stream = helperFile.getContents();
-            try
-            {
-               result.append(IOUtils.toString(stream));
-            } catch (IOException e)
-            {
-               throw new CoreException(
-                     new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Failed to read user-defined helpers " + helperFile, e));
-            } finally
-            {
-               IOUtils.closeQuietly(stream);
-            }
-         } else
-         {
-            createInjectionFolder();
-            WorkspaceHelper.addFile(project, projectRelativePath, "// Type definitions for algorithm '" + tcAlgorithm + "'." + nl(), new NullProgressMonitor());
-         }
-         result.append("// --- End of user-defined type definitions for " + tcAlgorithm + nl());
-         result.append(nl());
+    	 //Insert algorithm specific typedefs
+    	  final StringBuilder algorithmSpecificContent = new StringBuilder();
+    	  final String projectRelativePath = "injection/custom-typedefs_" + tcAlgorithm + ".c";
+          algorithmSpecificContent.append("// --- Begin of user-defined type definitions for " + tcAlgorithm + "(Path: '" + projectRelativePath + "')" + nl());
+          final IFile helperFile = this.project.getFile(projectRelativePath);
+          if (helperFile.exists())
+          {
+             InputStream stream = helperFile.getContents();
+             try
+             {
+             	algorithmSpecificContent.append(IOUtils.toString(stream));
+             } catch (IOException e)
+             {
+                throw new CoreException(
+                      new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Failed to read user-defined helpers " + helperFile, e));
+             } finally
+             {
+                IOUtils.closeQuietly(stream);
+             }
+          } else
+          {
+             createInjectionFolder();
+             WorkspaceHelper.addFile(project, projectRelativePath, "// Type definitions for algorithm '" + tcAlgorithm + "'." + nl(), new NullProgressMonitor());
+          }
+          algorithmSpecificContent.append("// --- End of user-defined type definitions for " + tcAlgorithm + nl());
+          algorithmSpecificContent.append(nl());
+    	  if(this.reduceCodeSize) {
+    		  if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+    			  ;
+    		  }else {
+    			  result.append(algorithmSpecificContent.toString());
+    		  }
+    	  }else {
+    		  result.append(algorithmSpecificContent.toString());
+    	  }
       }
       return result.toString();
 
