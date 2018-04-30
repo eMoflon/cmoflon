@@ -292,7 +292,7 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      //contents.append(getMatchTypeDefinitionCode(templateGroup));
 	      //contents.append(getTypeMappingCode(templateGroup));
 	      //contents.append(HeaderFileGenerator.getAllBuiltInMappings());
-	      //contents.append(getDefaultTypedefs());
+	      contents.append(getDefaultTypedefs(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getUserDefinedTypedefs(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getUnimplementedMethodsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getAccessorsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
@@ -572,7 +572,7 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       contents.append(getMatchTypeDefinitionCode(templateGroup));
       contents.append(getTypeMappingCode(templateGroup));
       contents.append(HeaderFileGenerator.getAllBuiltInMappings());
-      contents.append(getDefaultTypedefs());
+      contents.append(getDefaultTypedefs(tcAlgorithm));
       contents.append(getUserDefinedTypedefs(tcAlgorithm));
       contents.append(getUnimplementedMethodsCode(templateGroup,tcAlgorithm));
       contents.append(getAccessorsCode(templateGroup,tcAlgorithm));
@@ -1397,31 +1397,32 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
       WorkspaceHelper.addAllFolders(project, "injection", new NullProgressMonitor());
    }
 
-   private String getDefaultTypedefs() throws CoreException
+   private String getDefaultTypedefs(String tcAlgorithm) throws CoreException
    {
-      final StringBuilder result = new StringBuilder();
-      result.append("// --- Begin of default cMoflon type definitions" + nl());
-      final String urlString = String.format("platform:/plugin/%s/resources/structs.c", WorkspaceHelper.getPluginId(getClass()));
-      try
-      {
-         final URL url = new URL(urlString);
-         try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream())))
-         {
-            result.append(reader.lines().collect(Collectors.joining(nl())));
-         } catch (final IOException e)
-         {
-            throw new CoreException(
-                  new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Failed to read default typedefs from " + url.toString(), e));
-         }
-      } catch (final MalformedURLException e)
-      {
-         throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Invalid URL : " + urlString, e));
-      }
-      result.append(nl());
-      result.append("// --- End of default cMoflon type definitions" + nl());
-      result.append(nl());
+	   final StringBuilder result = new StringBuilder();
+	  if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)||!this.reduceCodeSize) {
+		  result.append("// --- Begin of default cMoflon type definitions" + nl());
+	      final String urlString = String.format("platform:/plugin/%s/resources/structs.c", WorkspaceHelper.getPluginId(getClass()));
+	      try
+	      {
+	         final URL url = new URL(urlString);
+	         try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream())))
+	         {
+	            result.append(reader.lines().collect(Collectors.joining(nl())));
+	         } catch (final IOException e)
+	         {
+	            throw new CoreException(
+	                  new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Failed to read default typedefs from " + url.toString(), e));
+	         }
+	      } catch (final MalformedURLException e)
+	      {
+	         throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Invalid URL : " + urlString, e));
+	      }
+	      result.append(nl());
+	      result.append("// --- End of default cMoflon type definitions" + nl());
+	      result.append(nl());
+	  }
       return result.toString();
-
    }
 
    private String getUserDefinedTypedefs(final String tcAlgorithm) throws CoreException
