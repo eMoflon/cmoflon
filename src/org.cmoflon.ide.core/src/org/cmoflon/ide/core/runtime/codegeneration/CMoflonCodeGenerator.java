@@ -295,7 +295,7 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      //contents.append(getUserDefinedTypedefs(tcAlgorithm));
 	      //contents.append(getUnimplementedMethodsCode(templateGroup));
 	      //contents.append(getAccessorsCode(templateGroup));
-	      //contents.append(getComparisonFunctionsCode(templateGroup,tcAlgorithm));
+	      contents.append(getComparisonFunctionsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getEqualsFunctionsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getHeaderTail(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
 	      subMon.worked(8);
@@ -1093,11 +1093,25 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
    }
 
    private String getComparisonFunctionsCode(STGroup stg,String tcAlgorithm)
-   {
-	   //TODO:fixme according to equals
-      final ST compare = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.COMPARE_DECLARATION);
-      compare.add("types", getTypesFromGenModel(this.genModel,tcAlgorithm));
-      return compare.render();
+   {      
+      StringBuilder builder = new StringBuilder();
+	   if(this.reduceCodeSize) {
+		   if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+			   final ST compare = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.COMPARE_DECLARATION);
+			   compare.add("types", getTypesFromGenModel(this.genModel,tcAlgorithm));
+			   builder.append(compare.render());
+		  } else {
+			  final ST compare = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.COMPARE_DECLARATION);
+			  compare.add("types", getTypesFromGenModel(this.genModel,tcAlgorithm));
+		      builder.append(compare.render());   
+			  }
+		  }
+	   else {
+		   final ST compare = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.COMPARE_DECLARATION);
+		   compare.add("types", getTypesFromGenModel(this.genModel,tcAlgorithm));
+		      builder.append(compare.render());   
+	   }
+     return builder.toString();
    }
 
    private String getEqualsFunctionsCode(STGroup stg,String tcAlgorithm)

@@ -23,3 +23,10 @@ equalsDeclaration(types)::=<<
 //End of equals declarations
 <\n>
 >>
+
+compareDeclaration(types)::=<<
+//Begin of compare declarations
+<types:{t|int <t.name;format="firstlowercase">_compare(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
+//End of compare declarations
+<\n>
+>>

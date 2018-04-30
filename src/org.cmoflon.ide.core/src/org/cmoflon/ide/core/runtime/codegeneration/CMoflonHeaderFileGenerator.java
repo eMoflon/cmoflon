@@ -10,4 +10,6 @@ public class CMoflonHeaderFileGenerator {
 	
 	public static final String EQUALS_DECLARATION = "equalsDeclaration";
 	
+	public static final String COMPARE_DECLARATION = "compareDeclaration";
+	
 }
