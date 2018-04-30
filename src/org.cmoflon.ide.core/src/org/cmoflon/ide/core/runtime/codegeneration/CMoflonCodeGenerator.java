@@ -282,10 +282,8 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 
 	      final StringBuilder contents = new StringBuilder();
 	      contents.append(getDateCommentCode());
-	      //TODO: fix this for cMoflonHeader
 	      contents.append(getIncludeGuardCode(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
-	      //TODO: eventually fix this for cMoflonHeader
-	      //contents.append(getIncludesCode(templateGroup));
+	      contents.append(getIncludesCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      //TODO: fix this for cMoflonHeader
 	      //contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
 	      //contents.append(getMaxMatchCountDefinition());
@@ -297,8 +295,8 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      //contents.append(getUserDefinedTypedefs(tcAlgorithm));
 	      //contents.append(getUnimplementedMethodsCode(templateGroup));
 	      //contents.append(getAccessorsCode(templateGroup));
-	      //contents.append(getComparisonFunctionsCode(templateGroup));
-	      //contents.append(getEqualsFunctionsCode(templateGroup));
+	      //contents.append(getComparisonFunctionsCode(templateGroup,tcAlgorithm));
+	      contents.append(getEqualsFunctionsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getHeaderTail(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
 	      subMon.worked(8);
 
@@ -551,7 +549,7 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       //TODO: guard depending on reduceCodeSize
       contents.append(getDateCommentCode());
       contents.append(getIncludeGuardCode(tcAlgorithm, templateGroup));
-      contents.append(getIncludesCode(templateGroup));
+      contents.append(getIncludesCode(templateGroup,tcAlgorithm));
       contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
       contents.append(getMaxMatchCountDefinition());
       contents.append(getGenerateDuplicatesDefinition());
@@ -562,8 +560,8 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       contents.append(getUserDefinedTypedefs(tcAlgorithm));
       contents.append(getUnimplementedMethodsCode(templateGroup));
       contents.append(getAccessorsCode(templateGroup));
-      contents.append(getComparisonFunctionsCode(templateGroup));
-      contents.append(getEqualsFunctionsCode(templateGroup));
+      contents.append(getComparisonFunctionsCode(templateGroup,tcAlgorithm));
+      contents.append(getEqualsFunctionsCode(templateGroup,tcAlgorithm));
       contents.append(getHeaderTail(tcAlgorithm, templateGroup));
       subMon.worked(8);
 
@@ -985,10 +983,19 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
       return generatedMethodBody;
    }
 
-   private String getIncludesCode(final STGroup templateGroup)
+   private String getIncludesCode(final STGroup templateGroup,String algorithm)
    {
-      return (HeaderFileGenerator.generateIncludes(Components.TOPOLOGYCONTROL,
-            templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.INCLUDE))) + nl();
+	   if(algorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)||!this.reduceCodeSize) {
+		   if(algorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)){
+			   return (HeaderFileGenerator.generateIncludes(Components.TOPOLOGYCONTROL,
+			            templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.INCLUDE))) + nl();
+		   }
+		   else return (HeaderFileGenerator.generateIncludes(Components.TOPOLOGYCONTROL,
+			            templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.INCLUDE))) + nl();
+		   }
+		   else {
+			   return "#include \"cMoflon.h\" "+nl();
+		   }
    }
 
    private String getIncludeGuardCode(String algorithmName, final STGroup templateGroup)
@@ -1085,18 +1092,40 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
       return declarations.render();
    }
 
-   private String getComparisonFunctionsCode(STGroup stg)
+   private String getComparisonFunctionsCode(STGroup stg,String tcAlgorithm)
    {
+	   //TODO:fixme according to equals
       final ST compare = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.COMPARE_DECLARATION);
-      compare.add("types", getTypes(this.genModel));
+      compare.add("types", getTypesFromGenModel(this.genModel,tcAlgorithm));
       return compare.render();
    }
 
-   private String getEqualsFunctionsCode(STGroup stg)
+   private String getEqualsFunctionsCode(STGroup stg,String tcAlgorithm)
    {
-      final ST equals = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.EQUALS_DECLARATION);
-      equals.add("types", getTypes(this.genModel));
-      return equals.render();
+	   StringBuilder builder = new StringBuilder();
+	   if(this.reduceCodeSize) {
+		   if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+			   final ST equals = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.EQUALS_DECLARATION);
+			      equals.add("types",getBuiltInTypes());
+			      builder.append(equals.render());
+			      equals.remove("types");
+			      equals.add("types", getTypesFromGenModel(this.genModel,tcAlgorithm));
+			      builder.append(equals.render());
+		  } else {
+			  final ST equals = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.EQUALS_DECLARATION);
+		      equals.add("types", getTypesFromGenModel(this.genModel,tcAlgorithm));
+		      builder.append(equals.render());   
+			  }
+		  }
+	   else {
+		   final ST equals = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.EQUALS_DECLARATION);
+		      equals.add("types",getBuiltInTypes());
+		      builder.append(equals.render());
+		      equals.remove("types");
+		      equals.add("types", getTypesFromGenModel(this.genModel,tcAlgorithm));
+		      builder.append(equals.render());   
+	   }
+      return builder.toString();
    }
 
    private String getHeaderTail(String algorithmName, STGroup stg)
@@ -1120,23 +1149,52 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
     *            to derive generated types from
     * @return
     */
-   private List<Type> getTypes(final GenModel genmodel)
+   private List<Type> getTypesFromGenModel(final GenModel genmodel,String tcAlgorithm)
    {
+	   //TODO:filter node edge and TCAlgorithm
       final List<Type> result = new ArrayList<Type>();
-      // Add built in Types
-      for (CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values())
-      {
-         result.add(new Type(true, t.name()));
-      }
       // Add non built in Types
       for (GenPackage p : genmodel.getGenPackages())
       {
          for (GenClass clazz : p.getGenClasses())
          {
-            result.add(new Type(false, clazz.getName()));
+        	if(!this.reduceCodeSize) {
+        		result.add(new Type(false, clazz.getName()));
+        	}
+        	else {
+        		if(clazz.getName().contentEquals("Node")||clazz.getName().contentEquals("Link")||clazz.getName().contentEquals("TopologyControlAlgorithm")) {
+            		//Add to cMoflon Header
+        			if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)){
+        				result.add(new Type(false, clazz.getName()));
+        			}
+        			else {
+        				continue;
+        			}
+            	}
+            	else {
+            		if(!tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)){
+        				if(isTrueSubtypeOfTCAlgorithmParentClass(clazz)&&clazz.getName().contentEquals(tcAlgorithm))
+        					result.add(new Type(false, clazz.getName()));
+        			}
+        			else {
+        				continue;
+        			}
+            	}
+        	}
+            
          }
       }
       return result;
+   }
+   
+   private List<Type> getBuiltInTypes(){
+	   final List<Type> result = new ArrayList<Type>();
+	      // Add built in Types
+	      for (CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values())
+	      {
+	         result.add(new Type(true, t.name()));
+	      }
+	   return result;
    }
 
    /**

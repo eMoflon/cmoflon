@@ -6,5 +6,8 @@ public class CMoflonHeaderFileGenerator {
 	
 	public static final String CONSTANTS_END = "endHeader";
 
+	public static final String INCLUDE = "include";
+	
+	public static final String EQUALS_DECLARATION = "equalsDeclaration";
 	
 }
