@@ -58,6 +58,7 @@ import org.eclipse.emf.ecore.EParameter;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex;
 import org.gervarro.democles.codegen.ImportManager;
 import org.gervarro.democles.codegen.OperationSequenceCompiler;
 import org.gervarro.democles.codegen.TemplateInvocation;
@@ -155,7 +156,7 @@ public class CMoflonCodeGenerator
 
    private Map<String,List<MethodAttribute> > cachedMethodSignatures;
 
-   private List<FieldAttribute> cachedFields;
+   private Map<String,List<FieldAttribute> > cachedFields;
 
    private List<GenClass> cachedConcreteClasses;
 
@@ -185,7 +186,7 @@ public class CMoflonCodeGenerator
          this.tcClasses = new ArrayList<>();
          this.blockDeclarations = new ArrayList<>();
          this.cachedMethodSignatures = new HashMap<String, List<MethodAttribute>>();
-         this.cachedFields = new ArrayList<>();
+         this.cachedFields = new HashMap<>();
          this.cachedConcreteClasses = new ArrayList<>();
          this.cachedPatternMatchingCode=new HashMap<String, StringBuilder>();
          this.tcAlgorithmParentClassName = "TopologyControlAlgorithm";
@@ -293,8 +294,8 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      //contents.append(HeaderFileGenerator.getAllBuiltInMappings());
 	      //contents.append(getDefaultTypedefs());
 	      //contents.append(getUserDefinedTypedefs(tcAlgorithm));
-	      //contents.append(getUnimplementedMethodsCode(templateGroup));
-	      //contents.append(getAccessorsCode(templateGroup));
+	      contents.append(getUnimplementedMethodsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
+	      contents.append(getAccessorsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getComparisonFunctionsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getEqualsFunctionsCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getHeaderTail(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
@@ -441,20 +442,36 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
    {
 	  for(String tcAlgorithm:this.tcClasses) {
 		  this.cachedMethodSignatures.put(tcAlgorithm, new ArrayList<MethodAttribute>());
+		  this.cachedFields.put(tcAlgorithm, new ArrayList<>());
 	  }
 	  this.cachedMethodSignatures.put(CMoflonCodeGenerator.TC_INDEPENDANT, new ArrayList<MethodAttribute>());
-      genModel.getGenPackages().forEach(genPackage -> genPackage.getGenClasses().forEach(genClass -> {
+      this.cachedFields.put(CMoflonCodeGenerator.TC_INDEPENDANT, new ArrayList<>());
+	  genModel.getGenPackages().forEach(genPackage -> genPackage.getGenClasses().forEach(genClass -> {
     	 String tcAlgorithmName=this.getTCAlgorithmNameForGenClass(genClass);
     	 if (!genClass.isAbstract())
          {
             cachedConcreteClasses.add(genClass);
-            cachedFields.addAll(getFields(genClass));
+            List<FieldAttribute> fields;
+            if(isTrueSubtypeOfTCAlgorithmParentClass(genClass)) {
+            	fields=cachedFields.get(getTCAlgorithmNameForGenClass(genClass));
+            }
+            else {
+            	fields=cachedFields.get(CMoflonCodeGenerator.TC_INDEPENDANT);
+            }
+            fields.addAll(getFields(genClass));
             genClass.getGenOperations().forEach(genOperation -> {
                final EClassifier operationType = genOperation.getEcoreOperation().getEType();
                final String operationTypeName = operationType == null ? "void" : operationType.getName();
                final boolean isOperationTypeBuiltIn = operationType == null ? true : isBuiltInType(operationTypeName);
                final String genClassName = genOperation.getGenClass().getName();
-               cachedMethodSignatures.get(tcAlgorithmName).add(new MethodAttribute(new Type(isBuiltInType(genClassName), genClassName),
+               List<MethodAttribute> methodDeclarations;
+               if(isTrueSubtypeOfTCAlgorithmParentClass(genOperation.getGenClass())) {
+            	   methodDeclarations=cachedMethodSignatures.get(getTCAlgorithmNameForGenClass(genClass));
+               }
+               else {
+            	   methodDeclarations=cachedMethodSignatures.get(CMoflonCodeGenerator.TC_INDEPENDANT);
+               }
+               methodDeclarations.add(new MethodAttribute(new Type(isBuiltInType(genClassName), genClassName),
                      new Type(isOperationTypeBuiltIn, operationTypeName), genOperation.getName(), getParametersFromEcore(genOperation.getEcoreOperation())));
             });
          }
@@ -558,8 +575,8 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       contents.append(HeaderFileGenerator.getAllBuiltInMappings());
       contents.append(getDefaultTypedefs());
       contents.append(getUserDefinedTypedefs(tcAlgorithm));
-      contents.append(getUnimplementedMethodsCode(templateGroup));
-      contents.append(getAccessorsCode(templateGroup));
+      contents.append(getUnimplementedMethodsCode(templateGroup,tcAlgorithm));
+      contents.append(getAccessorsCode(templateGroup,tcAlgorithm));
       contents.append(getComparisonFunctionsCode(templateGroup,tcAlgorithm));
       contents.append(getEqualsFunctionsCode(templateGroup,tcAlgorithm));
       contents.append(getHeaderTail(tcAlgorithm, templateGroup));
@@ -1077,19 +1094,58 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
       return typeMappingCode;
    }
 
-   private String getUnimplementedMethodsCode(final STGroup stg)
+   private String getUnimplementedMethodsCode(final STGroup stg,final String tcAlgorithm)
    {
-      final ST methoddecls = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.METHOD_DECLARATION);
-      methoddecls.add("methods", this.cachedMethodSignatures);
-      String unimplementedMethodsCode = methoddecls.render();
-      return unimplementedMethodsCode;
+	   ST methoddecls;
+	      StringBuilder builder = new StringBuilder();
+		   if(this.reduceCodeSize) {
+			   if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+				   methoddecls = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.METHOD_DECLARATION);
+				   methoddecls.add("methods", this.cachedMethodSignatures.get(CMoflonCodeGenerator.TC_INDEPENDANT));
+				   builder.append(methoddecls.render());
+			  } else {
+				  methoddecls = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.METHOD_DECLARATION);
+				  methoddecls.add("methods", this.cachedMethodSignatures.get(tcAlgorithm));
+			      builder.append(methoddecls.render());   
+				  }
+			  }
+		   else {
+			   methoddecls = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.METHOD_DECLARATION);
+			   for(Map.Entry<String,List<MethodAttribute>> methods:this.cachedMethodSignatures.entrySet()) {
+				   methoddecls.add("methods", methods.getValue());
+				   builder.append(methoddecls.render());
+				   methoddecls.remove("methods");
+			   }
+			      
+		   }
+	    return builder.toString();
    }
 
-   private String getAccessorsCode(final STGroup stg)
+   private String getAccessorsCode(final STGroup stg,String tcAlgorithm)
    {
-      final ST declarations = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.DECLARATIONS);
-      declarations.add("fields", this.cachedFields);
-      return declarations.render();
+      ST declarations;
+      StringBuilder builder = new StringBuilder();
+	   if(this.reduceCodeSize) {
+		   if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+			   declarations = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.DECLARATIONS);
+			   declarations.add("fields", this.cachedFields.get(CMoflonCodeGenerator.TC_INDEPENDANT));
+			   builder.append(declarations.render());
+		  } else {
+			  declarations = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.DECLARATIONS);
+			  declarations.add("fields", this.cachedFields.get(tcAlgorithm));
+		      builder.append(declarations.render());   
+			  }
+		  }
+	   else {
+		   declarations = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.DECLARATIONS);
+		   for(Map.Entry<String,List<FieldAttribute>> fields:this.cachedFields.entrySet()) {
+			   declarations.add("fields", fields.getValue());
+			   builder.append(declarations.render());
+			   declarations.remove("fields");
+		   }
+		      
+	   }
+    return builder.toString();
    }
 
    private String getComparisonFunctionsCode(STGroup stg,String tcAlgorithm)

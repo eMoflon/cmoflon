@@ -12,4 +12,8 @@ public class CMoflonHeaderFileGenerator {
 	
 	public static final String COMPARE_DECLARATION = "compareDeclaration";
 	
+	public static final String DECLARATIONS = "getDeclarations";
+	
+	public static final String METHOD_DECLARATION = "methodDeclaration";
+	
 }
