@@ -35,7 +35,6 @@ typedef struct match{
 >>
 define(orig,replaced)::=<<
 typedef <replaced> <orig;format="fulluppercase">_T;<\n>
-
 >>
 
 methodDeclaration(methods)::=<<

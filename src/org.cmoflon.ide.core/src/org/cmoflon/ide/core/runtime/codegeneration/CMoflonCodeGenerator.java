@@ -290,7 +290,7 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      //contents.append(getMaxMatchCountDefinition());
 	      //contents.append(getGenerateDuplicatesDefinition());
 	      //contents.append(getMatchTypeDefinitionCode(templateGroup));
-	      //contents.append(getTypeMappingCode(templateGroup));
+	      contents.append(getTypeMappingCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getAllBuiltInMappings(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getDefaultTypedefs(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getUserDefinedTypedefs(CMoflonCodeGenerator.TC_INDEPENDANT));
@@ -570,7 +570,7 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       contents.append(getMaxMatchCountDefinition());
       contents.append(getGenerateDuplicatesDefinition());
       contents.append(getMatchTypeDefinitionCode(templateGroup));
-      contents.append(getTypeMappingCode(templateGroup));
+      contents.append(getTypeMappingCode(templateGroup,tcAlgorithm));
       contents.append(getAllBuiltInMappings(tcAlgorithm));
       contents.append(getDefaultTypedefs(tcAlgorithm));
       contents.append(getUserDefinedTypedefs(tcAlgorithm));
@@ -1070,17 +1070,31 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 	   else return "";
    }
 
-   private String getTypeMappingCode(STGroup templateGroup)
+   private String getTypeMappingCode(STGroup templateGroup,String tcAlgorithm)
    {
       StringBuilder typeMappingCodeBuilder = new StringBuilder();
-      ST typeMappingTemplate = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.DEFINE);
-      for (Entry<String, String> pair : typeMappings.entrySet())
-      {
-         typeMappingCodeBuilder.append(getTypeMappingCode(typeMappingTemplate, pair.getKey(), pair.getValue()));
-         typeMappingCodeBuilder.append(nl());
+      if(this.reduceCodeSize) {
+    	  if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+    		  ST typeMappingTemplate = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.DEFINE);
+    	      for (Entry<String, String> pair : typeMappings.entrySet())
+    	      {
+    	         typeMappingCodeBuilder.append(getTypeMappingCode(typeMappingTemplate, pair.getKey(), pair.getValue()));
+    	         typeMappingCodeBuilder.append(nl());
+    	      }
+    		  return typeMappingCodeBuilder.toString();
+    	  }
+    	  else {
+    		  return "";
+    	  }
       }
-      String typeMappingCode = typeMappingCodeBuilder.toString();
-      return typeMappingCode;
+      else {
+    	  ST typeMappingTemplate = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.DEFINE);
+          for (Entry<String, String> pair : typeMappings.entrySet())
+          {
+             typeMappingCodeBuilder.append(getTypeMappingCode(typeMappingTemplate, pair.getKey(), pair.getValue()));
+          }
+    	  return typeMappingCodeBuilder.toString();
+      }
    }
 
    private String getTypeMappingCode(ST typeMappingTemplate, final String metamodelType, final Object cType)

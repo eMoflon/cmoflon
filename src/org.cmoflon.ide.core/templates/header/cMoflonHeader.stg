@@ -78,3 +78,7 @@ methodDeclaration(methods)::=<<
 //End of non SDM implemented methods
 <\n>
 >>
+
+define(orig,replaced)::=<<
+typedef <replaced> <orig;format="fulluppercase">_T;<\n>
+>>

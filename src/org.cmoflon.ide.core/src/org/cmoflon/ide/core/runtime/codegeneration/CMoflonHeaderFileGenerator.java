@@ -16,4 +16,6 @@ public class CMoflonHeaderFileGenerator {
 	
 	public static final String METHOD_DECLARATION = "methodDeclaration";
 	
+	public static final String DEFINE = "define";
+	
 }
