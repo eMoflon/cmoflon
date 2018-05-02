@@ -18,4 +18,8 @@ public class CMoflonHeaderFileGenerator {
 	
 	public static final String DEFINE = "define";
 	
+	public static final String MATCH = "getMatch";
+	
+	public static final String CONSTANTS_DEFINTION = "constants";
+	
 }

@@ -285,11 +285,10 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      contents.append(getDateCommentCode());
 	      contents.append(getIncludeGuardCode(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
 	      contents.append(getIncludesCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
-	      //TODO: fix this for cMoflonHeader
-	      //contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
-	      //contents.append(getMaxMatchCountDefinition());
-	      //contents.append(getGenerateDuplicatesDefinition());
-	      //contents.append(getMatchTypeDefinitionCode(templateGroup));
+	      contents.append(getConstantsDefinitionsCode(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
+	      contents.append(getMaxMatchCountDefinition(CMoflonCodeGenerator.TC_INDEPENDANT));
+	      contents.append(getGenerateDuplicatesDefinition(CMoflonCodeGenerator.TC_INDEPENDANT));
+	      contents.append(getMatchTypeDefinitionCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getTypeMappingCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getAllBuiltInMappings(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getDefaultTypedefs(CMoflonCodeGenerator.TC_INDEPENDANT));
@@ -567,9 +566,9 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       contents.append(getIncludeGuardCode(tcAlgorithm, templateGroup));
       contents.append(getIncludesCode(templateGroup,tcAlgorithm));
       contents.append(getConstantsDefinitionsCode(tcAlgorithm, templateGroup));
-      contents.append(getMaxMatchCountDefinition());
-      contents.append(getGenerateDuplicatesDefinition());
-      contents.append(getMatchTypeDefinitionCode(templateGroup));
+      contents.append(getMaxMatchCountDefinition(tcAlgorithm));
+      contents.append(getGenerateDuplicatesDefinition(tcAlgorithm));
+      contents.append(getMatchTypeDefinitionCode(templateGroup,tcAlgorithm));
       contents.append(getTypeMappingCode(templateGroup,tcAlgorithm));
       contents.append(getAllBuiltInMappings(tcAlgorithm));
       contents.append(getDefaultTypedefs(tcAlgorithm));
@@ -1031,43 +1030,85 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 
    private StringBuilder getConstantsDefinitionsCode(String algorithmName, STGroup templateGroup)
    {
+	   //TODO:fix for CMoflonReader with prefixes
       final StringBuilder constantsCode = new StringBuilder();
       for (final Entry<String, String> pair : constantsMapping.entrySet())
       {
-         final ST constant = templateGroup
-               .getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_DEFINTION);
-         constantsCode.append(HeaderFileGenerator.generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant));
+    	 if(this.reduceCodeSize) {
+    		 if(algorithmName.contentEquals(TC_INDEPENDANT)) {
+    			 final ST constant = templateGroup
+    		               .getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.CONSTANTS_DEFINTION);
+    		         constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant));
+    		 }
+    		 else {
+    		 }
+    	 }
+    	 else {
+    		 final ST constant = templateGroup
+    	               .getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_DEFINTION);
+    	         constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant)); 
+    	 }
       }
       return constantsCode;
    }
 
-   private String getMatchTypeDefinitionCode(STGroup templateGroup)
+   private String getMatchTypeDefinitionCode(STGroup templateGroup,String tcAlgorithm)
    {
-      ST match = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.MATCH);
-      String matchTypeDef = match.render();
-      return matchTypeDef;
+	   if(this.reduceCodeSize) {
+		   if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+			   ST match = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.MATCH);
+			   String matchTypeDef = match.render();
+			   return matchTypeDef;
+		   }
+		   else {
+			   return "";
+		   }
+	   }
+	   else {
+		   ST match = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.MATCH);
+		      String matchTypeDef = match.render();
+		      return matchTypeDef;
+	   }
    }
 
-   private String getMaxMatchCountDefinition()
+   private String getMaxMatchCountDefinition(String tcAlgorithm)
    {
-      final StringBuilder mycontents = new StringBuilder();
-      mycontents.append("#ifndef MAX_MATCH_COUNT");
+	  final StringBuilder mycontents = new StringBuilder();
+	  mycontents.append("#ifndef MAX_MATCH_COUNT");
       mycontents.append(nl());
       mycontents.append(String.format("#define MAX_MATCH_COUNT %d%s", this.maximumMatchCount, nl()));
       mycontents.append("#endif" + nl());
-      return mycontents.toString();
+	  if(this.reduceCodeSize) {
+		  if(tcAlgorithm.contentEquals(TC_INDEPENDANT)) {
+			  return mycontents.toString();
+		  }else {
+			  return "";
+		  }
+	  }else {
+		  return mycontents.toString();  
+	  }
    }
    
-   private String getGenerateDuplicatesDefinition() {
+   private String getGenerateDuplicatesDefinition(String tcAlgorithm) {
+	   final StringBuilder mycontents = new StringBuilder();
 	   if(this.generateDuplicates) {
-		   final StringBuilder mycontents = new StringBuilder();
 		   mycontents.append("#ifndef GENERATE_DUPLICATES");
 		   mycontents.append(nl());
 		   mycontents.append("#define GENERATE_DUPLICATES"+nl());
-		   mycontents.append("#endif"+nl());
-		   return mycontents.toString();
+		   mycontents.append("#endif"+nl()+nl());
 	   }
 	   else return "";
+	   if(this.reduceCodeSize) {
+		   if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
+			   return mycontents.toString();
+		   }
+		   else {
+			   return "";
+		   }
+	   }
+	   else {
+		   return mycontents.toString();
+	   }
    }
 
    private String getTypeMappingCode(STGroup templateGroup,String tcAlgorithm)
@@ -1555,5 +1596,14 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 	      }
       }
       return result.toString();
+   }
+   
+   public String generateConstant(Object key, Object value, String component, String algorithm, ST template)
+   {
+      template.add("comp", component);
+      template.add("algo", algorithm);
+      template.add("name", key);
+      template.add("value", value);
+      return template.render();
    }
 }

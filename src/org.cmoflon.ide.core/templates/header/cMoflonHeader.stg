@@ -82,3 +82,20 @@ methodDeclaration(methods)::=<<
 define(orig,replaced)::=<<
 typedef <replaced> <orig;format="fulluppercase">_T;<\n>
 >>
+
+getMatch()::=<<
+typedef struct match{
+	struct match_t* next;
+	void** match;
+}match_t;
+
+
+>>
+
+constants(comp,algo,name,value)::=<<
+#ifndef COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">
+#define COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase"> <value>
+#endif
+
+
+>>

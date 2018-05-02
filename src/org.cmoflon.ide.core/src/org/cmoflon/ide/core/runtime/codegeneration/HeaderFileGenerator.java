@@ -30,15 +30,6 @@ public class HeaderFileGenerator
    public static final String INCLUDE = "include";
    // End of template names
 
-   public static String generateConstant(Object key, Object value, String component, String algorithm, ST template)
-   {
-      template.add("comp", component);
-      template.add("algo", algorithm);
-      template.add("name", key);
-      template.add("value", value);
-      return template.render();
-   }
-
    /**
     * Generates the general Includes for CMoflon as well as the Component Specific stuff
     * @param comp The desired Component
