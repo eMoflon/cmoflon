@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -100,10 +101,10 @@ public class CMoflonCodeGenerator
    private IProject project;
 
    //Contains all algorithm names for which dropping Unidirectional edges should be inactive
-   private Set<String> dropUnidirectionalEdgesOff;
+   private final Set<String> dropUnidirectionalEdgesOff;
 
    //Contains all algorithm names for which hopcounts are requested
-   private Set<String> useHopCountProcess;
+   private final Set<String> useHopCountProcess;
 
    private ImportManager democlesImportManager;
 
@@ -118,17 +119,15 @@ public class CMoflonCodeGenerator
    //Contains a list of helper classes for each tcAlgorithm
    private final Map<String,List<String>> helperClasses;
    
-   //TODO: check back
-   private final Map<String, String> tcAlgorithmParameters;
-   private final Map<String, String> tcAlgorithmConstants;
+   private final Map<String, String > tcAlgorithmCallParameters;
 
    private int maximumMatchCount;
 
    //Contains all algorithm names for which evaluation statements were requested
-   private Set<String> useEvalStatements;
+   private final Set<String> useEvalStatements;
    
    //Contains all algorithm names for which duplicate generation is requested
-   private Set<String> generateDuplicates;
+   private final Set<String> generateDuplicates;
 
    private final Map<String, String> typeMappings;
 
@@ -146,18 +145,18 @@ public class CMoflonCodeGenerator
     * Key: constant name
     * Value: constant value to be used as is during code generation
     */
-   private final Map<String, String> constantsMapping;
+   private final Map<String, Map<String,String> >constantsMapping;
 
    // Stores the initial id to assign to the first generated TC algorithm
    private int minTcComponentConstant = CMoflonProperties.DEFAULT_TC_MIN_ALGORITHM_ID;
 
-   private Map<String,List<MethodAttribute> > cachedMethodSignatures;
+   private final Map<String,List<MethodAttribute> > cachedMethodSignatures;
 
-   private Map<String,List<FieldAttribute> > cachedFields;
+   private final Map<String,List<FieldAttribute> > cachedFields;
 
-   private List<GenClass> cachedConcreteClasses;
+   private final List<GenClass> cachedConcreteClasses;
 
-   private Map<String,StringBuilder> cachedPatternMatchingCode;
+   private final Map<String,StringBuilder> cachedPatternMatchingCode;
 
    private String tcAlgorithmParentClassName;
 
@@ -165,7 +164,7 @@ public class CMoflonCodeGenerator
 
    private SimpleDateFormat timeFormatter;
 
-   private boolean reduceCodeSize;
+   private boolean reduceCodeSize=CMoflonProperties.DEFAULT_REDUCE_CODE_SIZE;
    
    private static String TC_INDEPENDANT ="TC_INDEPENDANT";  
 
@@ -173,14 +172,17 @@ public class CMoflonCodeGenerator
    {
       try
       {
-    	 this.tcAlgorithmConstants=new HashMap<>();
+    	 this.useEvalStatements=new HashSet<>();
+    	 this.generateDuplicates=new HashSet<>();
+    	 this.useHopCountProcess=new HashSet<>();
     	 this.helperClasses=new HashMap<>();
          this.codeGenerationEngine = (DemoclesGeneratorAdapterFactory) codeGenerationEngine;
          this.project = project;
          this.genModel = genModel;
-         this.tcAlgorithmParameters = new HashMap<>();
+         this.tcAlgorithmCallParameters = new HashMap<>();
          this.typeMappings = new HashMap<>();
          this.constantsMapping = new HashMap<>();
+         this.dropUnidirectionalEdgesOff=new HashSet<>();
          this.tcClasses = new ArrayList<>();
          this.blockDeclarations = new ArrayList<>();
          this.cachedMethodSignatures = new HashMap<String, List<MethodAttribute>>();
@@ -319,8 +321,7 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
    }
 
    private void initializeCaches()
-   {
-      initializeCachedMetamodelElementLists();
+   {  initializeCachedMetamodelElementLists();
       initializeCachedPatternMatchingCode();
       this.blockDeclarations = this.getBlockDeclarations(this.cachedConcreteClasses);
    }
@@ -394,49 +395,61 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
 	  this.cachedMethodSignatures.put(CMoflonCodeGenerator.TC_INDEPENDANT, new ArrayList<MethodAttribute>());
       this.cachedFields.put(CMoflonCodeGenerator.TC_INDEPENDANT, new ArrayList<>());
 	  genModel.getGenPackages().forEach(genPackage -> genPackage.getGenClasses().forEach(genClass -> {
-    	 String tcAlgorithmName=this.getTCAlgorithmNameForGenClass(genClass);
     	 if (!genClass.isAbstract())
          {
             cachedConcreteClasses.add(genClass);
             List<FieldAttribute> fields;
             if(isTrueSubtypeOfTCAlgorithmParentClass(genClass)) {
             	fields=cachedFields.get(getTCAlgorithmNameForGenClass(genClass));
+            	extractFieldsAndMethodsFromGenClass(fields,genClass);
             }
             else {
-            	fields=cachedFields.get(CMoflonCodeGenerator.TC_INDEPENDANT);
+            	this.helperClasses.entrySet().stream().filter(entry -> entry.getValue().contains(genClass.getName())).forEach(entry -> {
+            		extractFieldsAndMethodsFromGenClass(cachedFields.get(entry.getKey()), genClass);
+            	});
+	  			if(this.helperClasses.values().stream().noneMatch(l->l.contains(genClass.getName()))) {
+	  				fields=cachedFields.get(CMoflonCodeGenerator.TC_INDEPENDANT);
+	  				extractFieldsAndMethodsFromGenClass(fields,genClass);
+	  			}
             }
-            fields.addAll(getFields(genClass));
-            genClass.getGenOperations().forEach(genOperation -> {
-               final EClassifier operationType = genOperation.getEcoreOperation().getEType();
-               EOperation eOp=genOperation.getEcoreOperation();
-               //TODO: instance check, if fails --> unimplemented(robustness)
-               MoflonEOperation mEOp=(MoflonEOperation)eOp;
-               if(mEOp.getActivity()==null) {
-            	   //TODO: mark unimplemented
-               }
-               final String operationTypeName = operationType == null ? "void" : operationType.getName();
-               final boolean isOperationTypeBuiltIn = operationType == null ? true : isBuiltInType(operationTypeName);
-               final String genClassName = genOperation.getGenClass().getName();
-               List<MethodAttribute> methodDeclarations;
-               if(isTrueSubtypeOfTCAlgorithmParentClass(genOperation.getGenClass())) {
-            	   methodDeclarations=cachedMethodSignatures.get(getTCAlgorithmNameForGenClass(genClass));
-               }
-               else {
-            	   methodDeclarations=cachedMethodSignatures.get(CMoflonCodeGenerator.TC_INDEPENDANT);
-               }
-               methodDeclarations.add(new MethodAttribute(new Type(isBuiltInType(genClassName), genClassName),
-                     new Type(isOperationTypeBuiltIn, operationTypeName), genOperation.getName(), getParametersFromEcore(genOperation.getEcoreOperation())));
-            });
-         }
+      }
       }));
-   }
-
+	  }
+	  
+private void extractFieldsAndMethodsFromGenClass(List<FieldAttribute> fields, GenClass genClass) {
+	fields.addAll(getFields(genClass));
+    genClass.getGenOperations().forEach(genOperation -> {
+       final EClassifier operationType = genOperation.getEcoreOperation().getEType();
+       /*EOperation eOp=genOperation.getEcoreOperation();
+       if(eOp instanceof MoflonEOperation) {
+    	   MoflonEOperation mEOp=(MoflonEOperation)eOp;
+           if(mEOp.getActivity()==null) {
+        	   //The method is unimplemented and is added to the list of unimplemented methods furter down
+        	   ;
+           }
+           //The method is implemented and hence does not need a declaration
+           else return;
+       }*/
+       //Add methods to unimplemented methods
+       final String operationTypeName = operationType == null ? "void" : operationType.getName();
+       final boolean isOperationTypeBuiltIn = operationType == null ? true : isBuiltInType(operationTypeName);
+       final String genClassName = genOperation.getGenClass().getName();
+       List<MethodAttribute> methodDeclarations;
+       if(isTrueSubtypeOfTCAlgorithmParentClass(genOperation.getGenClass())) {
+    	   methodDeclarations=cachedMethodSignatures.get(getTCAlgorithmNameForGenClass(genClass));
+       }
+       else {
+    	   methodDeclarations=cachedMethodSignatures.get(CMoflonCodeGenerator.TC_INDEPENDANT);
+       }
+       methodDeclarations.add(new MethodAttribute(new Type(isBuiltInType(genClassName), genClassName),
+             new Type(isOperationTypeBuiltIn, operationTypeName), genOperation.getName(), getParametersFromEcore(genOperation.getEcoreOperation())));
+    });
+ }
    /**
     * Resets all fields that store cached artefacts to their default state
     */
    private void resetCaches()
    {
-      this.cachedPatternMatchingCode = null;
       this.cachedMethodSignatures.clear();
       this.cachedFields.clear();
       this.cachedConcreteClasses.clear();
@@ -664,7 +677,7 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       processBodyCode.append("\t\ttc.node =  networkaddr_node_addr();" + nl());
 
       final ST template = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER_CONSTANT);
-      final String algorithmInvocation = this.tcAlgorithmParameters.get(tcAlgorithm);
+      final String algorithmInvocation = this.tcAlgorithmCallParameters.get(tcAlgorithm);
       processBodyCode.append(getParameters(algorithmInvocation, tcAlgorithm, template));
       if (this.useEvalStatements.contains(tcAlgorithm))
       {
@@ -683,7 +696,7 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
       StringBuilder allinjectedCode = new StringBuilder();
       for (final GenClass genClass : this.cachedConcreteClasses)
       {
-    	 if(isIrrelevantForAlgorithm(genClass,tcAlgorithm))
+    	 if((!genClass.getName().contentEquals(tcAlgorithm))&&isIrrelevantForAlgorithm(genClass,tcAlgorithm))
     		 continue;
          final String injectedCode = getPatternImplementationCode(genClass);
          if (injectedCode != null)
@@ -887,9 +900,12 @@ private IStatus generateCodeForAlgorithm(final String tcAlgorithm, MultiStatus c
     * @return	true if code size reduction is activated an the content does not refer to the current algorithm but another tcalgorithm
     */
    private boolean isIrrelevantForAlgorithm(GenClass genClass,String currentTCAlgorithm) {
-	if(this.reduceCodeSize&&isTrueSubtypeOfTCAlgorithmParentClass(genClass)&&!genClass.getName().contentEquals(currentTCAlgorithm))
+	 //Do not add code from other tc classes
+	if(this.reduceCodeSize&&isTrueSubtypeOfTCAlgorithmParentClass(genClass))
 		return true;
-	else return false;
+	else if(this.helperClasses.get(currentTCAlgorithm)!=null&&this.helperClasses.get(currentTCAlgorithm).contains(genClass.getName()))
+		return false;
+	else return true;
 }
 
 private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteClasses)
@@ -983,22 +999,24 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
    {
 	   //TODO:fix for CMoflonReader with prefixes
       final StringBuilder constantsCode = new StringBuilder();
-      for (final Entry<String, String> pair : constantsMapping.entrySet())
-      {
-    	 if(this.reduceCodeSize) {
-    		 if(algorithmName.contentEquals(TC_INDEPENDANT)) {
-    			 final ST constant = templateGroup
-    		               .getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.CONSTANTS_DEFINTION);
-    		         constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant));
-    		 }
-    		 else {
-    		 }
-    	 }
-    	 else {
-    		 final ST constant = templateGroup
-    	               .getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_DEFINTION);
-    	         constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant)); 
-    	 }
+      if(constantsMapping.containsKey(algorithmName)) {
+	      for (final Entry<String, String> pair : constantsMapping.get(algorithmName).entrySet())
+	      {
+	    	 if(this.reduceCodeSize) {
+	    		 if(algorithmName.contentEquals(TC_INDEPENDANT)) {
+	    			 final ST constant = templateGroup
+	    		               .getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/" + CMoflonHeaderFileGenerator.CONSTANTS_DEFINTION);
+	    		         constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant));
+	    		 }
+	    		 else {
+	    		 }
+	    	 }
+	    	 else {
+	    		 final ST constant = templateGroup
+	    	               .getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_DEFINTION);
+	    	         constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant)); 
+	    	 }
+	      }
       }
       return constantsCode;
    }
@@ -1573,61 +1591,71 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
                    .filter(c -> !isClassInGenmodel(c, genModel)) //
                    .forEach(c -> reportMissingTopologyControlClass(c));
              this.tcClasses.removeAll(this.tcClasses.stream().filter(c -> !isClassInGenmodel(c, genModel)).collect(Collectors.toList()));
-             break;
+             continue;
           case CMoflonProperties.PROPERTY_PM_MAX_MATCH_COUNT:
              this.maximumMatchCount = Integer.parseInt(value);
-             break;
+             continue;
           case CMoflonProperties.PROPERTY_TC_MIN_ALGORITHM_ID:
              this.minTcComponentConstant = Integer.parseInt(value);
-             break;
+             continue;
           case CMoflonProperties.PROPERTY_REDUCE_CODE_SIZE:
           	this.reduceCodeSize=Boolean.parseBoolean(value);
+          	continue;
           }
           if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_TOPOLOGYCONTROL))
           {
         	  //TCmethod.
         	  String copyString=key;
-        	  copyString.replaceFirst(CMoflonProperties.PROPERTY_PREFIX_TOPOLOGYCONTROL, "");
+        	  copyString=copyString.replaceFirst(CMoflonProperties.PROPERTY_PREFIX_TOPOLOGYCONTROL, "");
         	  //Index of dot before option
         	  int dotIndex=copyString.indexOf(".");
         	  String tcAlgorithm=copyString.substring(0, dotIndex);
         	  final String option=(copyString.substring(dotIndex)).trim();
         	  switch(option) {
         	  	case CMoflonProperties.PROPERTY_POSTFIX_PARAMETERS:
-        	  		//TODO:extract
-        	  		break;
+        	  		this.tcAlgorithmCallParameters.put(tcAlgorithm, value);
+        	  		continue;
         	  	case CMoflonProperties.PROPERTY_POSTFIX_CONSTANTS:
-        	  		//TODO:extract
-        	  		break;
+        	  		Arrays.asList(value.split(",")).stream().map(s ->s.trim()).forEach(kv -> {
+        	  			List<String> list= Arrays.asList(kv.split("=")).stream().map(s -> s.trim()).collect(Collectors.toList());
+        	  			if(list.size()!=2)
+        	  				return;
+        	  			else {
+        	  				
+        	  				Map<String,String> constantsForAlgorithm=new HashMap<>();
+        	  				constantsForAlgorithm.put(list.get(0).replaceFirst("const-", ""), list.get(1));
+        	  				this.constantsMapping.put(tcAlgorithm, constantsForAlgorithm);
+        	  			}
+        	  		} );
+        	  		continue;
         	  	case CMoflonProperties.PROPERTY_POSTFIX_HELPERCLASSES:
-        	  		//TODO:extract
-        	  		break;
+        	  		List<String> helperClasses=Arrays.asList(value.split(",")).stream().map(s -> s.trim()).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+        	  		helperClasses.add("Node");
+        	  		helperClasses.add("Link");
+        	  		helperClasses.add("TopologyControlAlgorithm");
+        	  		this.helperClasses.put(tcAlgorithm, helperClasses);
+        	  		continue;
         	  	case CMoflonProperties.PROPERTY_POSTFIX_DROP_UNIDIRECTIONAL_EDGES:
-        	  		//TODO:extract
-        	  		break;
+        	  		if(!Boolean.parseBoolean(value))
+        	  			this.dropUnidirectionalEdgesOff.add(tcAlgorithm);
+        	  		continue;
         	  	case CMoflonProperties.PROPERTY_POSTFIX_INCLUDE_EVALUATION_STATEMENTS:
-        	  	//TODO:extract
-        	  		break;
+        	  		if(Boolean.parseBoolean(value))
+        	  			this.useEvalStatements.add(tcAlgorithm);
+        	  		continue;
         	  	case CMoflonProperties.PROPERTY_POSTFIX_USE_HOPCOUNT:
-        	  	//TODO:extract
-        	  		break;
+        	  		if(Boolean.parseBoolean(value))
+        	  			this.useHopCountProcess.add(tcAlgorithm);
+        	  		continue;
         	  	case CMoflonProperties.PROPERTY_POSTFIX_DUPLICATE_EDGES:
-        	  	//TODO:extract
-        	  		break;
+        	  		if(Boolean.parseBoolean(value))
+        	  			this.generateDuplicates.add(tcAlgorithm);
+        	  		continue;
         	  }
-          }
-/*             tcAlgorithmParameters.put(key.replaceAll(CMoflonProperties.PROPERTY_PREFIX_PARAMETERS, ""), value);
-          } else if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS))
+          }else if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS))
           {
-             typeMappings.put(key.replaceAll(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS, ""), value.trim());
-          } else if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS))
-          {
-             constantsMapping.put(key.replace(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS, ""), value);
-          } else if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_TC_USE_HOPCOUNT))
-          {
-             useHopCountProcessPerAlgorithm.put(key.replace(CMoflonProperties.PROPERTY_PREFIX_TC_USE_HOPCOUNT, ""), Boolean.parseBoolean(value));
-          }*/
-
+              typeMappings.put(key.replaceAll(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS, ""), value.trim());
+           }
        }
    }
 }

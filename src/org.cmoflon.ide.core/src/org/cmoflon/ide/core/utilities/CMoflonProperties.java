@@ -55,8 +55,6 @@ public class CMoflonProperties
    
    public static final boolean DEFAULT_REDUCE_CODE_SIZE=false;
 
-   private static final Map<String, String> DEFAULT_CONSTANTS = createDefaultConstantsMap();
-
    private static final Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();
 
    private static final String DEFAULT_CMOFLON_PROPERTIES_CONTENT = //
@@ -93,24 +91,10 @@ public class CMoflonProperties
       return Collections.unmodifiableMap(map);
    }
 
-   private static Map<String, String> createDefaultConstantsMap()
-   {
-      final Map<String, String> map = new HashMap<>();
-      map.put("updateinterval", "300");
-      return Collections.unmodifiableMap(map);
-   }
-
    private static String getCMoflonPropertiesLinesForDefaultTypeMappings()
    {
       return DEFAULT_TYPE_MAPPINGS.entrySet().stream()//
             .map(entry -> PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + entry.getKey() + "=" + entry.getValue() + "\n")//
-            .collect(Collectors.joining(""));
-   }
-
-   private static String getCMoflonPropertiesLinesForDefaultConstants()
-   {
-      return DEFAULT_CONSTANTS.entrySet().stream()//
-            .map(entry -> PROPERTY_PREFIX_FOR_CONSTANTS + entry.getKey() + "=" + entry.getValue() + "\n")//
             .collect(Collectors.joining(""));
    }
 }
