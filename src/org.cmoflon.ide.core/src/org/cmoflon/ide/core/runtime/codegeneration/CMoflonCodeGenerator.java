@@ -1495,6 +1495,8 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
       }
       {
     	 //Insert algorithm specific typedefs
+    	  if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT))
+    		  return result.toString();
     	  final StringBuilder algorithmSpecificContent = new StringBuilder();
     	  final String projectRelativePath = "injection/custom-typedefs_" + tcAlgorithm + ".c";
           algorithmSpecificContent.append("// --- Begin of user-defined type definitions for " + tcAlgorithm + "(Path: '" + projectRelativePath + "')" + nl());
@@ -1515,7 +1517,7 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
              }
           } else
           {
-             createInjectionFolder();
+        	 createInjectionFolder();
              WorkspaceHelper.addFile(project, projectRelativePath, "// Type definitions for algorithm '" + tcAlgorithm + "'." + nl(), new NullProgressMonitor());
           }
           algorithmSpecificContent.append("// --- End of user-defined type definitions for " + tcAlgorithm + nl());
