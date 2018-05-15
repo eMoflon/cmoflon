@@ -1009,6 +1009,9 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 	    		         constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant));
 	    		 }
 	    		 else {
+	    			 final ST constant = templateGroup
+		    	               .getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.CONSTANTS_DEFINTION);
+		    	         constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), algorithmName, constant)); 
 	    		 }
 	    	 }
 	    	 else {
@@ -1591,6 +1594,13 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
                    .filter(c -> !isClassInGenmodel(c, genModel)) //
                    .forEach(c -> reportMissingTopologyControlClass(c));
              this.tcClasses.removeAll(this.tcClasses.stream().filter(c -> !isClassInGenmodel(c, genModel)).collect(Collectors.toList()));
+             this.tcClasses.stream().forEach(tcClass ->{
+             	List<String>helperClasses=new ArrayList<>();
+             	helperClasses.add("Node");
+     	  		helperClasses.add("Link");
+     	  		helperClasses.add("TopologyControlAlgorithm"); 
+             	this.helperClasses.put(tcClass, helperClasses);
+          			});
              continue;
           case CMoflonProperties.PROPERTY_PM_MAX_MATCH_COUNT:
              this.maximumMatchCount = Integer.parseInt(value);
@@ -1621,8 +1631,12 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
         	  			if(list.size()!=2)
         	  				return;
         	  			else {
-        	  				
-        	  				Map<String,String> constantsForAlgorithm=new HashMap<>();
+        	  				if(!this.constantsMapping.containsKey(tcAlgorithm)) {
+        	  					//Initialize map on first parameter
+        	  					Map<String,String> constantsForAlgorithm=new HashMap<>();
+        	  					this.constantsMapping.put(tcAlgorithm, constantsForAlgorithm);
+        	  				}
+        	  				Map<String,String> constantsForAlgorithm=this.constantsMapping.get(tcAlgorithm);
         	  				constantsForAlgorithm.put(list.get(0).replaceFirst("const-", ""), list.get(1));
         	  				this.constantsMapping.put(tcAlgorithm, constantsForAlgorithm);
         	  			}
@@ -1630,10 +1644,7 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
         	  		continue;
         	  	case CMoflonProperties.PROPERTY_POSTFIX_HELPERCLASSES:
         	  		List<String> helperClasses=Arrays.asList(value.split(",")).stream().map(s -> s.trim()).filter(s -> !s.isEmpty()).collect(Collectors.toList());
-        	  		helperClasses.add("Node");
-        	  		helperClasses.add("Link");
-        	  		helperClasses.add("TopologyControlAlgorithm");
-        	  		this.helperClasses.put(tcAlgorithm, helperClasses);
+        	  		this.helperClasses.get(tcAlgorithm).addAll(helperClasses);
         	  		continue;
         	  	case CMoflonProperties.PROPERTY_POSTFIX_DROP_UNIDIRECTIONAL_EDGES:
         	  		if(!Boolean.parseBoolean(value))
