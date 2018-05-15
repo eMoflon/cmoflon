@@ -67,7 +67,7 @@ public class CMoflonProperties
             + "# Place the options for the topology control algorithms here\n" //
             + "# Format is tc.<Algorithm Name>.<option> = [CSV]\n"
             + "# <option>={parameters,constants,helperclasses,enableHopcountProcess,generateDuplicates,dropUnidirectionalEdges,useEvaluationStatements}\n"
-            + "# You can find a description on how to use any of these options in the documentation under: https://github.com/eMoflon/cmoflon-examples/blob/master/example-projects/cMoflonProperties.md\n"
+            + "# You can find a description on how to use any of these options in the documentation under: https://github.com/eMoflon/cmoflon/wiki/cMoflon-Properties\n"
             + "\n\n" //
             + "# Set to 'false' if you want the complete amount of generated code in every source file, not only the code specific to each TC algorithm\n"
             + PROPERTY_REDUCE_CODE_SIZE + " = true\n\n" //
