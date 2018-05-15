@@ -14,7 +14,7 @@ public class CMoflonProperties
 	
    public static final String PROPERTY_PREFIX_FOR_CONSTANTS = "const-";
    
-   public static final String PROPERTY_REDUCE_CODE_SIZE = "cMoflon.reduceCodeSize";
+   public static final String PROPERTY_REDUCE_CODE_SIZE = "codegen.reduceCodeSize";
 
    public static final String PROPERTY_POSTFIX_USE_HOPCOUNT = ".enableHopcountProcess";
 
