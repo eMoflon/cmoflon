@@ -687,6 +687,8 @@ private void extractFieldsAndMethodsFromGenClass(List<FieldAttribute> fields, Ge
       {
          processBodyCode.append("\t\t" + getClassPrefixForMethods(tcAlgorithm) + "run(&tc);" + nl());
       }
+      final ST cleanupCall = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.CLEANUP_CALL);
+      processBodyCode.append(cleanupCall.render());
       return processBodyCode.toString();
    }
 

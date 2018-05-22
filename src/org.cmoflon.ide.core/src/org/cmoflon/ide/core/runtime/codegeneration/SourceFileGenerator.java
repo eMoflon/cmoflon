@@ -37,6 +37,8 @@ public class SourceFileGenerator
    public static final String HOPCOUNT = "hopcount";
    
    public static final String CLEANUP = "cleanup";
+   
+   public static final String CLEANUP_CALL = "cleanupCall";
 
    //TODO@rkluge contains general as well as specific parts, should be splitted later on
    /**

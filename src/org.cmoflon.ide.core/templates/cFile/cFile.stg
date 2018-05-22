@@ -92,8 +92,12 @@ mainLoop(hopcount, component, algo)::=<<
 
 >>
 
-watchdogStart(hopcount)::=<<
+cleanupCall()::=<<
 		cleanup();
+
+>>
+
+watchdogStart(hopcount)::=<<
 		watchdog_start();
 		<if(hopcount)>}<endif>
 	}
