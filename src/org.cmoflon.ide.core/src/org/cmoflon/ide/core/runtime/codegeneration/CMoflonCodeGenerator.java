@@ -1066,8 +1066,8 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 		   mycontents.append("#ifndef GENERATE_DUPLICATES");
 		   mycontents.append(nl());
 		   mycontents.append("#define GENERATE_DUPLICATES"+nl());
-		   mycontents.append("#endif"+nl()+nl());
-		   mycontents.append("LIST(list_duplicates);");
+		   mycontents.append("#endif"+nl());
+		   mycontents.append("LIST(list_duplicates);"+nl()+nl());
 		   return mycontents.toString();
 	   }
 	   else return "";
