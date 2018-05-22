@@ -237,7 +237,6 @@ private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreEx
 	      contents.append(getIncludesCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getConstantsDefinitionsCode(CMoflonCodeGenerator.TC_INDEPENDANT, templateGroup));
 	      contents.append(getMaxMatchCountDefinition(CMoflonCodeGenerator.TC_INDEPENDANT));
-	      contents.append(getGenerateDuplicatesDefinition(CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getMatchTypeDefinitionCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getTypeMappingCode(templateGroup,CMoflonCodeGenerator.TC_INDEPENDANT));
 	      contents.append(getAllBuiltInMappings(CMoflonCodeGenerator.TC_INDEPENDANT));
@@ -1068,19 +1067,10 @@ private List<String> getBlockDeclarations(final List<GenClass> cachedConcreteCla
 		   mycontents.append(nl());
 		   mycontents.append("#define GENERATE_DUPLICATES"+nl());
 		   mycontents.append("#endif"+nl()+nl());
-	   }
-	   else return "";
-	   if(this.reduceCodeSize) {
-		   if(tcAlgorithm.contentEquals(CMoflonCodeGenerator.TC_INDEPENDANT)) {
-			   return mycontents.toString();
-		   }
-		   else {
-			   return "";
-		   }
-	   }
-	   else {
+		   mycontents.append("LIST(list_duplicates);");
 		   return mycontents.toString();
 	   }
+	   else return "";
    }
 
    private String getTypeMappingCode(STGroup templateGroup,String tcAlgorithm)
