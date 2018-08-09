@@ -18,7 +18,7 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.moflon.ide.feature.feature.group" version="3.2.0.201804101444"/>
-<repository location="http://emoflon.org/eclipse-plugin/beta/updatesite/"/>
+<repository location="https://github.com/eMoflon/eMoflon.github.io/raw/emoflon-tool-updatesite_3.2.0/eclipse-plugin/beta/updatesite"/>
 </location>
 </locations>
 </target>
