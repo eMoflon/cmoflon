@@ -60,6 +60,7 @@ import org.eclipse.emf.ecore.EParameter;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex;
 import org.gervarro.democles.codegen.ImportManager;
 import org.gervarro.democles.codegen.OperationSequenceCompiler;
@@ -168,40 +169,41 @@ public class CMoflonCodeGenerator
    
    private static String TC_INDEPENDANT ="TC_INDEPENDANT";  
 
-   public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel, Descriptor codeGenerationEngine)
+   public CMoflonCodeGenerator(Resource ecore, IProject project, GenModel genModel, Descriptor codeGenerationEngine) throws InvalidInputException
    {
-      try
-      {
-    	 this.useEvalStatements=new HashSet<>();
-    	 this.generateDuplicates=new HashSet<>();
-    	 this.useHopCountProcess=new HashSet<>();
-    	 this.helperClasses=new HashMap<>();
-         this.codeGenerationEngine = (DemoclesGeneratorAdapterFactory) codeGenerationEngine;
-         this.project = project;
-         this.genModel = genModel;
-         this.tcAlgorithmCallParameters = new HashMap<>();
-         this.typeMappings = new HashMap<>();
-         this.constantsMapping = new HashMap<>();
-         this.dropUnidirectionalEdgesOff=new HashSet<>();
-         this.tcClasses = new ArrayList<>();
-         this.blockDeclarations = new ArrayList<>();
-         this.cachedMethodSignatures = new HashMap<String, List<MethodAttribute>>();
-         this.cachedFields = new HashMap<>();
-         this.cachedConcreteClasses = new ArrayList<>();
-         this.cachedPatternMatchingCode=new HashMap<String, StringBuilder>();
-         this.tcAlgorithmParentClassName = "TopologyControlAlgorithm";
-         this.tcAlgorithmParentGenClass = this.determineTopologyControlParentClass();
-         if (this.tcAlgorithmParentGenClass == null)
-         {
-            throw new IllegalStateException("Expected to find superclass '" + this.tcAlgorithmParentClassName + "' in genmodel.");
-         }
-         this.readProperties(project);
-         this.builtInTypes = determinBuiltInTypes();
-         this.timeFormatter = new SimpleDateFormat("YYYY-MM-DD'T'hh:mm:ss");
-      } catch (final CoreException e)
-      {
-         throw new UncheckedCoreException(e);
-      }
+      this.useEvalStatements=new HashSet<>();
+	 this.generateDuplicates=new HashSet<>();
+	 this.useHopCountProcess=new HashSet<>();
+	 this.helperClasses=new HashMap<>();
+	 this.codeGenerationEngine = (DemoclesGeneratorAdapterFactory) codeGenerationEngine;
+	 this.project = project;
+	 this.genModel = genModel;
+	 this.tcAlgorithmCallParameters = new HashMap<>();
+	 this.typeMappings = new HashMap<>();
+	 this.constantsMapping = new HashMap<>();
+	 this.dropUnidirectionalEdgesOff=new HashSet<>();
+	 this.tcClasses = new ArrayList<>();
+	 this.blockDeclarations = new ArrayList<>();
+	 this.cachedMethodSignatures = new HashMap<String, List<MethodAttribute>>();
+	 this.cachedFields = new HashMap<>();
+	 this.cachedConcreteClasses = new ArrayList<>();
+	 this.cachedPatternMatchingCode=new HashMap<String, StringBuilder>();
+	 this.tcAlgorithmParentClassName = "TopologyControlAlgorithm";
+	 this.tcAlgorithmParentGenClass = this.determineTopologyControlParentClass();
+	 if (this.tcAlgorithmParentGenClass == null)
+	 {
+	    throw new IllegalStateException("Expected to find superclass '" + this.tcAlgorithmParentClassName + "' in genmodel.");
+	 }
+	 try {
+		 this.readProperties(project);
+		 }
+	 catch(Exception e) {
+		 e.printStackTrace();
+		 throw new InvalidInputException("Could not read cMoflon Properties."+e.toString());
+	 }
+	 
+	 this.builtInTypes = determineBuiltInTypes();
+	 this.timeFormatter = new SimpleDateFormat("YYYY-MM-DD'T'hh:mm:ss");
    }
 
    public IStatus generateCode(final IProgressMonitor monitor) throws CoreException
@@ -590,7 +592,7 @@ private void extractFieldsAndMethodsFromGenClass(List<FieldAttribute> fields, Ge
 
    }
 
-   private List<String> determinBuiltInTypes()
+   private List<String> determineBuiltInTypes()
    {
       final List<String> builtInTypes = new ArrayList<String>();
 
