@@ -20,31 +20,4 @@
             project="true">
       </wizard>
    </extension>
-   <!--
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="org.moflon.ide.ui.toolbar"
-               label="eMoflon Toolbar">
-            <command
-                  commandId="org.cmoflon.ide.ui.commands.build.BuildCommand"
-                  icon="resources/icons/rebuildClasses.png"
-                  label="BuildCMoflon"
-                  mnemonic="C"
-                  style="push"
-                  tooltip="Build cMoflon Code">
-               <visibleWhen
-                     checkEnabled="false">
-                  <reference
-                        definitionId="org.moflon.ide.ui.definitions.isMoflonPerspective">
-                  </reference>
-               </visibleWhen>
-            </command>
-         </toolbar>
-      </menuContribution>
-   </extension>
-   -->
 </plugin>
