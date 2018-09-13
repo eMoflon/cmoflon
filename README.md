@@ -57,12 +57,11 @@ This version of cMoflon has been tested with Eclipse Neon.2 (4.6.2) and eMoflon 
    * Detailed setup instructions can be found here: http://www.contiki-os.org/start.html
       * Instant Contiki fix: To run the sample simulation, you will need to call ```git submodule update --init```. 
      Otherwise, starting Cooja will fail.
-1. **Get ToCoco 2.0.0**
+1. **Get ToCoCo 2.0.0**
    * We suggest to checkout the ToCoCo framework from inside the Instant Contiki VM
-   * A stable version of ToCoCo can be found here: https://github.com/steinmic/ToCoCo/releases/tag/tococo_2.0
-   * For cMoflon developers: the Contiki evaluation framework repository is available from here (non-public): 
-      * URL: https://git.tk.informatik.tu-darmstadt.de/michael.stein/topology-control-evaluation.git
-      * Branch: CMoflon_Evaluation
+   * For cMoflon developers: the Contiki evaluation framework repository is available from here: 
+      * URL: https://github.com/eMoflon/ToCoCo
+   * The original ToCoCo base repository without the cMoflon specific scripts and tools is available here: https://github.com/steinmic/ToCoCo/releases/tag/tococo_2.0
    * The root folder of the working copy will be refered to as *$ToCoCo* in the following.
  
 ## How to specify a sample TC algorithm/test the existing TC algorithms
