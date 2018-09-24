@@ -59,6 +59,11 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
     * String template group prefix for header file structure of the topology control component
     */
    public static final String HEADER_FILE_GENERATOR = "HeaderFileGenerator";
+   
+   /**
+    * String template group prefix for cMoflon header file structure of the topology control component
+    */
+   public static final String CMOFLON_HEADER_FILE_GENERATOR = "CMoflonHeaderFileGenerator";
 
    /**
     * String template group prefix for source file structure of the topology control component
@@ -84,6 +89,11 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
       headerGroup.setListener(new LoggingSTErrorListener(logger));
       headerGroup.loadGroupFile("/" + HEADER_FILE_GENERATOR + "/", getTemplateUriPrefix() + "/header/header.stg");
       templates.put(HEADER_FILE_GENERATOR, headerGroup);
+      
+      final STGroup cMoflonHeaderGroup = new STGroup();
+      cMoflonHeaderGroup.setListener(new LoggingSTErrorListener(logger));
+      cMoflonHeaderGroup.loadGroupFile("/" + CMOFLON_HEADER_FILE_GENERATOR + "/", getTemplateUriPrefix() + "/header/cMoflonHeader.stg");
+      templates.put(CMOFLON_HEADER_FILE_GENERATOR, cMoflonHeaderGroup);
       
       final STGroup sourceGroup = new STGroup();
       sourceGroup.setListener(new LoggingSTErrorListener(logger));

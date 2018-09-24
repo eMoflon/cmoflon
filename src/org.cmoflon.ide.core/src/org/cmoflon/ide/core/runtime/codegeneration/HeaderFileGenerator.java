@@ -9,7 +9,7 @@ import org.stringtemplate.v4.ST;
 public class HeaderFileGenerator
 {
    // Template names follow
-   public static final String CONSTANTS_BEGIN = "headerDefinition";
+   public static final String HEADER_DEFINITION = "headerDefinition";
 
    public static final String CONSTANTS_DEFINTION = "constants";
 
@@ -29,30 +29,6 @@ public class HeaderFileGenerator
 
    public static final String INCLUDE = "include";
    // End of template names
-
-   public static String generateConstant(Object key, Object value, String component, String algorithm, ST template)
-   {
-      template.add("comp", component);
-      template.add("algo", algorithm);
-      template.add("name", key);
-      template.add("value", value);
-      return template.render();
-   }
-
-   /**
-    * Gets a String with Typedefs from EType to the C language Type.
-    */
-   public static String getAllBuiltInMappings()
-   {
-      final StringBuilder result = new StringBuilder();
-      for (final CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values())
-      {
-         result.append("typedef " + CMoflonBuiltInTypes.getCType(t) + " " + t.name() + ";");
-         result.append(CMoflonCodeGenerator.nl());
-         result.append(CMoflonCodeGenerator.nl());
-      }
-      return result.toString();
-   }
 
    /**
     * Generates the general Includes for CMoflon as well as the Component Specific stuff
