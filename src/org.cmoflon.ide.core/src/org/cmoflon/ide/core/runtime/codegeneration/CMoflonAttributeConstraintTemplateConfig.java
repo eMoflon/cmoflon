@@ -19,48 +19,46 @@ import org.stringtemplate.v4.STGroupString;
 /**
  * @author David Giessing
  */
-public class CMoflonAttributeConstraintTemplateConfig extends CMoflonTemplateConfiguration
-{
-   public CMoflonAttributeConstraintTemplateConfig(final GenModel genModel, final java.util.List<AttributeConstraintLibrary> attributeConstraintLibs)
-   {
-      super(genModel);
-      addAttrConstTemplatesToBlackTemplates(attributeConstraintLibs);
-      operationSequenceCompilers.put(DefaultCodeGeneratorConfig.BLACK_PATTERN_MATCHER_GENERATOR, createBlackOperationSequenceCompiler());
-   }
+public class CMoflonAttributeConstraintTemplateConfig extends CMoflonTemplateConfiguration {
+	public CMoflonAttributeConstraintTemplateConfig(final GenModel genModel,
+			final java.util.List<AttributeConstraintLibrary> attributeConstraintLibs) {
+		super(genModel);
+		addAttrConstTemplatesToBlackTemplates(attributeConstraintLibs);
+		operationSequenceCompilers.put(DefaultCodeGeneratorConfig.BLACK_PATTERN_MATCHER_GENERATOR,
+				createBlackOperationSequenceCompiler());
+	}
 
-   @SuppressWarnings("unchecked")
-   public static OperationSequenceCompiler createBlackOperationSequenceCompiler()
-   {
-      return new OperationSequenceCompiler(new PatternInvocationConstraintTemplateProvider(), new RelationalConstraintTemplateProvider(),
-            new EMFTemplateProvider(), new AttributeConstraintsTemplateProvider());
-   }
+	@SuppressWarnings("unchecked")
+	public static OperationSequenceCompiler createBlackOperationSequenceCompiler() {
+		return new OperationSequenceCompiler(new PatternInvocationConstraintTemplateProvider(),
+				new RelationalConstraintTemplateProvider(), new EMFTemplateProvider(),
+				new AttributeConstraintsTemplateProvider());
+	}
 
-   private void addAttrConstTemplatesToBlackTemplates(final List<AttributeConstraintLibrary> attributeConstraintLibs)
-   {
-      final STGroup group = getTemplateGroup(DefaultCodeGeneratorConfig.BLACK_PATTERN_MATCHER_GENERATOR);
-      for (final AttributeConstraintLibrary library : attributeConstraintLibs)
-      {
+	private void addAttrConstTemplatesToBlackTemplates(final List<AttributeConstraintLibrary> attributeConstraintLibs) {
+		final STGroup group = getTemplateGroup(DefaultCodeGeneratorConfig.BLACK_PATTERN_MATCHER_GENERATOR);
+		for (final AttributeConstraintLibrary library : attributeConstraintLibs) {
 
-         for (final OperationSpecificationGroup opSpecGroup : library.getOperationSpecifications())
-         {
-            if (!opSpecGroup.isTemplateGroupGenerated())
-            {
-               opSpecGroup.gernerateTemplate();
+			for (final OperationSpecificationGroup opSpecGroup : library.getOperationSpecifications()) {
+				if (!opSpecGroup.isTemplateGroupGenerated()) {
+					opSpecGroup.gernerateTemplate();
 
-            }
-            
-            final STGroup newGroup = new STGroupString("someName", opSpecGroup.getTemplateGroupString(), AttributeConstraintsOperationActivator.OUTER_ST_DELIMITER,
-                  AttributeConstraintsOperationActivator.OUTER_ST_DELIMITER);
-            for (String templateName : newGroup.getTemplateNames())
-            {
-               ST template = newGroup.getInstanceOf(templateName);
-               group.rawDefineTemplate("/" + library.getPrefix() + "/" + opSpecGroup.getOperationIdentifier() + template.getName(), template.impl, null);
-            }
+				}
 
-         }
+				final STGroup newGroup = new STGroupString("someName", opSpecGroup.getTemplateGroupString(),
+						AttributeConstraintsOperationActivator.OUTER_ST_DELIMITER,
+						AttributeConstraintsOperationActivator.OUTER_ST_DELIMITER);
+				for (String templateName : newGroup.getTemplateNames()) {
+					ST template = newGroup.getInstanceOf(templateName);
+					group.rawDefineTemplate(
+							"/" + library.getPrefix() + "/" + opSpecGroup.getOperationIdentifier() + template.getName(),
+							template.impl, null);
+				}
 
-      }
+			}
 
-   }
+		}
+
+	}
 
 }

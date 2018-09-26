@@ -6,48 +6,49 @@ import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes.Components;
 import org.stringtemplate.v4.ST;
 
-public class HeaderFileGenerator
-{
-   // Template names follow
-   public static final String HEADER_DEFINITION = "headerDefinition";
+public class HeaderFileGenerator {
+	// Template names follow
+	public static final String HEADER_DEFINITION = "headerDefinition";
 
-   public static final String CONSTANTS_DEFINTION = "constants";
+	public static final String CONSTANTS_DEFINTION = "constants";
 
-   public static final String CONSTANTS_END = "endHeader";
+	public static final String CONSTANTS_END = "endHeader";
 
-   public static final String METHOD_DECLARATION = "methodDeclaration";
+	public static final String METHOD_DECLARATION = "methodDeclaration";
 
-   public static final String COMPARE_DECLARATION = "compareDeclaration";
+	public static final String COMPARE_DECLARATION = "compareDeclaration";
 
-   public static final String EQUALS_DECLARATION = "equalsDeclaration";
+	public static final String EQUALS_DECLARATION = "equalsDeclaration";
 
-   public static final String DECLARATIONS = "getDeclarations";
+	public static final String DECLARATIONS = "getDeclarations";
 
-   public static final String MATCH = "getMatch";
+	public static final String MATCH = "getMatch";
 
-   public static final String DEFINE = "define";
+	public static final String DEFINE = "define";
 
-   public static final String INCLUDE = "include";
-   // End of template names
+	public static final String INCLUDE = "include";
+	// End of template names
 
-   /**
-    * Generates the general Includes for CMoflon as well as the Component Specific stuff
-    * @param comp The desired Component
-    * @param include	The StringTemplate for the includes
-    * @return 
-    */
-   public static String generateIncludes(Components comp, ST include)
-   {
+	/**
+	 * Generates the general Includes for CMoflon as well as the Component Specific
+	 * stuff
+	 * 
+	 * @param comp
+	 *            The desired Component
+	 * @param include
+	 *            The StringTemplate for the includes
+	 * @return
+	 */
+	public static String generateIncludes(Components comp, ST include) {
 
-      final StringBuilder result = new StringBuilder();
-      List<String> includes = CMoflonIncludes.getCMoflonIncludes();
-      includes.addAll(CMoflonIncludes.getComponentSpecificIncludes(comp));
-      for (String path : includes)
-      {
-         include.add("path", path);
-         result.append(include.render());
-         include.remove("path");
-      }
-      return result.toString();
-   }
+		final StringBuilder result = new StringBuilder();
+		List<String> includes = CMoflonIncludes.getCMoflonIncludes();
+		includes.addAll(CMoflonIncludes.getComponentSpecificIncludes(comp));
+		for (String path : includes) {
+			include.add("path", path);
+			result.append(include.render());
+			include.remove("path");
+		}
+		return result.toString();
+	}
 }

@@ -22,86 +22,77 @@ import org.moflon.core.utilities.eMoflonEMFUtil;
 import org.osgi.framework.FrameworkUtil;
 
 /**
- * Mimics {@link RepositoryCodeGenerator}. Needed to invoke {@link CMoflonCodeGenerator}
+ * Mimics {@link RepositoryCodeGenerator}. Needed to invoke
+ * {@link CMoflonCodeGenerator}
  *
  * @author David Giessing
  * @author Roland Kluge
  */
-public class CMoflonRepositoryCodeGenerator
-{
+public class CMoflonRepositoryCodeGenerator {
 
-   private static final Logger logger = Logger.getLogger(CMoflonRepositoryCodeGenerator.class);
+	private static final Logger logger = Logger.getLogger(CMoflonRepositoryCodeGenerator.class);
 
-   protected IProject project;
+	protected IProject project;
 
-   public CMoflonRepositoryCodeGenerator(final IProject project)
-   {
-      this.project = project;
-   }
+	public CMoflonRepositoryCodeGenerator(final IProject project) {
+		this.project = project;
+	}
 
-   public IStatus generateCode(final IProgressMonitor monitor, Properties cMoflonProperties)
-   {
-      final SubMonitor subMon = SubMonitor.convert(monitor);
-      try
-      {
-         this.project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+	public IStatus generateCode(final IProgressMonitor monitor, Properties cMoflonProperties) {
+		final SubMonitor subMon = SubMonitor.convert(monitor);
+		try {
+			this.project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 
-         final IFile ecoreFile = getEcoreFileAndHandleMissingFile();
-         if (!ecoreFile.exists())
-         {
-            return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Unable to generate code for " + project.getName()
-                  + ",  as no Ecore file according to naming convention (capitalizeFirstLetter.lastSegmentOf.projectName) was found!");
-         }
+			final IFile ecoreFile = getEcoreFileAndHandleMissingFile();
+			if (!ecoreFile.exists()) {
+				return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(),
+						"Unable to generate code for " + project.getName()
+								+ ",  as no Ecore file according to naming convention (capitalizeFirstLetter.lastSegmentOf.projectName) was found!");
+			}
 
-         final ResourceSet resourceSet = eMoflonEMFUtil.createDefaultResourceSet();
-         eMoflonEMFUtil.installCrossReferencers(resourceSet);
-         subMon.worked(1);
-         final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet, EMoflonPreferencesActivator.getDefault().getPreferencesStorage());
-         final IStatus status = gen.run(subMon.split(1));
-         if (status.matches(IStatus.ERROR))
-         {
-            return status;
-         }
-      } catch (final CoreException e)
-      {
-         return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Error", e);
-      }
-      return Status.OK_STATUS;
-   }
+			final ResourceSet resourceSet = eMoflonEMFUtil.createDefaultResourceSet();
+			eMoflonEMFUtil.installCrossReferencers(resourceSet);
+			subMon.worked(1);
+			final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet,
+					EMoflonPreferencesActivator.getDefault().getPreferencesStorage());
+			final IStatus status = gen.run(subMon.split(1));
+			if (status.matches(IStatus.ERROR)) {
+				return status;
+			}
+		} catch (final CoreException e) {
+			return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Error", e);
+		}
+		return Status.OK_STATUS;
+	}
 
-   private IFile getEcoreFileAndHandleMissingFile() throws CoreException
-   {
-      if (!doesEcoreFileExist())
-         createMarkersForMissingEcoreFile();
+	private IFile getEcoreFileAndHandleMissingFile() throws CoreException {
+		if (!doesEcoreFileExist())
+			createMarkersForMissingEcoreFile();
 
-      return getEcoreFile();
-   }
+		return getEcoreFile();
+	}
 
-   private IFile getEcoreFile()
-   {
-      return getEcoreFile(this.project);
-   }
+	private IFile getEcoreFile() {
+		return getEcoreFile(this.project);
+	}
 
-   private static IFile getEcoreFile(final IProject p)
-   {
-      String ecoreFileName = MoflonConventions.getDefaultNameOfFileInProjectWithoutExtension(p.getName());
-      return p.getFolder(WorkspaceHelper.MODEL_FOLDER).getFile(ecoreFileName + WorkspaceHelper.ECORE_FILE_EXTENSION);
-   }
+	private static IFile getEcoreFile(final IProject p) {
+		String ecoreFileName = MoflonConventions.getDefaultNameOfFileInProjectWithoutExtension(p.getName());
+		return p.getFolder(WorkspaceHelper.MODEL_FOLDER).getFile(ecoreFileName + WorkspaceHelper.ECORE_FILE_EXTENSION);
+	}
 
-   private boolean doesEcoreFileExist()
-   {
-      return getEcoreFile().exists();
-   }
+	private boolean doesEcoreFileExist() {
+		return getEcoreFile().exists();
+	}
 
-   private void createMarkersForMissingEcoreFile() throws CoreException
-   {
-      IFile ecoreFile = getEcoreFile();
-      logger.error("Unable to generate code: " + ecoreFile + " does not exist in project!");
+	private void createMarkersForMissingEcoreFile() throws CoreException {
+		IFile ecoreFile = getEcoreFile();
+		logger.error("Unable to generate code: " + ecoreFile + " does not exist in project!");
 
-      // Create marker
-      final IMarker marker = project.createMarker(IMarker.PROBLEM);
-      marker.setAttribute(IMarker.MESSAGE, "Cannot find: " + ecoreFile.getProjectRelativePath().toString());
-      marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-      marker.setAttribute(IMarker.LOCATION, ecoreFile.getProjectRelativePath().toString());
-   }
+		// Create marker
+		final IMarker marker = project.createMarker(IMarker.PROBLEM);
+		marker.setAttribute(IMarker.MESSAGE, "Cannot find: " + ecoreFile.getProjectRelativePath().toString());
+		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		marker.setAttribute(IMarker.LOCATION, ecoreFile.getProjectRelativePath().toString());
+	}
 }

@@ -13,77 +13,62 @@ import org.stringtemplate.v4.Interpreter;
 import org.stringtemplate.v4.ST;
 
 /**
- * Copy of eMoflons PatternMatcherModelAdaptor. Package is not exported, therefore a copy was needed.
+ * Copy of eMoflons PatternMatcherModelAdaptor. Package is not exported,
+ * therefore a copy was needed.
  *
  */
-public class PatternMatcherModelAdaptor extends ParameterHandler
-{
+public class PatternMatcherModelAdaptor extends ParameterHandler {
 
-   public synchronized Object getProperty(Interpreter interpreter, ST template, Object object, Object property, String propertyName)
-   {
-      if (object instanceof GeneratorOperation)
-      {
-         if ("freeParameters".equals(propertyName))
-         {
-            GeneratorOperation operation = (GeneratorOperation) object;
-            List<GeneratorVariable> freeParameters = new LinkedList<>();
-            Adornment precondition = operation.getPrecondition();
-            for (int i = 0; i < precondition.size(); i++)
-            {
-               if (precondition.get(i) == Adornment.FREE)
-               {
-                  freeParameters.add(operation.getParameters().get(i));
-               }
-            }
-            return freeParameters;
-         } else if ("boundParameters".equals(propertyName))
-         {
-            GeneratorOperation operation = (GeneratorOperation) object;
-            List<GeneratorVariable> boundParameters = new LinkedList<>();
-            Adornment precondition = operation.getPrecondition();
-            for (int i = 0; i < precondition.size(); i++)
-            {
-               if (precondition.get(i) == Adornment.BOUND)
-               {
-                  boundParameters.add(operation.getParameters().get(i));
-               }
-            }
-            return boundParameters;
-         }
-      }
-      if (object instanceof GeneratorVariable && "Type".equals(propertyName))
-      {
-         return null;
-      }
-      Object result = super.getProperty(interpreter, template, object, property, propertyName);
-      if (object instanceof Variable && "name".equals(propertyName))
-      {
-         if (result instanceof String)
-         {
-            return getJavaSafeVariable((String) result);
-         }
-      }
-      return result;
-   }
+	public synchronized Object getProperty(Interpreter interpreter, ST template, Object object, Object property,
+			String propertyName) {
+		if (object instanceof GeneratorOperation) {
+			if ("freeParameters".equals(propertyName)) {
+				GeneratorOperation operation = (GeneratorOperation) object;
+				List<GeneratorVariable> freeParameters = new LinkedList<>();
+				Adornment precondition = operation.getPrecondition();
+				for (int i = 0; i < precondition.size(); i++) {
+					if (precondition.get(i) == Adornment.FREE) {
+						freeParameters.add(operation.getParameters().get(i));
+					}
+				}
+				return freeParameters;
+			} else if ("boundParameters".equals(propertyName)) {
+				GeneratorOperation operation = (GeneratorOperation) object;
+				List<GeneratorVariable> boundParameters = new LinkedList<>();
+				Adornment precondition = operation.getPrecondition();
+				for (int i = 0; i < precondition.size(); i++) {
+					if (precondition.get(i) == Adornment.BOUND) {
+						boundParameters.add(operation.getParameters().get(i));
+					}
+				}
+				return boundParameters;
+			}
+		}
+		if (object instanceof GeneratorVariable && "Type".equals(propertyName)) {
+			return null;
+		}
+		Object result = super.getProperty(interpreter, template, object, property, propertyName);
+		if (object instanceof Variable && "name".equals(propertyName)) {
+			if (result instanceof String) {
+				return getJavaSafeVariable((String) result);
+			}
+		}
+		return result;
+	}
 
-   public String toString(Object o, String formatString, Locale locale)
-   {
-      if (o instanceof Variable)
-      {
-         return getJavaSafeVariable(super.toString((Variable) o, formatString, locale));
-      }
-      return super.toString(o, formatString, locale);
-   }
+	public String toString(Object o, String formatString, Locale locale) {
+		if (o instanceof Variable) {
+			return getJavaSafeVariable(super.toString((Variable) o, formatString, locale));
+		}
+		return super.toString(o, formatString, locale);
+	}
 
-   private final String getJavaSafeVariable(String name)
-   {
-      if ("this".equals(name))
-      {
-         return "_this";
-      } else
-      {
-         return name;
-      }
-   }
+	private final String getJavaSafeVariable(String name) {
+		if ("this".equals(name)) {
+			return "_this";
+		} else {
+			return name;
+		}
+	}
 
 }
