@@ -15,8 +15,8 @@ public class CMoflonMetamodelNature implements IProjectNature {
 	@Override
 	public void configure() throws CoreException {
 		// Get project description and add model builder
-		IProjectDescription desc = project.getDescription();
-		ICommand command = desc.newCommand();
+		final IProjectDescription desc = project.getDescription();
+		final ICommand command = desc.newCommand();
 		command.setBuilderName(CMoflonMetamodelBuilder.BUILDER_ID);
 		desc.setBuildSpec(new ICommand[] { command });
 		// Reset augmented description

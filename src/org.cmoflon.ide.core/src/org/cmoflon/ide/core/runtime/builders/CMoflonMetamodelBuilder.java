@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -27,9 +28,11 @@ import org.gervarro.eclipse.task.ProgressMonitoringJob;
 import org.moflon.codegen.eclipse.ValidationStatus;
 import org.moflon.core.plugins.PluginProperties;
 import org.moflon.core.utilities.ErrorReporter;
+import org.moflon.core.utilities.ExceptionUtil;
 import org.moflon.core.utilities.MoflonConventions;
 import org.moflon.core.utilities.ProblemMarkerUtil;
 import org.moflon.core.utilities.ProgressMonitorUtil;
+import org.moflon.core.utilities.UncheckedCoreException;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.core.utilities.eMoflonEMFUtil;
 import org.moflon.emf.codegen.dependency.SDMEnhancedEcoreResource;
@@ -138,30 +141,28 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 						return;
 					}
 
-					// Prepare save options
-					Map<Object, Object> saveOnlyIfChangedOption = new HashMap<Object, Object>();
-					saveOnlyIfChangedOption.put(Resource.OPTION_SAVE_ONLY_IF_CHANGED,
-							Resource.OPTION_SAVE_ONLY_IF_CHANGED_MEMORY_BUFFER);
-					saveOnlyIfChangedOption.put(SDMEnhancedEcoreResource.SAVE_GENERATED_PACKAGE_CROSSREF_URIS, true);
-
-					// Persist resources (metamodels, tgg files and moflon.properties files)
-					for (Resource resource : set.getResources()) {
-						try {
-							resource.save(saveOnlyIfChangedOption);
-						} catch (IOException e) {
-							logger.debug(e.getMessage(), e);
-						}
-					}
+					saveModels(set);
 				}
 			} catch (Exception e) {
-				logger.warn(
-						"Unable to update created projects: " + e.getMessage() == null ? e.toString() : e.getMessage());
-				e.printStackTrace();
+				throw new UncheckedCoreException(
+						new CoreException(ExceptionUtil.createDefaultErrorStatus(getClass(), e)));
 			} finally {
 				handleErrorsInEclipse(mocaToMoflonStatus);
 				monitor.done();
 			}
 
+		}
+	}
+
+	private void saveModels(final ResourceSet set) throws IOException {
+		Map<Object, Object> saveOnlyIfChangedOption = new HashMap<Object, Object>();
+		saveOnlyIfChangedOption.put(Resource.OPTION_SAVE_ONLY_IF_CHANGED,
+				Resource.OPTION_SAVE_ONLY_IF_CHANGED_MEMORY_BUFFER);
+		saveOnlyIfChangedOption.put(SDMEnhancedEcoreResource.SAVE_GENERATED_PACKAGE_CROSSREF_URIS, true);
+
+		// Persist resources (metamodels, tgg files and moflon.properties files)
+		for (final Resource resource : set.getResources()) {
+			resource.save(saveOnlyIfChangedOption);
 		}
 	}
 

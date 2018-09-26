@@ -145,11 +145,8 @@ public class CMoflonProjectCreator extends RepositoryProjectCreator {
 	}
 
 	private static void clearBuildProperties(final IProject workspaceProject) throws CoreException {
-		final IFile file = workspaceProject.getFile("build.properties");
-		if (!file.exists()) {
-			WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n",
+		WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n",
 					new NullProgressMonitor());
-		}
 	}
 
 	public static void createPluginSpecificFiles(final IProject project, final PluginProperties PluginProperties,

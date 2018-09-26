@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
+import org.moflon.core.utilities.ExceptionUtil;
 import org.moflon.core.utilities.LogUtils;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.ui.admin.wizards.metamodel.NewMetamodelProjectInfoPage;
@@ -29,7 +30,7 @@ import org.moflon.ide.ui.admin.wizards.metamodel.NewMetamodelProjectInfoPage;
 /**
  * The new metamodel wizard creates a new CMoflon metamodel project with default
  * directory structure and default files.
- * 
+ *
  * @author David Giessing
  */
 public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizard {
@@ -84,16 +85,16 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 		try {
 			final SubMonitor subMon = SubMonitor.convert(monitor, "Creating metamodel project", 8);
 
-			String projectName = projectInfo.getProjectName();
-			IPath location = projectInfo.getProjectLocation();
+			final String projectName = projectInfo.getProjectName();
+			final IPath location = projectInfo.getProjectLocation();
 
-			IProject newProjectHandle = createProject(projectName, WorkspaceHelper.getPluginId(getClass()), location,
+			final IProject newProjectHandle = createProject(projectName, location,
 					subMon.split(1));
 
 			final URL pathToDefaultEapFile = WorkspaceHelper.getPathRelToPlugIn(PATH_TO_DEFAULT_SPECIFICATION,
-					WorkspaceHelper.getPluginId(getClass()));
+					getPluginId());
 			WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap", pathToDefaultEapFile,
-					WorkspaceHelper.getPluginId(getClass()), subMon.split(1));
+					getPluginId(), subMon.split(1));
 
 			WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp\n*.ldb\n", subMon.split(1));
 
@@ -101,12 +102,16 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 
 			newProjectHandle.refreshLocal(IResource.DEPTH_INFINITE, subMon.split(1));
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			logger.error("Unable to add default EA project file: " + e);
-			e.printStackTrace();
+			throw new CoreException(ExceptionUtil.createDefaultErrorStatus(getClass(), e));
 		} finally {
 			monitor.done();
 		}
+	}
+
+	private String getPluginId() {
+		return WorkspaceHelper.getPluginId(getClass());
 	}
 
 	/**
@@ -121,7 +126,7 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 	 * @return handle to newly created project
 	 * @throws CoreException
 	 */
-	private static IProject createProject(final String projectName, final String pluginId, final IPath location,
+	private static IProject createProject(final String projectName, final IPath location,
 			final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Create project " + projectName, 2);
 
@@ -133,7 +138,7 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 		description.setLocation(location);
 
 		if (newProject.exists()) {
-			throw new CoreException(new Status(IStatus.ERROR, pluginId, projectName + " exists already!"));
+			throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(NewCMoflonMetamodelWizard.class), projectName + " exists already!"));
 		}
 
 		newProject.create(description, subMon.split(1));
