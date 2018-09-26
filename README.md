@@ -9,60 +9,52 @@ The target programmling language is (embedded) C.
 
 ## Supplementary material for ECMFA 2017
 We have set up a separate document that links to supplementary material (e.g, a SHARE VM) related to the cMoflon paper at ECMFA 2017:
-https://github.com/eMoflon/cmoflon/blob/master/ECMFA2017/README_ECMFA2017.md
+https://github.com/eMoflon/cmoflon-examples/blob/master/Talks/ECMFA2017/README_ECMFA2017.md
 
 ## Troubleshooting
-If you encounter any problems, please post an issue (https://github.com/eMoflon/cmoflon/issues) or send me (Roland Kluge) a message
+If you encounter any problems or need support, please 
+* post an issue (https://github.com/eMoflon/cmoflon/issues) or
+* send me (Roland Kluge) a message
 
-## Short walk through
-The following steps will enable you to generate code for the specifications shown in ECMFA'17 (under submission).
+## cMoflon user setup
 If you want to run the generated code in the testbed, follow the steps in the *Complete walkthrough* section.
 
-1. **Install Eclipse with Modeling Components Neon.2 (or newer)**
+1. **Install Eclipse with Modeling Components Oxygen (or newer)**
    * All Eclipse packages are available here: https://eclipse.org/downloads/
 1. **Install Enterprise Architect 12 (or later)**
    * A 30-days trial version of Enterprise Architect is available here: https://www.sparxsystems.de/uml/download-trial/
 1. **Install eMoflon 3.4.0**
    * Follow the installation instructions from here:  https://github.com/eMoflon/emoflon-tool/releases/tag/emoflon-tie_3.4.0
    * From eMoflon Tool you only need the basic eMoflon Tool feature
+   * If not done automatically, you will have to enable the update site https://emoflon.org/emoflon-core-updatesite/stable/updatesite/ in the Software Site dialog of the Eclipse preferences.
+   * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.org/eclipse-plugin/beta/updatesite/ea-ecore-addin.zip
 1. **Install cMoflon 1.0.0**
    * Stable update site:
    * Unstable update Site: http://emoflon.github.io/cmoflon/updatesite/
    * You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.
 1. **Demo specification**
-   1. Download and extract the following archive: https://github.com/eMoflon/cmoflon/releases/download/cmoflon_1.0.0/cMoflonDemo.zip
-   1. The three contained projects can be imported into your Eclipse as is. 
-   1. Select the projects and perform a full build (e.g., via the *context menu -> eMoflon -> Build selected projects fully*).
-   1. After the build was successful the project *cMoflonDemoLanguage* contains the generated C code (/gen folder)
+   1. Import the sample projects into your workspace as follows: 
+       * *Right-click &rarr; Import... &rarr; Git/Projects from Git*
+       * Choose to clone the following repository: https://github.com/eMoflon/cmoflon-examples.git
+       * Choose the projects *CMoflonDemoEASpecification* and *CMoflonDemoLanguage*.
+   1. Select the projects and perform a full build (e.g., via the *Right-click &rarr; eMoflon &rarr; Build selected projects fully*).
+   1. After the build was successful,...
+      * ...the project *cMoflonDemoLanguage_C* contains the generated C code (/gen folder), and 
+      * ...the project *cMoflonDemoLanguage* contains the corresponding generated EMF-based code (/gen folder).
 
 ## Complete walkthrough
-
-### Setup: How to install cMoflon and all required software
 The currently requires a mixed environment with a Windows system (for cMoflon/eMoflon and Enterprise Architect) and a Linux VM (provided as Instant Contiki).
-This version of cMoflon has been tested with Eclipse Neon.2 (4.6.2) and eMoflon 2.26.0 and Enterprise Architect 12
+This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 and Enterprise Architect 12
 
-1. **Install Eclipse with Modeling Components Neon.2 (or newer)**
-   * All Eclipse packages are available here: https://eclipse.org/downloads/
-1. **Install Enterprise Architect 12 (or later)**
-   * A 30-days trial version of Enterprise Architect is available here: https://www.sparxsystems.de/uml/download-trial/
-1. **Install eMoflon 3.4.0**
-   * Follow the installation instructions from here:  https://github.com/eMoflon/emoflon-tool/releases/tag/emoflon-tie_3.4.0
-   * From eMoflon Tool you only need the basic eMoflon Tool feature, do also install the EA add-in
-1. **Install cMoflon 1.0.0**
-   * Stable update site:
-   * Unstable update Site: http://emoflon.github.io/cmoflon/updatesite/
-   <!--* You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.-->
+1. **User setup:** Follow the steps above to set up your development workspace.
 1. **Get Contiki 3.0**
-   * Download the *Instant Contiki 3.0* VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
-   * You will need Virtual Box to run the VM (https://www.virtualbox.org/)
+   * Download the *Instant Contiki 3.0* Virtual Box VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download (Get Virtual Box here: https://www.virtualbox.org/)
    * Detailed setup instructions can be found here: http://www.contiki-os.org/start.html
-      * Instant Contiki fix: To run the sample simulation, you will need to call ```git submodule update --init```. 
+   * If you use Instant Contiki, you need to call ```git submodule update --init```. 
      Otherwise, starting Cooja will fail.
 1. **Get ToCoCo 2.0.0**
    * We suggest to checkout the ToCoCo framework from inside the Instant Contiki VM
-   * For cMoflon developers: the Contiki evaluation framework repository is available from here: 
-      * URL: https://github.com/eMoflon/ToCoCo
-   * The original ToCoCo base repository without the cMoflon specific scripts and tools is available here: https://github.com/steinmic/ToCoCo/releases/tag/tococo_2.0
+   * A stable version of ToCoCo can be found here: https://github.com/eMoflon/ToCoCo/releases/tag/tococo_2.0
    * The root folder of the working copy will be refered to as *$ToCoCo* in the following.
  
 ## How to specify a sample TC algorithm/test the existing TC algorithms
