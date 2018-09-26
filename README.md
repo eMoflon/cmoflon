@@ -37,9 +37,7 @@ If you want to run the generated code in the testbed, follow the steps in the *C
    1. Import the sample projects into your workspace as follows: 
        * *Right-click &rarr; Import... &rarr; Git/Projects from Git*
        * Choose to clone the following repository: https://github.com/eMoflon/cmoflon-examples.git
-       * Choose the projects *CMoflonDemo* and *CMoflonDemoLanguage*.
-   1. Download and extract the following archive: https://github.com/eMoflon/cmoflon/releases/download/cmoflon_1.0.0/cMoflonDemo.zip
-   1. The three contained projects can be imported into your Eclipse as is. 
+       * Choose the projects *CMoflonDemoEASpecification* and *CMoflonDemoLanguage*.
    1. Select the projects and perform a full build (e.g., via the *Right-click &rarr; eMoflon &rarr; Build selected projects fully*).
    1. After the build was successful,...
       * ...the project *cMoflonDemoLanguage_C* contains the generated C code (/gen folder), and 
