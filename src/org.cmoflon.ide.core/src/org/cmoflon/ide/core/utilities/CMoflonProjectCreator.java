@@ -2,9 +2,9 @@ package org.cmoflon.ide.core.utilities;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.cmoflon.ide.core.build.CMoflonPluginProducerWorkspaceRunnable;
 import org.cmoflon.ide.core.runtime.builders.CMoflonRepositoryBuilder;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
@@ -28,31 +28,31 @@ import org.moflon.core.plugins.PluginProducerWorkspaceRunnable;
 import org.moflon.core.plugins.PluginProperties;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainer;
 import org.moflon.core.propertycontainer.MoflonPropertiesContainerHelper;
+import org.moflon.core.propertycontainer.SDMCodeGeneratorIds;
 import org.moflon.core.utilities.MoflonConventions;
 import org.moflon.core.utilities.WorkspaceHelper;
-import org.moflon.ide.core.project.RepositoryProjectCreator;
 
-//TODO: subclass MoflonProjectCreator
 /**
  * Replaces {@link MoflonProjectCreator}. Replacement was necessary as
- * addNatureAndBuilders is declared private and can therefore not be overriden.
+ * addNatureAndBuilders is declared private and can therefore not be overridden.
  * Also adds the default property files needed for code generation.
  *
  * @author David Giessing
  * @author Roland Kluge
  */
-public class CMoflonProjectCreator extends RepositoryProjectCreator {
+public class CMoflonProjectCreator extends MoflonProjectCreator {
+
 	private MoflonProjectConfigurator moflonProjectConfigurator;
 
 	private static final String PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY = "resources/DefaultCMoflonAttributeConstraintsLib.xmi";
 
-	private static final String DEFAULT_GITIGNORE_CONTENT = StringUtils
-			.join(Arrays.asList("/gen", "/model/*.ecore", "/model/*.genmodel"), "\n");
+	private static final List<String> DEFAULT_GITIGNORE_LINES = Arrays.asList("/gen", "/model/*.ecore",
+			"/model/*.genmodel");
 
 	private final PluginProperties pluginProperties;
 
-	public CMoflonProjectCreator(IProject project, PluginProperties projectProperties,
-			MoflonProjectConfigurator projectConfigurator) {
+	public CMoflonProjectCreator(final IProject project, final PluginProperties projectProperties,
+			final MoflonProjectConfigurator projectConfigurator) {
 		super(project, projectProperties, projectConfigurator);
 		this.pluginProperties = projectProperties;
 		this.moflonProjectConfigurator = projectConfigurator;
@@ -100,15 +100,14 @@ public class CMoflonProjectCreator extends RepositoryProjectCreator {
 			throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, 4);
 
-		if (!project.getFile(".gitignore").exists())
-			WorkspaceHelper.addFile(project, ".gitignore", DEFAULT_GITIGNORE_CONTENT, subMon.split(1));
-
 		if (!project.getFile("model/.keepmodel").exists())
 			WorkspaceHelper.addFile(project, "model/.keepmodel", "# Dummy file versioning /model", subMon.split(1));
 
-		if (!project.getFile(CMoflonProperties.CMOFLON_PROPERTIES_FILENAME).exists())
+		if (!project.getFile(CMoflonProperties.CMOFLON_PROPERTIES_FILENAME).exists()) {
+			final String cMoflonPropertiesContent = CMoflonProperties.getDefaultCMoflonPropertiesContent();
 			WorkspaceHelper.addFile(project, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME,
-					CMoflonProperties.getDefaultCMoflonPropertiesContent(), subMon.split(1));
+					cMoflonPropertiesContent, subMon.split(1));
+		}
 
 		initializeConstraintsLibrary(project, subMon.split(1));
 	}
@@ -146,7 +145,7 @@ public class CMoflonProjectCreator extends RepositoryProjectCreator {
 
 	private static void clearBuildProperties(final IProject workspaceProject) throws CoreException {
 		WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n",
-					new NullProgressMonitor());
+				new NullProgressMonitor());
 	}
 
 	public static void createPluginSpecificFiles(final IProject project, final PluginProperties PluginProperties,
@@ -172,5 +171,15 @@ public class CMoflonProjectCreator extends RepositoryProjectCreator {
 	@Override
 	protected String getBuilderId() throws CoreException {
 		return CMoflonRepositoryBuilder.BUILDER_ID;
+	}
+
+	@Override
+	protected SDMCodeGeneratorIds getCodeGeneratorHandler() {
+		return SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES;
+	}
+
+	@Override
+	protected List<String> getGitignoreLines() {
+		return DEFAULT_GITIGNORE_LINES;
 	}
 }

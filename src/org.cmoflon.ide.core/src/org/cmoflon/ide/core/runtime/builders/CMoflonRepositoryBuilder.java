@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.CMoflonRepositoryCodeGenerator;
 import org.cmoflon.ide.core.runtime.natures.CMoflonRepositoryNature;
+import org.cmoflon.ide.core.utilities.CMoflonProperties;
 import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -39,7 +40,7 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 	public static final String BUILDER_ID = CMoflonRepositoryBuilder.class.getName();
 
 	public CMoflonRepositoryBuilder() {
-		super(new AntPatternCondition(new String[] { "model/*.ecore" }));
+		super(new AntPatternCondition(new String[] { "model/*.ecore", CMoflonProperties.CMOFLON_PROPERTIES_FILENAME }));
 	}
 
 	@Override

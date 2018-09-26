@@ -60,7 +60,7 @@ public class CMoflonCodeGeneratorTask implements ITask {
 
 	/**
 	 * Initializes the code generation task
-	 * 
+	 *
 	 * @param ecoreFile
 	 *            the ECore file to generate code for
 	 * @param resourceSet
@@ -125,13 +125,7 @@ public class CMoflonCodeGeneratorTask implements ITask {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Code generation task", 100);
 		try {
 			final MoflonPropertiesContainer moflonProperties = getMoflonProperties();
-			final String metaModelProjectName = moflonProperties.getMetaModelProject().getMetaModelProjectName();
-			final String fullProjectName;
-			if ("NO_META_MODEL_PROJECT_NAME_SET_YET".equals(metaModelProjectName)) {
-				fullProjectName = moflonProperties.getProjectName();
-			} else {
-				fullProjectName = metaModelProjectName + "::" + moflonProperties.getProjectName();
-			}
+			final String fullProjectName = moflonProperties.getProjectName();
 			logger.info("Generating code for: " + fullProjectName);
 
 			long toc = System.nanoTime();
