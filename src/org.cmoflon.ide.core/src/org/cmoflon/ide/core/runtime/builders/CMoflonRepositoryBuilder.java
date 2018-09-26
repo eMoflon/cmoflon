@@ -19,9 +19,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.gervarro.eclipse.workspace.util.AntPatternCondition;
 import org.moflon.core.build.AbstractVisitorBuilder;
+import org.moflon.core.preferences.EMoflonPreferencesActivator;
+import org.moflon.core.preferences.EMoflonPreferencesStorage;
 import org.moflon.core.utilities.ErrorReporter;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.ide.core.runtime.builders.RepositoryBuilder;
+import org.moflon.ide.ui.preferences.EMoflonPreferenceInitializer;
 
 /**
  * Builder for projects with {@link CMoflonRepositoryNature}.
@@ -73,6 +76,11 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder
       {
          final SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 53);
          logger.info("Generating code for " + this.getProject());
+         EMoflonPreferencesStorage preferencesStorage = EMoflonPreferencesActivator.getDefault().getPreferencesStorage();
+         preferencesStorage.setValidationTimeout(EMoflonPreferenceInitializer.getValidationTimeoutMillis());
+         preferencesStorage.setReachabilityEnabled(EMoflonPreferenceInitializer.getReachabilityEnabled());
+         preferencesStorage.setReachabilityMaximumAdornmentSize(EMoflonPreferenceInitializer.getReachabilityMaxAdornmentSize());
+
          final CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
 
          final IStatus status = generator.generateCode(subMon.split(50), CMoflonWorkspaceHelper.getCMoflonPropertiesFile(getProject()));

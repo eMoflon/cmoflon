@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.moflon.core.preferences.EMoflonPreferencesStorage;
+import org.moflon.core.preferences.EMoflonPreferencesActivator;
 import org.moflon.core.utilities.MoflonConventions;
 import org.moflon.core.utilities.WorkspaceHelper;
 import org.moflon.core.utilities.eMoflonEMFUtil;
@@ -56,7 +56,7 @@ public class CMoflonRepositoryCodeGenerator
          final ResourceSet resourceSet = eMoflonEMFUtil.createDefaultResourceSet();
          eMoflonEMFUtil.installCrossReferencers(resourceSet);
          subMon.worked(1);
-         final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet, new EMoflonPreferencesStorage());
+         final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet, EMoflonPreferencesActivator.getDefault().getPreferencesStorage());
          final IStatus status = gen.run(subMon.split(1));
          if (status.matches(IStatus.ERROR))
          {

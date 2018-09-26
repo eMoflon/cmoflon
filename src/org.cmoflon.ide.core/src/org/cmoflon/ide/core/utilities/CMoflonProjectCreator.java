@@ -42,7 +42,7 @@ import org.moflon.ide.core.project.RepositoryProjectCreator;
 public class CMoflonProjectCreator extends RepositoryProjectCreator
 {
    private MoflonProjectConfigurator moflonProjectConfigurator;
-	
+
    private static final String PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY = "resources/DefaultCMoflonAttributeConstraintsLib.xmi";
 
    private static final String DEFAULT_GITIGNORE_CONTENT = StringUtils.join(Arrays.asList("/gen", "/model/*.ecore", "/model/*.genmodel"), "\n");
@@ -62,15 +62,15 @@ public class CMoflonProjectCreator extends RepositoryProjectCreator
       final IProject project = getProject();
       if (project.exists())
          return;
-      
-      	final String projectName = pluginProperties.getProjectName();
+
+   	final String projectName = pluginProperties.getProjectName();
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Creating project " + projectName, 13);
 
 		// (1) Create project
 		final IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(projectName);
 		project.create(description, IWorkspace.AVOID_UPDATE, subMon.split(1));
 		project.open(IWorkspace.AVOID_UPDATE, subMon.split(1));
-      
+
       final ProjectNatureAndBuilderConfiguratorTask natureAndBuilderConfiguratorTask = new ProjectNatureAndBuilderConfiguratorTask(
 				project, false);
       PluginProjectConfigurator pluginConfigurator = new PluginProjectConfigurator();
@@ -80,13 +80,13 @@ public class CMoflonProjectCreator extends RepositoryProjectCreator
       natureAndBuilderConfiguratorTask.updateBuildSpecs(pluginConfigurator, true);
       WorkspaceTask.executeInCurrentThread(natureAndBuilderConfiguratorTask, IWorkspace.AVOID_UPDATE,
 				subMon.split(1));
-      
+
       createFoldersIfNecessary(project, subMon.split(1));
       createFilesIfNecessary(project, subMon.split(1));
       addGitignoreFile(project, subMon.split(2));
 	  addGitKeepFiles(project, subMon.split(2));
       createPluginSpecificFiles(project, this.pluginProperties, subMon.split(1));
-      
+
       final MoflonPropertiesContainer moflonProperties = MoflonPropertiesContainerHelper
 				.loadOrCreatePropertiesContainer(getProject(),
 						MoflonConventions.getDefaultMoflonPropertiesFile(getProject()));
@@ -137,7 +137,7 @@ public class CMoflonProjectCreator extends RepositoryProjectCreator
          }
       }
    }
-   
+
    @Override
    public void createFoldersIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException
    {
