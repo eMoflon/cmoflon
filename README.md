@@ -18,6 +18,7 @@ If you encounter any problems or need support, please
 
 ## cMoflon user setup
 If you want to run the generated code in the testbed, follow the steps in the *Complete walkthrough* section.
+This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 and Enterprise Architect 12
 
 1. **Install Eclipse with Modeling Components Oxygen (or newer)**
    * All Eclipse packages are available here: https://eclipse.org/downloads/
@@ -38,13 +39,10 @@ If you want to run the generated code in the testbed, follow the steps in the *C
        * Choose to clone the following repository: https://github.com/eMoflon/cmoflon-examples.git
        * Choose the projects *CMoflonDemoEASpecification* and *CMoflonDemoLanguage*.
    1. Select the projects and perform a full build (e.g., via the *Right-click &rarr; eMoflon &rarr; Build selected projects fully*).
-   1. After the build was successful,...
-      * ...the project *cMoflonDemoLanguage_C* contains the generated C code (/gen folder), and 
-      * ...the project *cMoflonDemoLanguage* contains the corresponding generated EMF-based code (/gen folder).
+   1. After the build was successful, the project *CMoflonDemoLanguage* contains the generated C code (*/gen* folder).
 
 ## Complete walkthrough
-The currently requires a mixed environment with a Windows system (for cMoflon/eMoflon and Enterprise Architect) and a Linux VM (provided as Instant Contiki).
-This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 and Enterprise Architect 12
+cMoflon requires a mixed environment with a Windows system (for Enterprise Architect) and a Linux/Instant Contiki VM.
 
 1. **User setup:** Follow the steps above to set up your development workspace.
 1. **Get Contiki 3.0**
@@ -52,20 +50,23 @@ This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 an
    * Detailed setup instructions can be found here: http://www.contiki-os.org/start.html
    * If you use Instant Contiki, you need to call ```git submodule update --init```. 
      Otherwise, starting Cooja will fail.
-1. **Get ToCoCo 2.0.0**
-   * We suggest to checkout the ToCoCo framework from inside the Instant Contiki VM
-   * A stable version of ToCoCo can be found here: https://github.com/eMoflon/ToCoCo/releases/tag/tococo_2.0
+1. **Get ToCoco 2.0.0**
+   * Checkout the ToCoCo framework from inside the Instant Contiki VM: https://github.com/eMoflon/ToCoCo/releases/tag/tococo_2.0
    * The root folder of the working copy will be refered to as *$ToCoCo* in the following.
  
 ## How to specify a sample TC algorithm/test the existing TC algorithms
 1. Open a fresh workspace in Eclipse.
-1. Navigate to *File->New->Other->eMoflon*, select *New cMoflon Metamodel Wizard* add a name (e.g., *cMoflonTestSpecification*), and press *Finish*.
-1. This will create a new project, a so-called metamodel project. Open it and double-click the .eap file
-1. Specify your TC algorithm or algorithms according to the pre-implemented ones.
-1. Hit the *Validate* button and select your project in eclipse and refresh it. This will create a new project, named after the corresponding ECore Package in Enterprise Architect.
-1. Inside the newly created project, edit the *cMoflon.properties* for customizing the generated code. Fill the property file according to the instructions here: https://github.com/eMoflon/cmoflon/wiki/cMoflon-Properties
-1. Select the Contiki project and hit the black-hammer button, the generated code is placed in the */gen* folder.
-      * the black-hammer button is only visible in the eMoflon perspective, to open the perspective navigate to *Window->Perspective->Open Perspective->Other->eMoflon*
+1. Navigate to *File->New->Other->cMoflon*, select *New cMoflon Metamodel Wizard* add a name (e.g., *CMoflonTestSpecification*), and press *Finish*.
+1. This will create a new project that contains the visual specification of your algorithm.
+1. Double-click the .eap file in the created project.
+1. Optinally, you can inspect the specification of the Maxpower topology control algorithm as follows:
+    1. In the Project Explorer (usually on the right-hand side), navigate to *cMoflon/«EPackage» CMoflonTopologyControl/CMoflonToplogyControl*
+    1. In the diagram that opens up, first click and then double-click *MaxpowerTopologyControl::run*.
+1. To trigger the export of your specification from Enterprise Architect, hit the *Validate* button.
+1. Switch to Eclipse, select the project *CMoflonTestSpecification*, and refresh it via the context menu.
+1. A new project *CMoflonTopologyControl*, named after the EPackage in Enterprise Architect, appears.
+1. After the Eclipse build is complete, you need to adjust the file *cMoflon.properties* of *CMoflonTopologyControl* as follows: After *tc.algorithms*, add *MaxpowerTopologyControl*.
+1. The Eclipse build should restart (otherwise, trigger it manually) and you should find generated .c and .h files in */gen*.
 
 ### How to test a TC algorithm generated by cMoflon in Cooja Simulator
 Cooja is the network simulator that ships with Contiki.
@@ -88,6 +89,7 @@ We suggest to mount a [shared folder](https://help.ubuntu.com/community/VirtualB
 1. Navigate to *Motes->Add motes->Create New Mote Type->Sky mote*, browse to *$ToCoCo/src/app.c*, and hit *Compile*.
 1. After compiling is done, create the motes, and run the simulation.
 
+
 ### How to test a TC algorithm generated by cMoflon using FlockLab
 FlockLab (https://www.flocklab.ethz.ch/) is a wireless sensor testbed at ETH Zurich.
 
@@ -104,9 +106,12 @@ FlockLab (https://www.flocklab.ethz.ch/) is a wireless sensor testbed at ETH Zur
 1. After the test is run, you will receive an e-mail with the results in a zip folder.
    * The contents of the *serial.csv* file allow you to debug/analyze the topology control behavior (Watch out for lines like ```[topologycontrol-*]```).
 
+   
 ### How to use the evaluation tools (excerpt)
 The ToCoCo evaluation tools help you to analyze the serial logging output of the FlockLab sensor nodes.
+
 
 #### Batch compilation
 If you are interested in compiling all of the considered topology control algorithms as a batch, we recommend to use the Bash script that can be found at *$ToCoCo/evaluation/src/BatchCompilation*.
 This script is tailored to the topology control algorithms of the ECMFA evaluation.
+
