@@ -51,3 +51,4 @@ Export-Package:
  org.cmoflon.ide.core.runtime.codegeneration,
  org.cmoflon.ide.core.runtime.natures,
  org.cmoflon.ide.core.utilities
+Automatic-Module-Name: org.cmoflon.ide.core

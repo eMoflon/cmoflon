@@ -3,12 +3,14 @@ package org.cmoflon.ide.core.runtime.builders;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.ResourceFillingMocaCMoflonTransformation;
 import org.cmoflon.ide.core.runtime.natures.CMoflonMetamodelNature;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -102,7 +104,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 					ResourcesPlugin.getWorkspace().checkpoint(false);
 
 					// Load resources (metamodels and tgg files)
-					triggerProjects.clear();
+					getTriggerProjects().clear();
 					ITask[] taskArray = new ITask[exporter.getMetamodelLoaderTasks().size()];
 					taskArray = exporter.getMetamodelLoaderTasks().toArray(taskArray);
 					final IStatus metamodelLoaderStatus = ProgressMonitoringJob.executeSyncSubTasks(taskArray,
@@ -111,7 +113,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 							subMon.newChild(5));
 					ProgressMonitorUtil.checkCancellation(subMon);
 					if (!metamodelLoaderStatus.isOK()) {
-						if (kind == IncrementalProjectBuilder.FULL_BUILD && !triggerProjects.isEmpty()) {
+						if (kind == IncrementalProjectBuilder.FULL_BUILD && !getTriggerProjects().isEmpty()) {
 							needRebuild();
 						}
 						processProblemStatus(metamodelLoaderStatus, mocaFile);
@@ -123,9 +125,9 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 							.getProjectDependencyAnalyzerTasks().size()];
 					dependencyAnalyzers = exporter.getProjectDependencyAnalyzerTasks().toArray(dependencyAnalyzers);
 					for (ProjectDependencyAnalyzer analyzer : dependencyAnalyzers) {
-						analyzer.setInterestingProjects(triggerProjects);
+						analyzer.setInterestingProjects(getTriggerProjects());
 					}
-					triggerProjects.clear();
+					getTriggerProjects().clear();
 					final IStatus projectDependencyAnalyzerStatus = ProgressMonitoringJob.executeSyncSubTasks(
 							dependencyAnalyzers, new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0,
 									"Dependency analysis failed", null),
@@ -161,6 +163,14 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 			}
 
 		}
+	}
+
+	/**
+	 * Returns trigger projects as modifiable set
+	 */
+	@SuppressWarnings("deprecation")
+	public Set<IProject> getTriggerProjects() {
+		return triggerProjects;
 	}
 
 	/**
