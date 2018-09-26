@@ -4,12 +4,12 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <category
-            id="org.moflon.ide.ui.category"
-            name="eMoflon">
+            id="org.cmoflon.ide.ui.category"
+            name="cMoflon">
       </category>
       <wizard
             canFinishEarly="false"
-            category="org.moflon.ide.ui.category"
+            category="org.cmoflon.ide.ui.category"
             class="org.cmoflon.ide.ui.admin.wizards.metamodel.NewCMoflonMetamodelWizard"
             finalPerspective="org.moflon.ide.ui.MoflonPerspective"
             hasPages="true"
