@@ -42,7 +42,8 @@ Require-Bundle: org.eclipse.core.runtime,
  SDMLanguage;bundle-version="2.0.0",
  org.moflon.emf.injection.ide;bundle-version="1.0.0",
  org.moflon.ide.core,
- org.gervarro.eclipse.workspace.autosetup;bundle-version="1.0.0"
+ org.gervarro.eclipse.workspace.autosetup;bundle-version="1.0.0",
+ org.moflon.ide.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: 
@@ -50,3 +51,4 @@ Export-Package:
  org.cmoflon.ide.core.runtime.codegeneration,
  org.cmoflon.ide.core.runtime.natures,
  org.cmoflon.ide.core.utilities
+Automatic-Module-Name: org.cmoflon.ide.core

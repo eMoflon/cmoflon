@@ -4,12 +4,12 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <category
-            id="org.moflon.ide.ui.category"
-            name="eMoflon">
+            id="org.cmoflon.ide.ui.category"
+            name="cMoflon">
       </category>
       <wizard
             canFinishEarly="false"
-            category="org.moflon.ide.ui.category"
+            category="org.cmoflon.ide.ui.category"
             class="org.cmoflon.ide.ui.admin.wizards.metamodel.NewCMoflonMetamodelWizard"
             finalPerspective="org.moflon.ide.ui.MoflonPerspective"
             hasPages="true"
@@ -20,31 +20,4 @@
             project="true">
       </wizard>
    </extension>
-   <!--
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="org.moflon.ide.ui.toolbar"
-               label="eMoflon Toolbar">
-            <command
-                  commandId="org.cmoflon.ide.ui.commands.build.BuildCommand"
-                  icon="resources/icons/rebuildClasses.png"
-                  label="BuildCMoflon"
-                  mnemonic="C"
-                  style="push"
-                  tooltip="Build cMoflon Code">
-               <visibleWhen
-                     checkEnabled="false">
-                  <reference
-                        definitionId="org.moflon.ide.ui.definitions.isMoflonPerspective">
-                  </reference>
-               </visibleWhen>
-            </command>
-         </toolbar>
-      </menuContribution>
-   </extension>
-   -->
 </plugin>

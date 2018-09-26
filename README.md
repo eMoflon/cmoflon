@@ -25,8 +25,8 @@ This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 an
 1. **Install Enterprise Architect 12 (or later)**
    * A 30-days trial version of Enterprise Architect is available here: https://www.sparxsystems.de/uml/download-trial/
 1. **Install eMoflon 3.4.0**
-   * To install eMoflon in Eclipse use the following update site: https://emoflon.org/eclipse-plugin/beta/updatesite
-   * You only need to install the feature *eMoflon Tool*
+   * Follow the installation instructions from here:  https://github.com/eMoflon/emoflon-tool/releases/tag/emoflon-tie_3.4.0
+   * From eMoflon Tool you only need the basic eMoflon Tool feature
    * If not done automatically, you will have to enable the update site https://emoflon.org/emoflon-core-updatesite/stable/updatesite/ in the Software Site dialog of the Eclipse preferences.
    * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.org/eclipse-plugin/beta/updatesite/ea-ecore-addin.zip
 1. **Install cMoflon 1.0.0**
@@ -56,7 +56,7 @@ cMoflon requires a mixed environment with a Windows system (for Enterprise Archi
  
 ## How to specify a sample TC algorithm/test the existing TC algorithms
 1. Open a fresh workspace in Eclipse.
-1. Navigate to *File->New->Other->eMoflon*, select *New cMoflon Metamodel Wizard* add a name (e.g., *CMoflonTestSpecification*), and press *Finish*.
+1. Navigate to *File->New->Other->cMoflon*, select *New cMoflon Metamodel Wizard* add a name (e.g., *CMoflonTestSpecification*), and press *Finish*.
 1. This will create a new project that contains the visual specification of your algorithm.
 1. Double-click the .eap file in the created project.
 1. Optinally, you can inspect the specification of the Maxpower topology control algorithm as follows:

@@ -14,29 +14,27 @@ import org.stringtemplate.v4.misc.STNoSuchPropertyException;
  * @author David Giessing
  *
  */
-public class CMoflonEcoreModelAdaptor extends EcoreModelAdaptor
-{
+public class CMoflonEcoreModelAdaptor extends EcoreModelAdaptor {
 
-   public CMoflonEcoreModelAdaptor(EcoreToGenModelConverter converter)
-   {
-      super(converter);
-   }
+	public CMoflonEcoreModelAdaptor(EcoreToGenModelConverter converter) {
+		super(converter);
+	}
 
-   @Override
-   public synchronized Object getProperty(Interpreter interpreter, ST template, Object object, Object property, String propertyName)
-         throws STNoSuchPropertyException
-   {
-      if ("EClassIsBuiltIn".equals(propertyName))
-         if (object instanceof EDataType)
-            return true;
-         else
-            return false;
-      
-      // This is a little hack because we could not find out how to distinguish EEnums from other types within ST
-      if ("isEnumType".equals(propertyName))
-         return object instanceof EEnum;
-      //For all other properties are unchanged
-      return super.getProperty(interpreter, template, object, property, propertyName);
-   }
+	@Override
+	public synchronized Object getProperty(Interpreter interpreter, ST template, Object object, Object property,
+			String propertyName) throws STNoSuchPropertyException {
+		if ("EClassIsBuiltIn".equals(propertyName))
+			if (object instanceof EDataType)
+				return true;
+			else
+				return false;
+
+		// This is a little hack because we could not find out how to distinguish EEnums
+		// from other types within ST
+		if ("isEnumType".equals(propertyName))
+			return object instanceof EEnum;
+		// For all other properties are unchanged
+		return super.getProperty(interpreter, template, object, property, propertyName);
+	}
 
 }

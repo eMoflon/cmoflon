@@ -17,3 +17,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: 
  org.cmoflon.ide.ui.admin.wizards.metamodel
 Bundle-ClassPath: .
+Automatic-Module-Name: org.cmoflon.ide.ui

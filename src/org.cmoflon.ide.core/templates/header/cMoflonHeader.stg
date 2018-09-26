@@ -1,18 +1,15 @@
-group header;
+group cMoflonHeader;
 
-headerDefinition(comp,algo)::=<<
-#ifndef __<comp;format="fulluppercase">__<algo;format="fulluppercase">_H_
-#define __<comp;format="fulluppercase">__<algo;format="fulluppercase">_H_
+headerDefinition()::=<<
+#ifndef __CMOFLON_H_
+#define __CMOFLON_H_
 
 
 >>
 
-constants(comp,algo,name,value)::=<<
-#ifndef COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">
-#define COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase"> <value>
-#endif
+endHeader()::=<<
 
-
+#endif /* __CMOFLON_H_ */
 >>
 
 include(path)::=<<
@@ -20,27 +17,17 @@ include(path)::=<<
 
 >>
 
-endHeader(comp,algo)::=<<
-
-#endif /* __<comp;format="fulluppercase">__<algo;format="fulluppercase">_H_ */
+equalsDeclaration(types)::=<<
+//Begin of equals declarations
+<types:{t|bool <t.name;format="firstlowercase">_equals(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
+//End of equals declarations
+<\n>
 >>
 
-getMatch()::=<<
-typedef struct match{
-	struct match_t* next;
-	void** match;
-}match_t;
-
-
->>
-define(orig,replaced)::=<<
-typedef <replaced> <orig;format="fulluppercase">_T;<\n>
->>
-
-methodDeclaration(methods)::=<<
-//Begin of non SDM implemented methods
-<methods:{method|<if(method.type.builtIn)><method.type.name><else><method.type.name;format="fulluppercase">_T*<endif> <method.owningType.name; format="firstlowercase">_<method.name>(<method.parameters>);};separator="\n">
-//End of non SDM implemented methods
+compareDeclaration(types)::=<<
+//Begin of compare declarations
+<types:{t|int <t.name;format="firstlowercase">_compare(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
+//End of compare declarations
 <\n>
 >>
 
@@ -85,16 +72,30 @@ bool <field.owningType.name;format="firstlowercase">_contains<field.name;format=
 
 >>
 
-compareDeclaration(types)::=<<
-//Begin of compare declarations
-<types:{t|int <t.name;format="firstlowercase">_compare(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
-//End of compare declarations
+methodDeclaration(methods)::=<<
+//Begin of non SDM implemented methods
+<methods:{method|<if(method.type.builtIn)><method.type.name><else><method.type.name;format="fulluppercase">_T*<endif> <method.owningType.name; format="firstlowercase">_<method.name>(<method.parameters>);};separator="\n">
+//End of non SDM implemented methods
 <\n>
 >>
 
-equalsDeclaration(types)::=<<
-//Begin of equals declarations
-<types:{t|bool <t.name;format="firstlowercase">_equals(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
-//End of equals declarations
-<\n>
+define(orig,replaced)::=<<
+typedef <replaced> <orig;format="fulluppercase">_T;<\n>
+>>
+
+getMatch()::=<<
+typedef struct match{
+	struct match_t* next;
+	void** match;
+}match_t;
+
+
+>>
+
+constants(comp,algo,name,value)::=<<
+#ifndef COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">
+#define COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase"> <value>
+#endif
+
+
 >>
