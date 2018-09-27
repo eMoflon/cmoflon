@@ -77,13 +77,22 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	 */
 	public static final String EVALUATION_STATEMENTS = "EvaluationStatements";
 
+	public static final String SOURCE_FILE_PARAMETER_CONSTANT = "/" + SOURCE_FILE_GENERATOR + "/"
+			+ SourceFileGenerator.PARAMETER_CONSTANT;
+
+	public static final String HEADER_COMPARE_DECLARATION = "/" + HEADER_FILE_GENERATOR + "/"
+			+ HeaderFileGenerator.COMPARE_DECLARATION;
+
+	public static final String HEADER_EQUALS_DELCARATION = "/" + HEADER_FILE_GENERATOR + "/"
+			+ HeaderFileGenerator.EQUALS_DECLARATION;
+
+	public static final String EVALUATION_STATEMETNS_END = "/" + EVALUATION_STATEMENTS + "/EvaluationStatementEnd";
+
+	public static final String EVALUATION_STATEMENTS_BEGIN = "/" + EVALUATION_STATEMENTS + "/EvaluationStatementBegin";
+
 	private final HashMap<String, STGroup> templates = new HashMap<String, STGroup>();
 
 	protected final HashMap<String, OperationSequenceCompiler> operationSequenceCompilers = new HashMap<String, OperationSequenceCompiler>();
-
-	static final String EVALUATION_STATEMETNS_END = "/" + EVALUATION_STATEMENTS + "/EvaluationStatementEnd";
-
-	static final String EVALUATION_STATEMENTS_BEGIN = "/" + EVALUATION_STATEMENTS + "/EvaluationStatementBegin";
 
 	private static final Logger logger = Logger.getLogger(CMoflonTemplateConfiguration.class);
 
@@ -113,7 +122,8 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 
 		final STGroup evaluationStatementsGroup = new STGroup();
 		evaluationStatementsGroup.setListener(new LoggingSTErrorListener(logger));
-		evaluationStatementsGroup.loadGroupFile("/" + EVALUATION_STATEMENTS + "/", getTemplateUriPrefix() + "/stringtemplate/EvaluationStatements.stg");
+		evaluationStatementsGroup.loadGroupFile("/" + EVALUATION_STATEMENTS + "/",
+				getTemplateUriPrefix() + "/stringtemplate/EvaluationStatements.stg");
 		templates.put(EVALUATION_STATEMENTS, evaluationStatementsGroup);
 
 		final STGroup bindingAndBlackTemplateGroup = createBindingAndBlackTemplates();
