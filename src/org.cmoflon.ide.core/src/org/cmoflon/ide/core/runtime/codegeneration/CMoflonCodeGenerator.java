@@ -450,7 +450,7 @@ public class CMoflonCodeGenerator {
 
 	/**
 	 * This Method generates the Source File.
-	 * 
+	 *
 	 * @param tcAlgorithm
 	 *            the name of the specific algorithm
 	 * @param inProcessCode
@@ -505,7 +505,7 @@ public class CMoflonCodeGenerator {
 	 * Generates the Header File including, constants, includes, method
 	 * declarations, accessor declarations as well as declarations for compare and
 	 * equals operations
-	 * 
+	 *
 	 * @param tcAlgorithm
 	 *            needed for naming
 	 */
@@ -691,7 +691,7 @@ public class CMoflonCodeGenerator {
 
 	/**
 	 * Creates the code that is used by the hop-count calculation
-	 * 
+	 *
 	 * @param component
 	 * @param algorithmName
 	 * @param source
@@ -720,7 +720,7 @@ public class CMoflonCodeGenerator {
 
 	/**
 	 * Returns the C type to use when referring to the given topology control class
-	 * 
+	 *
 	 * @param tcClass
 	 * @return
 	 */
@@ -760,7 +760,7 @@ public class CMoflonCodeGenerator {
 
 	/**
 	 * Gets an initializer method for the Blocks and Lists declarated
-	 * 
+	 *
 	 * @param templateGroup
 	 *
 	 * @return
@@ -775,7 +775,7 @@ public class CMoflonCodeGenerator {
 
 	/**
 	 * Gets a cleanup method for eventual duplicates
-	 * 
+	 *
 	 * @param templateGroup
 	 *
 	 * @return
@@ -863,7 +863,7 @@ public class CMoflonCodeGenerator {
 
 	/**
 	 * Checks whether the content refers to the tcAlgorithm with name name
-	 * 
+	 *
 	 * @param content
 	 *            the generated code
 	 * @param name
@@ -1483,7 +1483,7 @@ public class CMoflonCodeGenerator {
 	/**
 	 * Gets the name of the TCAlgorithm of a GenClass or the TC_INDEPENDANT constant
 	 * if the GenClass is no TCAlgorithm
-	 * 
+	 *
 	 * @param genClass
 	 * @return
 	 */
