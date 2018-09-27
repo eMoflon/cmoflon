@@ -1,5 +1,6 @@
 package org.cmoflon.ide.core.runtime.codegeneration;
 
+import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -43,13 +44,13 @@ public class SourceFileGenerator {
 	// later on
 	/**
 	 * Generates the closing part of a ToCoCo process
-	 * 
+	 *
 	 * @param templateGroup
 	 * @param hopcount
 	 * @return
 	 */
 	public static String generateClosingPart(final STGroup templateGroup, final boolean hopcount) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(templateGroup
 				.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START)
 				.add("hopcount", hopcount).render());
@@ -60,17 +61,18 @@ public class SourceFileGenerator {
 
 	/**
 	 * Generates most of the source files upper part
-	 * 
+	 *
 	 * @param component
-	 * @param algorithmName
+	 * @param tcClass
 	 * @param templateGroup
 	 * @param componentPreprocessorId
 	 * @return
 	 */
 	// TODO@rkluge contains general as well as specific parts, should be splitted
 	// later on
-	public static String generateUpperPart(String component, String algorithmName, STGroup templateGroup,
-			boolean hopcount, String componentPreprocessorId) {
+	public static String generateUpperPart(final String component, final GenClass tcClass, final STGroup templateGroup,
+			final boolean hopcount, final String componentPreprocessorId) {
+		final String algorithmName = tcClass.getName();
 		final StringBuilder result = new StringBuilder();
 		final ST procBegin = templateGroup
 				.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_BEGIN);
