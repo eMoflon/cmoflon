@@ -144,7 +144,7 @@ void init(){
         neighbor_t* sender= (neighbor_t*)malloc(sizeof(neighbor_t));
         count++;
         if(sender  == NULL) {
-          printf("ERROR[TC-LMST]: Could not allocate memory\n");
+          printf("ERROR[TC-init]: Could not allocate memory\n");
         } else {
           realcount++;
           sender->node1 = networkaddr_reference_alloc(onehop->node2);
