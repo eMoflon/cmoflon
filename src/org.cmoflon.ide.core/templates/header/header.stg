@@ -27,8 +27,8 @@ endHeader(comp,algo)::=<<
 
 getMatch()::=<<
 typedef struct match{
-	struct match_t* next;
-	void** match;
+  struct match_t* next;
+  void** match;
 }match_t;
 
 

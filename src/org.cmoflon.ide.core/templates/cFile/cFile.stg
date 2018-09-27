@@ -1,7 +1,7 @@
 group cFile;
 
 parameter(name, type)::=<<
-<if(type.builtIn)><type.name><else><type.name;format="fulluppercase">_T*<endif> <name>, 
+<if(type.builtIn)><type.name><else><type.name;format="fulluppercase">_T*<endif> <name>,
 >>
 
 parameterConstant(comp,algo,name)::=<<
@@ -12,7 +12,7 @@ processBegin(component,algo,componentId)::=<<
 #if COMPONENT_<component;format="fulluppercase"> == <componentId>
 PROCESS(component_<component>, "<component>: <algo>");
 PROCESS_THREAD(component_<component>, ev, data) {
-	PROCESS_BEGIN();
+  PROCESS_BEGIN();
 
 
 >>
@@ -30,7 +30,7 @@ guardEnd()::=<<
 >>
 
 processEnd()::=<<
-	PROCESS_END();
+  PROCESS_END();
 }
 
 #endif
@@ -38,87 +38,86 @@ processEnd()::=<<
 >>
 
 bootCompWait(component, hopcount,algo)::=<<
-	BOOT_COMPONENT_WAIT(component_<component>);
-	<if(hopcount)>messagetype_hopcount = uniqueid_assign();
-	component_network_packet_subscribe(messagetype_hopcount, _hopcount_recv);
+  BOOT_COMPONENT_WAIT(component_<component>);
+  <if(hopcount)>messagetype_hopcount = uniqueid_assign();
+  component_network_packet_subscribe(messagetype_hopcount, _hopcount_recv);
 
-	static struct etimer etimer_hopcountstart;
-	etimer_set(&etimer_hopcountstart, CLOCK_SECOND * 90);
+  static struct etimer etimer_hopcountstart;
+  etimer_set(&etimer_hopcountstart, CLOCK_SECOND * 90);
 
-	// static struct etimer etimer_broadcast
-	etimer_set(&etimer_broadcast, CLOCK_SECOND * 500); // unimportant high value, real interval is set later in time
+  // static struct etimer etimer_broadcast
+  etimer_set(&etimer_broadcast, CLOCK_SECOND * 500); // unimportant high value, real interval is set later in time
 
-	static struct etimer etimer_hopcountupdate;
-	etimer_set(&etimer_hopcountupdate, CLOCK_SECOND * 30);<endif>
-	static struct etimer waittime;
-	etimer_set(&waittime, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_UPDATEINTERVAL);
+  static struct etimer etimer_hopcountupdate;
+  etimer_set(&etimer_hopcountupdate, CLOCK_SECOND * 30);<endif>
+  static struct etimer waittime;
+  etimer_set(&waittime, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_UPDATEINTERVAL);
 
 >>
 
 mainLoop(hopcount, component, algo)::=<<
-	while(1) {
-		<if(hopcount)>PROCESS_WAIT_EVENT();<else>PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&waittime));
-		etimer_reset(&waittime);<endif>
-		// a small delay for the base station to start broadcasting that all motes have booted and can receive this information
-		<if(hopcount)>if(etimer_expired(&etimer_hopcountstart)) {
-			if(networkaddr_equal(component_network_address_basestation(), networkaddr_node_addr())) {
-				printf("DEBUG: [topologycontrol-lktc] updated hopcount to 0 hops\n");
-				my_hopcount = 0;
+    while(1) {
+      <if(hopcount)>PROCESS_WAIT_EVENT();<else>PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&waittime));
+      etimer_reset(&waittime);<endif>
+      // a small delay for the base station to start broadcasting that all motes have booted and can receive this information
+      <if(hopcount)>if(etimer_expired(&etimer_hopcountstart)) {
+        if(networkaddr_equal(component_network_address_basestation(), networkaddr_node_addr())) {
+          printf("DEBUG: [topologycontrol-lktc] updated hopcount to 0 hops\n");
+          my_hopcount = 0;
 
-				etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
-			}
+          etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
+        }
 
-			etimer_stop(&etimer_hopcountstart);
-			etimer_hopcountstart.p = PROCESS_ZOMBIE; // etimer_expired is true if no process is assigned to etimer which happens when expiring (event if stopped), so assign the zombie process
-		}
+        etimer_stop(&etimer_hopcountstart);
+        etimer_hopcountstart.p = PROCESS_ZOMBIE; // etimer_expired is true if no process is assigned to etimer which happens when expiring (event if stopped), so assign the zombie process
+      }
 
-		if(etimer_expired(&etimer_broadcast)) {
-			_hopcount_broadcast();
-			// _hopcount_broadcast will update the timer, so no reseting here
-		}
+      if(etimer_expired(&etimer_broadcast)) {
+        _hopcount_broadcast();
+        // _hopcount_broadcast will update the timer, so no reseting here
+      }
 
-		if(etimer_expired(&etimer_hopcountupdate)) {
-			etimer_reset(&etimer_hopcountupdate);
+      if(etimer_expired(&etimer_hopcountupdate)) {
+        etimer_reset(&etimer_hopcountupdate);
 
-			// in some cases the hopcount information has already been received but the route to the basestation has
-			// not been found at the time of receiving the messages or it has changed
-			if(_hopcount_update()) {
-				etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
-			}
-		}
-		if(etimer_expired(&waittime)) {
-			etimer_reset(&waittime);<endif>
+        // in some cases the hopcount information has already been received but the route to the basestation has
+        // not been found at the time of receiving the messages or it has changed
+        if(_hopcount_update()) {
+          etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
+        }
+      }
+      if(etimer_expired(&waittime)) {
+        etimer_reset(&waittime);<endif>
 
 
 >>
 
 cleanupCall()::=<<
-		cleanup();
+    cleanup();
 
 >>
 
 watchdogStart(hopcount)::=<<
-		watchdog_start();
-		<if(hopcount)>}<endif>
-	}
+    watchdog_start();
+    <if(hopcount)>}<endif>
+  }
 
 >>
 
 watchdogStop()::=<<
-		watchdog_stop();
-		init();
-
+    watchdog_stop();
+    init();
 
 >>
 
 
 dropUnidirectionalEdges()::=<<
-		LINK_T* onehop;
-		for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
-			if(networkaddr_equal(onehop->node1, networkaddr_node_addr()) && onehop->weight_node1_to_node2 == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
-				component_network_ignoredlinks_add(onehop->node2);
-			}
-		}
+  LINK_T* onehop;
+  for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
+    if(networkaddr_equal(onehop->node1, networkaddr_node_addr()) && onehop->weight_node1_to_node2 == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
+      component_network_ignoredlinks_add(onehop->node2);
+    }
+  }
 
 
 >>
@@ -132,58 +131,60 @@ LIST(list_matches_<name>);<\n>
 
 init(blocks,duplicates)::=<<
 void init(){
-	<blocks:{x| memb_init(&memb_<x>);<\n>list_init(list_matches_<x>);};separator="\n">
-	<if(duplicates)>#ifdef GENERATE_DUPLICATES
-	list_t neighbors=component_neighbordiscovery_neighbors();
-	neighbor_t* onehop;
-	int count=0;
-	int realcount=0;
-	for(onehop = list_head(neighbors); onehop != NULL; onehop = list_item_next(onehop)) {
-		networkaddr_t* self=networkaddr_node_addr();
-		if(networkaddr_equal(onehop->node1, self)==0){
-			if(onehop->weight_node1_to_node2 != COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN && onehop->weight_node2_to_node1 != COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN){
-				neighbor_t* sender= (neighbor_t*)malloc(sizeof(neighbor_t));
-				count++;
-				if(sender  == NULL) {
-					printf("ERROR[TC-LMST]: Could not allocate memory\n");
-				} else {
-					realcount++;
-					sender->node1 = networkaddr_reference_alloc(onehop->node2);
-					sender->node2 = networkaddr_reference_alloc(onehop->node1);
-					sender->weight_node1_to_node2 = onehop->weight_node2_to_node1;
-					sender->weight_node2_to_node1 = onehop->weight_node1_to_node2;
-					sender->ttl_node1_to_node2 = onehop->ttl_node2_to_node1;
-					sender->ttl_node2_to_node1 = onehop->ttl_node1_to_node2;
-					#ifdef TOPOLOGYCONTROL_LINKS_HAVE_STATES
-					sender->state=UNCLASSIFIED;
-					#endif
-					list_add(list_duplicates,sender);
-				}
-			}
-		}
-	}
-	for(onehop=list_head(list_duplicates);onehop!=NULL;onehop=list_item_next(onehop)){
-		list_add(neighbors, onehop);
-	}
-	printf("Duplicated %d out of %d links.\n",realcount,count);
-#endif<endif> 
+  <blocks:{x| memb_init(&memb_<x>);<\n>list_init(list_matches_<x>);};separator="\n">
+  <if(duplicates)>#ifdef GENERATE_DUPLICATES
+  list_t neighbors=component_neighbordiscovery_neighbors();
+  neighbor_t* onehop;
+  int count=0;
+  int realcount=0;
+  for(onehop = list_head(neighbors); onehop != NULL; onehop = list_item_next(onehop)) {
+    networkaddr_t* self=networkaddr_node_addr();
+    if(networkaddr_equal(onehop->node1, self)==0){
+      if(onehop->weight_node1_to_node2 != COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN && onehop->weight_node2_to_node1 != COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN){
+        neighbor_t* sender= (neighbor_t*)malloc(sizeof(neighbor_t));
+        count++;
+        if(sender  == NULL) {
+          printf("ERROR[TC-LMST]: Could not allocate memory\n");
+        } else {
+          realcount++;
+          sender->node1 = networkaddr_reference_alloc(onehop->node2);
+          sender->node2 = networkaddr_reference_alloc(onehop->node1);
+          sender->weight_node1_to_node2 = onehop->weight_node2_to_node1;
+          sender->weight_node2_to_node1 = onehop->weight_node1_to_node2;
+          sender->ttl_node1_to_node2 = onehop->ttl_node2_to_node1;
+          sender->ttl_node2_to_node1 = onehop->ttl_node1_to_node2;
+          #ifdef TOPOLOGYCONTROL_LINKS_HAVE_STATES
+          sender->state=UNCLASSIFIED;
+          #endif
+          list_add(list_duplicates,sender);
+        }
+      }
+    }
+  }
+  for(onehop=list_head(list_duplicates);onehop!=NULL;onehop=list_item_next(onehop)){
+    list_add(neighbors, onehop);
+  }
+  printf("Duplicated %d out of %d links.\n",realcount,count);
+#endif<endif>
+
 }
 
 >>
 
 
 cleanup(duplicates)::=<<
-void cleanup(){
-	<if(duplicates)>#ifdef GENERATE_DUPLICATES
-	list_t neighbors=component_neighbordiscovery_neighbors();
-	neighbor_t* list_item;
-	for(list_item=list_head(list_duplicates);list_item!=NULL;list_item=list_item_next(list_item)){
-		list_remove(neighbors,list_item);
-	}
-	while(list_length(list_duplicates) > 0) {
-		free(list_pop(list_duplicates));
-	}
-#endif<endif> 
+void cleanup() {
+  <if(duplicates)>#ifdef GENERATE_DUPLICATES
+  list_t neighbors=component_neighbordiscovery_neighbors();
+  neighbor_t* list_item;
+  for(list_item=list_head(list_duplicates);list_item!=NULL;list_item=list_item_next(list_item)){
+    list_remove(neighbors,list_item);
+  }
+  while(list_length(list_duplicates) > 0) {
+    free(list_pop(list_duplicates));
+  }
+  #endif<endif>
+
 }
 
 >>
@@ -193,9 +194,9 @@ hopcount(comp, algo)::=<<
 
 // --- Start of declarations for hop count usage
 typedef struct hopcount {
-	struct hopcount *next;
-	networkaddr_t *address;
-	int8_t hopcount;
+  struct hopcount *next;
+  networkaddr_t *address;
+  int8_t hopcount;
 } hopcount_t;
 
 MEMB(memb_hopcount, hopcount_t, COMPONENT_NETWORK_NEXTHOPS_MEMORY);
@@ -215,65 +216,65 @@ int8_t copy_my_hopcount = my_hopcount;
 networkaddr_t *nexthop_basestation = component_network_nexthops_basestation();
 
 if(networkaddr_equal(networkaddr_node_addr(), component_network_address_basestation()))
-	my_hopcount = 0;
+  my_hopcount = 0;
 
 hopcount_t *item;
 for(item = list_head(list_hopcount); item != NULL; item = list_item_next(item)) {
-	if(networkaddr_equal(item->address, nexthop_basestation)) {
-		my_hopcount = item->hopcount + 1;
-	}
+  if(networkaddr_equal(item->address, nexthop_basestation)) {
+    my_hopcount = item->hopcount + 1;
+  }
 }
 
 if(copy_my_hopcount != my_hopcount) {
-	printf("DEBUG: [topologycontrol-lktc] updated hopcount to %d hops\n", my_hopcount);
-	return 1;
+  printf("DEBUG: [topologycontrol-lktc] updated hopcount to %d hops\n", my_hopcount);
+  return 1;
 }
 
-	return 0;
+  return 0;
 }
 
 static void _hopcount_recv(const networkaddr_t *source, buffer_t *data, int8_t rssi) {
-	hopcount_t *item;
-	for(item = list_head(list_hopcount); item != NULL; item = list_item_next(item)) {
-		if(networkaddr_equal(item->address, source))
-			break;
-	}
-	
-	if(item == NULL) {
-		if((item = memb_alloc(&memb_hopcount)) == NULL) {
-			printf("ERROR[topologycontrol]: hopcount-list is full (%s:%d)\n", __FILE__, __LINE__);
-			return;
-		}
-			item->address = networkaddr_reference_alloc(source);
-		list_add(list_hopcount, item);
-	}
-	
-	item->hopcount = buffer_read_uint8t(data);
-	if(_hopcount_update()) {
-		// schedule broadcasting the new hopcount
-		etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
-	}
+  hopcount_t *item;
+  for(item = list_head(list_hopcount); item != NULL; item = list_item_next(item)) {
+    if(networkaddr_equal(item->address, source))
+      break;
+  }
+
+  if(item == NULL) {
+    if((item = memb_alloc(&memb_hopcount)) == NULL) {
+      printf("ERROR[topologycontrol]: hopcount-list is full (%s:%d)\n", __FILE__, __LINE__);
+      return;
+    }
+      item->address = networkaddr_reference_alloc(source);
+    list_add(list_hopcount, item);
+  }
+
+  item->hopcount = buffer_read_uint8t(data);
+  if(_hopcount_update()) {
+    // schedule broadcasting the new hopcount
+    etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
+  }
 }
 
 static void _hopcount_broadcast(s) {
-	// the initialized timer expired for a node which does not yet know it's hopcount
-	if(my_hopcount == -1) {
-		etimer_reset(&etimer_broadcast);
-		return;
-	}
+  // the initialized timer expired for a node which does not yet know it's hopcount
+  if(my_hopcount == -1) {
+    etimer_reset(&etimer_broadcast);
+    return;
+  }
 
-	printf("DEBUG: [topologycontrol-lktc] broadcasting my hopcount = %d\n", my_hopcount);
-	buffer_t *data = component_network_packet_sendbuffer();
-	buffer_append_uint8t(data, my_hopcount);
-	component_network_packet_send(COMPONENT_NETWORK_TRANSMISSION_LINKLOCAL_BROADCAST, messagetype_hopcount, NULL, data, -1, -1);
+  printf("DEBUG: [topologycontrol-lktc] broadcasting my hopcount = %d\n", my_hopcount);
+  buffer_t *data = component_network_packet_sendbuffer();
+  buffer_append_uint8t(data, my_hopcount);
+  component_network_packet_send(COMPONENT_NETWORK_TRANSMISSION_LINKLOCAL_BROADCAST, messagetype_hopcount, NULL, data, -1, -1);
 
-	// set new broadcast time on special rules:
-	// * last interval \<= IMMEDIATE_MAX: smalldelay broadcast
-	// * else: periodic broadcast
-	if(etimer_broadcast.timer.interval \<= CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX)
-		etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_SMALLDELAY_MIN, CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_SMALLDELAY_MAX));
-	else
-		etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_PERIODIC_MIN, CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_PERIODIC_MAX));
+  // set new broadcast time on special rules:
+  // * last interval \<= IMMEDIATE_MAX: smalldelay broadcast
+  // * else: periodic broadcast
+  if(etimer_broadcast.timer.interval \<= CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX)
+    etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_SMALLDELAY_MIN, CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_SMALLDELAY_MAX));
+  else
+    etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_PERIODIC_MIN, CLOCK_SECOND * COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_PERIODIC_MAX));
 }
 // --- End of declarations for hopcount usage
 

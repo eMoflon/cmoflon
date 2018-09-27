@@ -44,7 +44,7 @@ import org.stringtemplate.v4.STGroup;
 /**
  * Mimics behavior of {@link DefaultTemplateConfiguration}. Includes the changed
  * StringTemplates as well as the {@link CMoflonStringRenderer}
- * 
+ *
  * @author David Giessing
  *
  */
@@ -72,9 +72,18 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	 */
 	public static final String SOURCE_FILE_GENERATOR = "SourceFileGenerator";
 
+	/**
+	 * String template group prefix for evaluation statements
+	 */
+	public static final String EVALUATION_STATEMENTS = "EvaluationStatements";
+
 	private final HashMap<String, STGroup> templates = new HashMap<String, STGroup>();
 
 	protected final HashMap<String, OperationSequenceCompiler> operationSequenceCompilers = new HashMap<String, OperationSequenceCompiler>();
+
+	static final String EVALUATION_STATEMETNS_END = "/" + EVALUATION_STATEMENTS + "/EvaluationStatementEnd";
+
+	static final String EVALUATION_STATEMENTS_BEGIN = "/" + EVALUATION_STATEMENTS + "/EvaluationStatementBegin";
 
 	private static final Logger logger = Logger.getLogger(CMoflonTemplateConfiguration.class);
 
@@ -101,6 +110,11 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 		sourceGroup.setListener(new LoggingSTErrorListener(logger));
 		sourceGroup.loadGroupFile("/" + SOURCE_FILE_GENERATOR + "/", getTemplateUriPrefix() + "/cFile/cFile.stg");
 		templates.put(SOURCE_FILE_GENERATOR, sourceGroup);
+
+		final STGroup evaluationStatementsGroup = new STGroup();
+		evaluationStatementsGroup.setListener(new LoggingSTErrorListener(logger));
+		evaluationStatementsGroup.loadGroupFile("/" + EVALUATION_STATEMENTS + "/", getTemplateUriPrefix() + "/stringtemplate/EvaluationStatements.stg");
+		templates.put(EVALUATION_STATEMENTS, evaluationStatementsGroup);
 
 		final STGroup bindingAndBlackTemplateGroup = createBindingAndBlackTemplates();
 		bindingAndBlackTemplateGroup.registerModelAdaptor(EModelElement.class, ecoreModelAdaptor);
