@@ -42,7 +42,7 @@ import org.moflon.core.utilities.WorkspaceHelper;
  */
 public class CMoflonProjectCreator extends MoflonProjectCreator {
 
-	private MoflonProjectConfigurator moflonProjectConfigurator;
+	private final MoflonProjectConfigurator moflonProjectConfigurator;
 
 	private static final String PATH_TO_DEFAULT_CONSTRAINTS_LIBRARY = "resources/DefaultCMoflonAttributeConstraintsLib.xmi";
 
@@ -61,8 +61,9 @@ public class CMoflonProjectCreator extends MoflonProjectCreator {
 	@Override
 	public void run(final IProgressMonitor monitor) throws CoreException {
 		final IProject project = getProject();
-		if (project.exists())
+		if (project.exists()) {
 			return;
+		}
 
 		final String projectName = pluginProperties.getProjectName();
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Creating project " + projectName, 13);
@@ -74,7 +75,7 @@ public class CMoflonProjectCreator extends MoflonProjectCreator {
 
 		final ProjectNatureAndBuilderConfiguratorTask natureAndBuilderConfiguratorTask = new ProjectNatureAndBuilderConfiguratorTask(
 				project, false);
-		PluginProjectConfigurator pluginConfigurator = new PluginProjectConfigurator();
+		final PluginProjectConfigurator pluginConfigurator = new PluginProjectConfigurator();
 		natureAndBuilderConfiguratorTask.updateNatureIDs(moflonProjectConfigurator, true);
 		natureAndBuilderConfiguratorTask.updateBuildSpecs(moflonProjectConfigurator, true);
 		natureAndBuilderConfiguratorTask.updateNatureIDs(pluginConfigurator, true);
@@ -96,12 +97,41 @@ public class CMoflonProjectCreator extends MoflonProjectCreator {
 
 	}
 
-	public static void createFilesIfNecessary(final IProject project, final IProgressMonitor monitor)
+	@Override
+	public void createFoldersIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException {
+		final SubMonitor subMon = SubMonitor.convert(monitor, "Creating folders within project", 3);
+		WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getGenFolder(project), subMon.newChild(1));
+		WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getModelFolder(project), subMon.newChild(1));
+		WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getLibFolder(project), subMon.newChild(1));
+	}
+
+	@Override
+	protected String getNatureId() throws CoreException {
+		return CMoflonRepositoryNature.NATURE_ID;
+	}
+
+	@Override
+	protected String getBuilderId() throws CoreException {
+		return CMoflonRepositoryBuilder.BUILDER_ID;
+	}
+
+	@Override
+	protected SDMCodeGeneratorIds getCodeGeneratorHandler() {
+		return SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES;
+	}
+
+	@Override
+	protected List<String> getGitignoreLines() {
+		return DEFAULT_GITIGNORE_LINES;
+	}
+
+	private static void createFilesIfNecessary(final IProject project, final IProgressMonitor monitor)
 			throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, 4);
 
-		if (!project.getFile("model/.keepmodel").exists())
+		if (!project.getFile("model/.keepmodel").exists()) {
 			WorkspaceHelper.addFile(project, "model/.keepmodel", "# Dummy file versioning /model", subMon.split(1));
+		}
 
 		if (!project.getFile(CMoflonProperties.CMOFLON_PROPERTIES_FILENAME).exists()) {
 			final String cMoflonPropertiesContent = CMoflonProperties.getDefaultCMoflonPropertiesContent();
@@ -135,20 +165,12 @@ public class CMoflonProjectCreator extends MoflonProjectCreator {
 		}
 	}
 
-	@Override
-	public void createFoldersIfNecessary(final IProject project, final IProgressMonitor monitor) throws CoreException {
-		final SubMonitor subMon = SubMonitor.convert(monitor, "Creating folders within project", 3);
-		WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getGenFolder(project), subMon.newChild(1));
-		WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getModelFolder(project), subMon.newChild(1));
-		WorkspaceHelper.createFolderIfNotExists(WorkspaceHelper.getLibFolder(project), subMon.newChild(1));
-	}
-
 	private static void clearBuildProperties(final IProject workspaceProject) throws CoreException {
 		WorkspaceHelper.addFile(workspaceProject, "build.properties", "# Intentionally empty\n",
 				new NullProgressMonitor());
 	}
 
-	public static void createPluginSpecificFiles(final IProject project, final PluginProperties PluginProperties,
+	private static void createPluginSpecificFiles(final IProject project, final PluginProperties PluginProperties,
 			final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Creating folders within project", 3);
 		final PluginProducerWorkspaceRunnable pluginProducer = new CMoflonPluginProducerWorkspaceRunnable(project,
@@ -161,25 +183,5 @@ public class CMoflonProjectCreator extends MoflonProjectCreator {
 		}
 		clearBuildProperties(project);
 		subMon.worked(1);
-	}
-
-	@Override
-	protected String getNatureId() throws CoreException {
-		return CMoflonRepositoryNature.NATURE_ID;
-	}
-
-	@Override
-	protected String getBuilderId() throws CoreException {
-		return CMoflonRepositoryBuilder.BUILDER_ID;
-	}
-
-	@Override
-	protected SDMCodeGeneratorIds getCodeGeneratorHandler() {
-		return SDMCodeGeneratorIds.DEMOCLES_ATTRIBUTES;
-	}
-
-	@Override
-	protected List<String> getGitignoreLines() {
-		return DEFAULT_GITIGNORE_LINES;
 	}
 }

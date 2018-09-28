@@ -3,17 +3,17 @@ package org.cmoflon.ide.core.runtime.codegeneration.utilities;
 /**
  * Simple Type representation for the Code Generation. A Type is either built in
  * or not and has a name.
- * 
+ *
  * @author David Giessing
  *
  */
 public class Type {
 
-	private boolean builtIn;
+	private final boolean builtIn;
 
-	private String name;
+	private final String name;
 
-	public Type(boolean builtIn, String name) {
+	public Type(final boolean builtIn, final String name) {
 		this.builtIn = builtIn;
 		this.name = name;
 	}
@@ -27,9 +27,10 @@ public class Type {
 	}
 
 	public boolean isBoolean() {
-		if (name.toLowerCase().contains("boolean"))
+		if (name.toLowerCase().contains("boolean")) {
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
 }

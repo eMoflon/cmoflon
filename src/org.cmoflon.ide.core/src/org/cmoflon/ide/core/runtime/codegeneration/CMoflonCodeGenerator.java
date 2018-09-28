@@ -27,7 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes.Components;
+import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes.ToCoCoComponents;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonStringRenderer;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.FieldAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.MethodAttribute;
@@ -745,7 +745,8 @@ public class CMoflonCodeGenerator {
 	 */
 	private String getListAndBlockDeclarations(final STGroup templateGroup) {
 		final ST listTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_LIST_DECLARATION);
-		final ST memberDeclarationTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_MEMB_DECLARATION);
+		final ST memberDeclarationTemplate = templateGroup
+				.getInstanceOf(CMoflonTemplateConstants.SOURCE_MEMB_DECLARATION);
 		final StringBuilder result = new StringBuilder(nl());
 		for (final String s : blockDeclarations) {
 			// Make sure STS are clean
@@ -951,11 +952,9 @@ public class CMoflonCodeGenerator {
 	private String getIncludesCode(final STGroup templateGroup, final GenClass tcClass) {
 		if (tcClass == null || !reduceCodeSize) {
 			if (tcClass == null) {
-				return (HeaderFileGenerator.generateIncludes(Components.TOPOLOGYCONTROL,
-						templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_INCLUDE))) + nl();
+				return (HeaderFileGenerator.generateIncludes(ToCoCoComponents.TOPOLOGYCONTROL, templateGroup));
 			} else {
-				return (HeaderFileGenerator.generateIncludes(Components.TOPOLOGYCONTROL,
-						templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_INCLUDE))) + nl();
+				return (HeaderFileGenerator.generateIncludes(ToCoCoComponents.TOPOLOGYCONTROL, templateGroup));
 			}
 		} else {
 			return "#include \"cMoflon.h\" " + nl();

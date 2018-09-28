@@ -28,7 +28,7 @@ import org.osgi.framework.FrameworkUtil;
  */
 public class CMoflonRepositoryCodeGenerator {
 
-	protected IProject project;
+	private final IProject project;
 
 	public CMoflonRepositoryCodeGenerator(final IProject project) {
 		this.project = project;
@@ -37,12 +37,12 @@ public class CMoflonRepositoryCodeGenerator {
 	public IStatus generateCode(final IProgressMonitor monitor, final Properties cMoflonProperties) {
 		final SubMonitor subMon = SubMonitor.convert(monitor);
 		try {
-			this.project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+			this.getProject().deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 
-			final IFile ecoreFile = getEcoreFileAndHandleMissingFile();
+			final IFile ecoreFile = MoflonConventions.getDefaultEcoreFile(this.getProject());
 			if (!ecoreFile.exists()) {
 				return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
-						"Unable to generate code for " + project.getName()
+						"Unable to generate code for " + getProject().getName()
 								+ ",  as no Ecore file according to naming convention (capitalizeFirstLetter.lastSegmentOf.projectName) was found!");
 			}
 
@@ -61,20 +61,10 @@ public class CMoflonRepositoryCodeGenerator {
 		return Status.OK_STATUS;
 	}
 
-	private IFile getEcoreFileAndHandleMissingFile() throws CoreException {
-		// if (!doesEcoreFileExist()) {
-		// createMarkersForMissingEcoreFile();
-		// }
-
-		return getEcoreFile();
-	}
-
-	private IFile getEcoreFile() {
-		return getEcoreFile(this.project);
-	}
-
-	private static IFile getEcoreFile(final IProject p) {
-		final String ecoreFileName = MoflonConventions.getDefaultNameOfFileInProjectWithoutExtension(p.getName());
-		return p.getFolder(WorkspaceHelper.MODEL_FOLDER).getFile(ecoreFileName + WorkspaceHelper.ECORE_FILE_EXTENSION);
+	/**
+	 * @return the project
+	 */
+	public IProject getProject() {
+		return project;
 	}
 }

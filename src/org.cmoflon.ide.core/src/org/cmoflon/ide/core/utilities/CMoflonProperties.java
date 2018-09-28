@@ -45,14 +45,6 @@ public class CMoflonProperties {
 
 	public static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
-	public static final boolean DEFAULT_USE_HOPCOUNT = false;
-
-	public static final boolean DEFAULT_DUPLICATE_EDGES = false;
-
-	public static final boolean DEFAULT_DROP_UNIDIRECTIONAL_EDGES = true;
-
-	public static final boolean DEFAULT_INCLUDE_EVALUATION_STATEMENTS = false;
-
 	public static final boolean DEFAULT_REDUCE_CODE_SIZE = false;
 
 	private static final Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();

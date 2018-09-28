@@ -14,17 +14,16 @@ public class CMoflonMetamodelNature implements IProjectNature {
 
 	@Override
 	public void configure() throws CoreException {
-		// Get project description and add model builder
 		final IProjectDescription desc = project.getDescription();
 		final ICommand command = desc.newCommand();
 		command.setBuilderName(CMoflonMetamodelBuilder.BUILDER_ID);
 		desc.setBuildSpec(new ICommand[] { command });
-		// Reset augmented description
 		project.setDescription(desc, null);
 	}
 
 	@Override
 	public void deconfigure() throws CoreException {
+		// nop
 	}
 
 	@Override
@@ -33,7 +32,7 @@ public class CMoflonMetamodelNature implements IProjectNature {
 	}
 
 	@Override
-	public void setProject(IProject project) {
+	public void setProject(final IProject project) {
 		this.project = project;
 	}
 
