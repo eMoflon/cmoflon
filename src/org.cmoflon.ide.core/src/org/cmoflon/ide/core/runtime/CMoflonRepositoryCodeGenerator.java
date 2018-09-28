@@ -38,14 +38,14 @@ public class CMoflonRepositoryCodeGenerator {
 		this.project = project;
 	}
 
-	public IStatus generateCode(final IProgressMonitor monitor, Properties cMoflonProperties) {
+	public IStatus generateCode(final IProgressMonitor monitor, final Properties cMoflonProperties) {
 		final SubMonitor subMon = SubMonitor.convert(monitor);
 		try {
 			this.project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 
 			final IFile ecoreFile = getEcoreFileAndHandleMissingFile();
 			if (!ecoreFile.exists()) {
-				return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(),
+				return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
 						"Unable to generate code for " + project.getName()
 								+ ",  as no Ecore file according to naming convention (capitalizeFirstLetter.lastSegmentOf.projectName) was found!");
 			}
@@ -66,8 +66,9 @@ public class CMoflonRepositoryCodeGenerator {
 	}
 
 	private IFile getEcoreFileAndHandleMissingFile() throws CoreException {
-		if (!doesEcoreFileExist())
-			createMarkersForMissingEcoreFile();
+		// if (!doesEcoreFileExist()) {
+		// createMarkersForMissingEcoreFile();
+		// }
 
 		return getEcoreFile();
 	}
@@ -77,7 +78,7 @@ public class CMoflonRepositoryCodeGenerator {
 	}
 
 	private static IFile getEcoreFile(final IProject p) {
-		String ecoreFileName = MoflonConventions.getDefaultNameOfFileInProjectWithoutExtension(p.getName());
+		final String ecoreFileName = MoflonConventions.getDefaultNameOfFileInProjectWithoutExtension(p.getName());
 		return p.getFolder(WorkspaceHelper.MODEL_FOLDER).getFile(ecoreFileName + WorkspaceHelper.ECORE_FILE_EXTENSION);
 	}
 
@@ -86,7 +87,7 @@ public class CMoflonRepositoryCodeGenerator {
 	}
 
 	private void createMarkersForMissingEcoreFile() throws CoreException {
-		IFile ecoreFile = getEcoreFile();
+		final IFile ecoreFile = getEcoreFile();
 		logger.error("Unable to generate code: " + ecoreFile + " does not exist in project!");
 
 		// Create marker

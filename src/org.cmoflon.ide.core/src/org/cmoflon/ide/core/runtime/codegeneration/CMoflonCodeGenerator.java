@@ -964,8 +964,7 @@ public class CMoflonCodeGenerator {
 
 	private String getIncludeGuardCode(final GenClass tcClass, final STGroup templateGroup) {
 		final ST definition = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_DEFINITION);
-		if (reduceCodeSize && tcClass != null) {
-		} else {
+		if (!(reduceCodeSize && tcClass != null)) {
 			final String algorithmName = tcClass.getName();
 			definition.add("comp", getComponentName().toUpperCase());
 			definition.add("algo", algorithmName.toUpperCase());
@@ -1412,7 +1411,8 @@ public class CMoflonCodeGenerator {
 				return result.toString();
 			}
 			final StringBuilder algorithmSpecificContent = new StringBuilder();
-			for (final GenClass algorithmName : tcClasses) {
+			for (final GenClass algorithmClass : tcClasses) {
+				final String algorithmName = algorithmClass.getName();
 				final String projectRelativePath = "injection/custom-typedefs_" + algorithmName + ".c";
 				algorithmSpecificContent.append("// --- Begin of user-defined type definitions for " + algorithmName
 						+ "(Path: '" + projectRelativePath + "')").append(nl());
