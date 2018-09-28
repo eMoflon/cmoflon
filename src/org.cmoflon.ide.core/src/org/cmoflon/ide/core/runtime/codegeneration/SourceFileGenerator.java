@@ -52,10 +52,10 @@ public class SourceFileGenerator {
 	public static String generateClosingPart(final STGroup templateGroup, final boolean hopcount) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START)
+				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START)
 				.add("hopcount", hopcount).render());
 		sb.append(templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_END).render());
+				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + PROCESS_END).render());
 		return sb.toString();
 	}
 
@@ -75,28 +75,28 @@ public class SourceFileGenerator {
 		final String algorithmName = tcClass.getName();
 		final StringBuilder result = new StringBuilder();
 		final ST procBegin = templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + PROCESS_BEGIN);
+				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + PROCESS_BEGIN);
 		procBegin.add("component", component);
 		procBegin.add("algo", algorithmName);
 		procBegin.add("componentId", componentPreprocessorId);
 		result.append(procBegin.render());
 
 		final ST bootComp = templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + BOOT_COMP_WAIT);
+				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + BOOT_COMP_WAIT);
 		bootComp.add("component", component);
 		bootComp.add("hopcount", hopcount);
 		bootComp.add("algo", algorithmName);
 		result.append(bootComp.render());
 
 		final ST mainLoop = templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + MAIN_LOOP);
+				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + MAIN_LOOP);
 		mainLoop.add("hopcount", hopcount);
 		mainLoop.add("component", component);
 		mainLoop.add("algo", algorithmName);
 		result.append(mainLoop.render());
 
 		final ST watchDogStop = templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_STOP);
+				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_STOP);
 		result.append(watchDogStop.render());
 
 		return result.toString();

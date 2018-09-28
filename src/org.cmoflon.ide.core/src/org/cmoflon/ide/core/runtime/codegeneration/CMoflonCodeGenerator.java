@@ -85,22 +85,6 @@ import org.stringtemplate.v4.STGroup;
  */
 public class CMoflonCodeGenerator {
 
-	private static final String HEADER_CONSTANTS_END = "/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR
-			+ "/" + CMoflonHeaderFileGenerator.CONSTANTS_END;
-
-	private static final String HEADER_CONSTANTS_DEFINITION = "/"
-			+ CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/"
-			+ CMoflonHeaderFileGenerator.CONSTANTS_DEFINTION;
-
-	private static final String HEADER_DEFINE = "/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/"
-			+ CMoflonHeaderFileGenerator.DEFINE;
-
-	private static final String HEADER_MATCH = "/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/"
-			+ CMoflonHeaderFileGenerator.MATCH;
-
-	private static final String HEADER_INCLUDE = "/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/"
-			+ CMoflonHeaderFileGenerator.INCLUDE;
-
 	private static final Logger logger = Logger.getLogger(CMoflonCodeGenerator.class);
 
 	private static final String APPLICATION_DEFAULTS_FILENAME = "app-conf-constants.h.sample";
@@ -208,7 +192,7 @@ public class CMoflonCodeGenerator {
 	private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate cMoflon header ", 10);
 		final STGroup templateGroup = getTemplateConfigurationProvider()
-				.getTemplateGroup(CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR);
+				.getTemplateGroup(CMoflonTemplateConstants.CMOFLON_HEADER_FILE_GENERATOR);
 		templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
 
 		final StringBuilder contents = new StringBuilder();
@@ -450,7 +434,7 @@ public class CMoflonCodeGenerator {
 	private void generateSourceFile(final GenClass tcClass, final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate source file for " + tcClass, 10);
 		final STGroup templateGroup = getTemplateConfigurationProvider()
-				.getTemplateGroup(CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR);
+				.getTemplateGroup(CMoflonTemplateConstants.SOURCE_FILE_GENERATOR);
 		templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
 
 		final StringBuilder contents = new StringBuilder();
@@ -499,7 +483,7 @@ public class CMoflonCodeGenerator {
 	private void generateHeaderFile(final GenClass tcClass, final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate header for " + tcClass, 10);
 		final STGroup templateGroup = getTemplateConfigurationProvider()
-				.getTemplateGroup(CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR);
+				.getTemplateGroup(CMoflonTemplateConstants.HEADER_FILE_GENERATOR);
 		templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
 
 		final StringBuilder contents = new StringBuilder();
@@ -646,18 +630,18 @@ public class CMoflonCodeGenerator {
 	private String generateAlgorithmInvocationCode(final GenClass tcClass,
 			final STGroup sourceFileGeneratorTemplateGroup) {
 		final ST template = sourceFileGeneratorTemplateGroup
-				.getInstanceOf(CMoflonTemplateConfiguration.SOURCE_FILE_PARAMETER_CONSTANT);
+				.getInstanceOf(CMoflonTemplateConstants.SOURCE_FILE_PARAMETER_CONSTANT);
 		final String algorithmInvocation = tcAlgorithmCallParameters.get(tcClass.getName());
 		final String algorithmInvocationStatement = getClassPrefixForMethods(tcClass) + "run(&tc);";
 		final StringBuilder algorithmInvocationCode = new StringBuilder();
 		algorithmInvocationCode.append(getParameters(algorithmInvocation, tcClass, template));
 		if (useEvalStatements.contains(tcClass.getName())) {
 			final STGroup evalStatementGroup = getTemplateConfigurationProvider()
-					.getTemplateGroup(CMoflonTemplateConfiguration.EVALUATION_STATEMENTS);
+					.getTemplateGroup(CMoflonTemplateConstants.EVALUATION_STATEMENTS);
 			final ST templateForBegin = evalStatementGroup
-					.getInstanceOf(CMoflonTemplateConfiguration.EVALUATION_STATEMENTS_BEGIN);
+					.getInstanceOf(CMoflonTemplateConstants.EVALUATION_STATEMENTS_BEGIN);
 			final ST templateForEnd = evalStatementGroup
-					.getInstanceOf(CMoflonTemplateConfiguration.EVALUATION_STATEMETNS_END);
+					.getInstanceOf(CMoflonTemplateConstants.EVALUATION_STATEMETNS_END);
 
 			algorithmInvocationCode.append(prependEachLineWithPrefix(templateForBegin.render(), idt2()));
 			algorithmInvocationCode.append(idt2() + algorithmInvocationStatement).append(nl());
@@ -676,8 +660,7 @@ public class CMoflonCodeGenerator {
 	}
 
 	private String generateCleanupCode(final STGroup templateGroup) {
-		final ST cleanupCallTemplate = templateGroup.getInstanceOf(
-				"/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.CLEANUP_CALL);
+		final ST cleanupCallTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_CLEANUP_CALL);
 		final String cleanupCode = cleanupCallTemplate.render();
 		return cleanupCode;
 	}
@@ -699,8 +682,7 @@ public class CMoflonCodeGenerator {
 	private String getProcessClosingCode(final GenClass tcClass, final STGroup templateGroup) {
 		final StringBuilder sb = new StringBuilder();
 		if (!dropUnidirectionalEdgesOff.contains(tcClass.getName())) {
-			sb.append(templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/"
-					+ SourceFileGenerator.DROP_UNIDIRECTIONAL_EDGES).render());
+			sb.append(templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_DROP_UNIDIRECTIONAL_EDGES).render());
 		}
 		sb.append(SourceFileGenerator.generateClosingPart(templateGroup, useHopCount(tcClass)));
 		return sb.toString();
@@ -715,8 +697,7 @@ public class CMoflonCodeGenerator {
 	 * @return
 	 */
 	private String getHopCountCode(final GenClass tcClass, final STGroup source) {
-		final ST hopcountTemplate = source.getInstanceOf(
-				"/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.HOPCOUNT);
+		final ST hopcountTemplate = source.getInstanceOf(CMoflonTemplateConstants.SOURCE_HOPCOUNT);
 		hopcountTemplate.add("comp", getComponentName());
 		hopcountTemplate.add("algo", tcClass.getName());
 		final String hopCountCode = hopcountTemplate.render();
@@ -763,10 +744,8 @@ public class CMoflonCodeGenerator {
 	 * @return a String containing the List and Block declarations.
 	 */
 	private String getListAndBlockDeclarations(final STGroup templateGroup) {
-		final ST listTemplate = templateGroup.getInstanceOf(
-				"/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.LIST_DECLARATION);
-		final ST memberDeclarationTemplate = templateGroup.getInstanceOf(
-				"/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.MEMB_DECLARATION);
+		final ST listTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_LIST_DECLARATION);
+		final ST memberDeclarationTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_MEMB_DECLARATION);
 		final StringBuilder result = new StringBuilder(nl());
 		for (final String s : blockDeclarations) {
 			// Make sure STS are clean
@@ -794,8 +773,7 @@ public class CMoflonCodeGenerator {
 	 * @return
 	 */
 	private String getInitMethod(final STGroup templateGroup) {
-		final ST init = templateGroup.getInstanceOf(
-				"/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.INIT);
+		final ST init = templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_INIT);
 		init.add("blocks", blockDeclarations);
 		init.add("duplicates", generateDuplicates);
 		return init.render();
@@ -809,8 +787,7 @@ public class CMoflonCodeGenerator {
 	 * @return
 	 */
 	private String getCleanupMethod(final STGroup templateGroup) {
-		final ST cleanup = templateGroup.getInstanceOf(
-				"/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.CLEANUP);
+		final ST cleanup = templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_CLEANUP);
 		cleanup.add("duplicates", generateDuplicates);
 		return cleanup.render();
 	}
@@ -954,9 +931,8 @@ public class CMoflonCodeGenerator {
 			final Scope scope = (Scope) cfResource.getContents().get(0);
 
 			final STGroup group = getTemplateConfigurationProvider()
-					.getTemplateGroup(CMoflonTemplateConfiguration.CONTROL_FLOW_GENERATOR);
-			final ST template = group.getInstanceOf(
-					"/" + CMoflonTemplateConfiguration.CONTROL_FLOW_GENERATOR + "/" + scope.getClass().getSimpleName());
+					.getTemplateGroup(CMoflonTemplateConstants.CONTROL_FLOW_GENERATOR);
+			final ST template = group.getInstanceOf(getTemplateForControlFlowClass(scope));
 			template.add("scope", scope);
 			template.add("importManager", null);
 			generatedMethodBody = template.render();
@@ -968,15 +944,18 @@ public class CMoflonCodeGenerator {
 		return generatedMethodBody;
 	}
 
+	private String getTemplateForControlFlowClass(final Scope scope) {
+		return "/" + CMoflonTemplateConstants.CONTROL_FLOW_GENERATOR + "/" + scope.getClass().getSimpleName();
+	}
+
 	private String getIncludesCode(final STGroup templateGroup, final GenClass tcClass) {
 		if (tcClass == null || !reduceCodeSize) {
 			if (tcClass == null) {
 				return (HeaderFileGenerator.generateIncludes(Components.TOPOLOGYCONTROL,
-						templateGroup.getInstanceOf(HEADER_INCLUDE))) + nl();
+						templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_INCLUDE))) + nl();
 			} else {
-				return (HeaderFileGenerator.generateIncludes(Components.TOPOLOGYCONTROL, templateGroup.getInstanceOf(
-						"/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.INCLUDE)))
-						+ nl();
+				return (HeaderFileGenerator.generateIncludes(Components.TOPOLOGYCONTROL,
+						templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_INCLUDE))) + nl();
 			}
 		} else {
 			return "#include \"cMoflon.h\" " + nl();
@@ -984,14 +963,10 @@ public class CMoflonCodeGenerator {
 	}
 
 	private String getIncludeGuardCode(final GenClass tcClass, final STGroup templateGroup) {
-		final ST definition;
+		final ST definition = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_DEFINITION);
 		if (reduceCodeSize && tcClass != null) {
-			definition = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR
-					+ "/" + CMoflonHeaderFileGenerator.HEADER_DEFINITION);
 		} else {
 			final String algorithmName = tcClass.getName();
-			definition = templateGroup.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/"
-					+ HeaderFileGenerator.HEADER_DEFINITION);
 			definition.add("comp", getComponentName().toUpperCase());
 			definition.add("algo", algorithmName.toUpperCase());
 		}
@@ -1025,14 +1000,14 @@ public class CMoflonCodeGenerator {
 	private String getMatchTypeDefinitionCode(final STGroup templateGroup, final GenClass tcClass) {
 		if (reduceCodeSize) {
 			if (tcClass == null) {
-				final ST match = templateGroup.getInstanceOf(HEADER_MATCH);
+				final ST match = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_MATCH);
 				final String matchTypeDef = match.render();
 				return matchTypeDef;
 			} else {
 				return "";
 			}
 		} else {
-			final ST match = templateGroup.getInstanceOf(HEADER_MATCH);
+			final ST match = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_MATCH);
 			final String matchTypeDef = match.render();
 			return matchTypeDef;
 		}
@@ -1072,7 +1047,7 @@ public class CMoflonCodeGenerator {
 		final StringBuilder typeMappingCodeBuilder = new StringBuilder();
 		if (reduceCodeSize) {
 			if (tcClass == null) {
-				final ST typeMappingTemplate = templateGroup.getInstanceOf(HEADER_DEFINE);
+				final ST typeMappingTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_DEFINE);
 				for (final Entry<String, String> pair : typeMappings.entrySet()) {
 					typeMappingCodeBuilder
 							.append(getTypeMappingCode(typeMappingTemplate, pair.getKey(), pair.getValue()));
@@ -1083,7 +1058,7 @@ public class CMoflonCodeGenerator {
 				return "";
 			}
 		} else {
-			final ST typeMappingTemplate = templateGroup.getInstanceOf(HEADER_DEFINE);
+			final ST typeMappingTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_DEFINE);
 			for (final Entry<String, String> pair : typeMappings.entrySet()) {
 				typeMappingCodeBuilder.append(getTypeMappingCode(typeMappingTemplate, pair.getKey(), pair.getValue()));
 			}
@@ -1103,23 +1078,19 @@ public class CMoflonCodeGenerator {
 	private String getUnimplementedMethodsCode(final STGroup stg, final GenClass tcClass) {
 		// FIXME: currently all methods are classified as unimplemented, but maybe this
 		// is needed as forward declaration
-		ST methoddecls;
 		final StringBuilder builder = new StringBuilder();
 		if (reduceCodeSize) {
 			if (tcClass == null) {
-				methoddecls = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/"
-						+ CMoflonHeaderFileGenerator.METHOD_DECLARATION);
+				final ST methoddecls = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_METHOD_DECLARATION);
 				methoddecls.add("methods", cachedMethodSignatures.get(TC_INDEPENDANT));
 				builder.append(methoddecls.render());
 			} else {
-				methoddecls = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/"
-						+ HeaderFileGenerator.METHOD_DECLARATION);
+				final ST methoddecls = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_METHOD_DECLARATION);
 				methoddecls.add("methods", cachedMethodSignatures.get(tcClass.getName()));
 				builder.append(methoddecls.render());
 			}
 		} else {
-			methoddecls = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/"
-					+ HeaderFileGenerator.METHOD_DECLARATION);
+			final ST methoddecls = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_METHOD_DECLARATION);
 			for (final Map.Entry<String, List<MethodAttribute>> methods : cachedMethodSignatures.entrySet()) {
 				methoddecls.add("methods", methods.getValue());
 				builder.append(methoddecls.render());
@@ -1131,24 +1102,21 @@ public class CMoflonCodeGenerator {
 	}
 
 	private String getAccessorsCode(final STGroup stg, final GenClass tcClass) {
-		ST declarations;
+
 		final StringBuilder builder = new StringBuilder();
 		if (reduceCodeSize) {
 			// TODO: filter more exactly
 			if (tcClass == null) {
-				declarations = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR + "/"
-						+ CMoflonHeaderFileGenerator.DECLARATIONS);
+				final ST declarations = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_DECLARATION);
 				declarations.add("fields", cachedFields.get(TC_INDEPENDANT));
 				builder.append(declarations.render());
 			} else {
-				declarations = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/"
-						+ HeaderFileGenerator.DECLARATIONS);
+				final ST declarations = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_DECLARATION);
 				declarations.add("fields", cachedFields.get(tcClass.getName()));
 				builder.append(declarations.render());
 			}
 		} else {
-			declarations = stg.getInstanceOf(
-					"/" + CMoflonTemplateConfiguration.HEADER_FILE_GENERATOR + "/" + HeaderFileGenerator.DECLARATIONS);
+			final ST declarations = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_DECLARATION);
 			for (final Map.Entry<String, List<FieldAttribute>> fields : cachedFields.entrySet()) {
 				declarations.add("fields", fields.getValue());
 				builder.append(declarations.render());
@@ -1163,17 +1131,16 @@ public class CMoflonCodeGenerator {
 		final StringBuilder builder = new StringBuilder();
 		if (reduceCodeSize) {
 			if (tcClass == null) {
-				final ST compare = stg.getInstanceOf("/" + CMoflonTemplateConfiguration.CMOFLON_HEADER_FILE_GENERATOR
-						+ "/" + CMoflonHeaderFileGenerator.COMPARE_DECLARATION);
+				final ST compare = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_COMPARE_DECLARATION);
 				compare.add("types", getTypesFromGenModel(tcClass));
 				builder.append(compare.render());
 			} else {
-				final ST compare = stg.getInstanceOf(CMoflonTemplateConfiguration.HEADER_COMPARE_DECLARATION);
+				final ST compare = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_COMPARE_DECLARATION);
 				compare.add("types", getTypesFromGenModel(tcClass));
 				builder.append(compare.render());
 			}
 		} else {
-			final ST compare = stg.getInstanceOf(CMoflonTemplateConfiguration.HEADER_COMPARE_DECLARATION);
+			final ST compare = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_COMPARE_DECLARATION);
 			compare.add("types", getTypesFromGenModel(tcClass));
 			builder.append(compare.render());
 		}
@@ -1184,19 +1151,19 @@ public class CMoflonCodeGenerator {
 		final StringBuilder builder = new StringBuilder();
 		if (reduceCodeSize) {
 			if (tcClass == null) {
-				final ST equals = stg.getInstanceOf(CMoflonTemplateConfiguration.HEADER_EQUALS_DELCARATION);
+				final ST equals = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_EQUALS_DELCARATION);
 				equals.add("types", getBuiltInTypes());
 				builder.append(equals.render());
 				equals.remove("types");
 				equals.add("types", getTypesFromGenModel(tcClass));
 				builder.append(equals.render());
 			} else {
-				final ST equals = stg.getInstanceOf(CMoflonTemplateConfiguration.HEADER_EQUALS_DELCARATION);
+				final ST equals = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_EQUALS_DELCARATION);
 				equals.add("types", getTypesFromGenModel(tcClass));
 				builder.append(equals.render());
 			}
 		} else {
-			final ST equals = stg.getInstanceOf(CMoflonTemplateConfiguration.HEADER_EQUALS_DELCARATION);
+			final ST equals = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_EQUALS_DELCARATION);
 			equals.add("types", getBuiltInTypes());
 			builder.append(equals.render());
 			equals.remove("types");
@@ -1209,9 +1176,9 @@ public class CMoflonCodeGenerator {
 	private String getHeaderTail(final GenClass tcClass, final STGroup stg) {
 		ST end;
 		if (reduceCodeSize && tcClass == null) {
-			end = stg.getInstanceOf(HEADER_CONSTANTS_END);
+			end = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_END);
 		} else {
-			end = stg.getInstanceOf(HEADER_CONSTANTS_END);
+			end = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_END);
 			end.add("comp", getComponentName().toUpperCase());
 			end.add("algo", tcClass.getName().toUpperCase());
 		}
@@ -1285,10 +1252,9 @@ public class CMoflonCodeGenerator {
 	 */
 	private String getParametersFromEcore(final EOperation eOperation) {
 		final STGroup source = getTemplateConfigurationProvider()
-				.getTemplateGroup(CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR);
+				.getTemplateGroup(CMoflonTemplateConstants.SOURCE_FILE_GENERATOR);
 		source.registerRenderer(String.class, new CMoflonStringRenderer());
-		final ST template = source.getInstanceOf(
-				"/" + CMoflonTemplateConfiguration.SOURCE_FILE_GENERATOR + "/" + SourceFileGenerator.PARAMETER);
+		final ST template = source.getInstanceOf(CMoflonTemplateConstants.SOURCE_PARAMETER);
 		final StringBuilder result = new StringBuilder();
 		template.add("name", "this");
 		template.add("type", new Type(isBuiltInType(eOperation.getEContainingClass().getName()),
@@ -1511,7 +1477,7 @@ public class CMoflonCodeGenerator {
 
 	public String generateConstant(final Object key, final Object value, final String component, final GenClass tcClass,
 			final STGroup templateGroup) {
-		final ST constantTemplate = templateGroup.getInstanceOf(HEADER_CONSTANTS_DEFINITION);
+		final ST constantTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_DEFINITION);
 		constantTemplate.add("comp", component);
 		constantTemplate.add("algo", tcClass.getName());
 		constantTemplate.add("name", key);
