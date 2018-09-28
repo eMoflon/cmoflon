@@ -85,8 +85,8 @@ typedef <replaced> <orig;format="fulluppercase">_T;<\n>
 
 getMatch()::=<<
 typedef struct match{
-	struct match_t* next;
-	void** match;
+  struct match_t* next;
+  void** match;
 }match_t;
 
 

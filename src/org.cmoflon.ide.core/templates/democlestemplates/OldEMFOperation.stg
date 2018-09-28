@@ -1,6 +1,6 @@
 BackwardExtendToMany(engine, importManager, body, chain) ::= <<
 for (<importManager.(chain.value.operation.type.linkedElement.genModelElement.genClass.typeName)> <if (first(chain.value.operation.postcondition).isNotTypeChecked)>tmp<first(chain.value.parameters).specification.name; format="uppercase"><else><first(chain.value.parameters).specification.name; format="lowercase"><endif> : <first(rest(chain.value.operation.parameters)).specification.name; format="lowercase">.<chain.value.operation.type.linkedElement.genModelElement.reverse.getAccessor>()) {
-	<(chain.next.value.template)(engine, importManager, body, chain.next)>
+  <(chain.next.value.template)(engine, importManager, body, chain.next)>
 }
 >>
 
@@ -11,19 +11,19 @@ BackwardExtendToOne(engine, importManager, body, chain) ::= <<
 
 CheckToMany(engine, importManager, body, chain) ::= <<
 if (<first(chain.value.operation.parameters).specification.name; format="lowercase">.<chain.value.operation.type.linkedElement.genModelElement.getAccessor>().contains(<first(rest(chain.value.operation.parameters)).specification.name; format="lowercase">)) {
-	<(chain.next.value.template)(engine, importManager, body, chain.next)>
+  <(chain.next.value.template)(engine, importManager, body, chain.next)>
 }
 >>
 
 CheckToOne(engine, importManager, body, chain) ::= <<
 if (<first(rest(chain.value.operation.parameters)).specification.name; format="lowercase">.equals(<first(chain.value.operation.parameters).specification.name; format="lowercase">.<chain.value.operation.type.linkedElement.genModelElement.getAccessor>()) {
-	<(chain.next.value.template)(engine, importManager, body, chain.next)>
+  <(chain.next.value.template)(engine, importManager, body, chain.next)>
 }
 >>
 
 ForwardExtendToMany(engine, importManager, body, chain) ::= <<
 for (<importManager.(chain.value.operation.type.returnType)> <if (first(rest(chain.value.operation.postcondition)).isNotTypeChecked)>tmp<first(rest(chain.value.operation.parameters)).specification.name; format="uppercase"><else><first(rest(chain.value.operation.parameters)).specification.name; format="lowercase"><endif> : <first(chain.value.operation.parameters).specification.name; format="lowercase">.<chain.value.operation.type.linkedElement.genModelElement.getAccessor>()) {
-	<(chain.next.value.template)(engine, importManager, body, chain.next)>
+  <(chain.next.value.template)(engine, importManager, body, chain.next)>
 }
 >>
 
@@ -34,8 +34,8 @@ ForwardExtendToOne(engine, importManager, body, chain) ::= <<
 
 TypeCheck(engine, importManager, body, chain) ::= <<
 if (tmp<first(chain.value.operation.parameters).specification.name; format="uppercase"> instanceof <importManager.(chain.value.operation.type)>) {
-	<importManager.(chain.value.operation.type)> <first(chain.value.operation.parameters).specification.name; format="lowercase"> = (<importManager.(chain.value.operation.type.typeName)>) tmp<first(chain.value.operation.parameters).specification.name; format="uppercase">;
-	<(chain.next.value.template)(engine, importManager, body, chain.next)>
+  <importManager.(chain.value.operation.type)> <first(chain.value.operation.parameters).specification.name; format="lowercase"> = (<importManager.(chain.value.operation.type.typeName)>) tmp<first(chain.value.operation.parameters).specification.name; format="uppercase">;
+  <(chain.next.value.template)(engine, importManager, body, chain.next)>
 }
 >>
 

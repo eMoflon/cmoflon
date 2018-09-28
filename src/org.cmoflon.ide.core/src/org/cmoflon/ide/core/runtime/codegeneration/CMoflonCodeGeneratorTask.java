@@ -128,7 +128,7 @@ public class CMoflonCodeGeneratorTask implements ITask {
 			final String fullProjectName = moflonProperties.getProjectName();
 			logger.info("Generating code for: " + fullProjectName);
 
-			long toc = System.nanoTime();
+			final long toc = System.nanoTime();
 
 			final Resource resource = getEcoreResource();
 			final EPackage ePackage = (EPackage) resource.getContents().get(0);

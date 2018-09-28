@@ -1,0 +1,26 @@
+EvaluationStatementBegin() ::= <<
+// Detailed evaluation output - begin
+list_t neighbors= component_neighbordiscovery_neighbors();
+neighbor_t* link;
+int degree=0;
+for(link=list_head(neighbors);link!=NULL;link=list_item_next(link)){
+  if(networkaddr_equal(link->node1,networkaddr_node_addr())||networkaddr_equal(link->node2,networkaddr_node_addr())) {
+    degree++;
+  }
+}
+printf("[topologycontrol]: DEGREE: %d\n", degree);
+
+unsigned long start=RTIMER_NOW();
+printf("[topologycontrol]: STATUS: Run\n");
+// Detailed evaluation output - end
+
+>>
+
+EvaluationStatementEnd() ::= <<
+// Detailed evaluation output - begin
+unsigned long finish=RTIMER_NOW();
+unsigned long runtime= finish>start? finish-start:start-finish;
+printf("[topologycontrol]: TIME: %lu\n", runtime);
+// Detailed evaluation output - end
+
+>>

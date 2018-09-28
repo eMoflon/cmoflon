@@ -16,16 +16,16 @@ return new <importManager.("org.gervarro.democles.common.GenericDataFrame")>(<if
 
 MatchSingleMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain) ::= <<
 public final <importManager.("org.gervarro.democles.common.GenericDataFrame")> matchSingle<body.header.name; format="uppercase"><adornment>(<boundSymbolicParameters:VariableTypeAndName(importManager); separator=", ">) {
-	<(chain.value.template)(engine, importManager, body, chain)>
-	return null;
+  <(chain.value.template)(engine, importManager, body, chain)>
+  return null;
 }
 >>
 
 MatchAllMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain) ::= <<
 public final <importManager.("java.lang.Iterable")>\<<importManager.("org.gervarro.democles.common.GenericDataFrame")>\> matchAll<body.header.name; format="uppercase"><adornment>(<boundSymbolicParameters:VariableTypeAndName(importManager); separator=", ">) {
-	<importManager.("java.util.LinkedList")>\<<importManager.("org.gervarro.democles.common.GenericDataFrame")>\> result =
-		new <importManager.("java.util.LinkedList")>\<<importManager.("org.gervarro.democles.common.GenericDataFrame")>\>();
-	<(chain.value.template)(engine, importManager, body, chain)>
-	return result;
+  <importManager.("java.util.LinkedList")>\<<importManager.("org.gervarro.democles.common.GenericDataFrame")>\> result =
+    new <importManager.("java.util.LinkedList")>\<<importManager.("org.gervarro.democles.common.GenericDataFrame")>\>();
+  <(chain.value.template)(engine, importManager, body, chain)>
+  return result;
 }
 >>

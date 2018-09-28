@@ -44,63 +44,46 @@ import org.stringtemplate.v4.STGroup;
 /**
  * Mimics behavior of {@link DefaultTemplateConfiguration}. Includes the changed
  * StringTemplates as well as the {@link CMoflonStringRenderer}
- * 
+ *
  * @author David Giessing
+ * @author Roland Kluge
  *
  */
 public class CMoflonTemplateConfiguration implements TemplateConfigurationProvider {
-	/**
-	 * String template group prefix for control flow
-	 */
-	public static final String CONTROL_FLOW_GENERATOR = "ControlFlowGenerator";
+	private final HashMap<String, STGroup> templates = new HashMap<>();
 
-	/**
-	 * String template group prefix for header file structure of the topology
-	 * control component
-	 */
-	public static final String HEADER_FILE_GENERATOR = "HeaderFileGenerator";
-
-	/**
-	 * String template group prefix for cMoflon header file structure of the
-	 * topology control component
-	 */
-	public static final String CMOFLON_HEADER_FILE_GENERATOR = "CMoflonHeaderFileGenerator";
-
-	/**
-	 * String template group prefix for source file structure of the topology
-	 * control component
-	 */
-	public static final String SOURCE_FILE_GENERATOR = "SourceFileGenerator";
-
-	private final HashMap<String, STGroup> templates = new HashMap<String, STGroup>();
-
-	protected final HashMap<String, OperationSequenceCompiler> operationSequenceCompilers = new HashMap<String, OperationSequenceCompiler>();
+	protected final HashMap<String, OperationSequenceCompiler> operationSequenceCompilers = new HashMap<>();
 
 	private static final Logger logger = Logger.getLogger(CMoflonTemplateConfiguration.class);
 
-	public CMoflonTemplateConfiguration(GenModel genModel) {
+	public CMoflonTemplateConfiguration(final GenModel genModel) {
 		final EcoreToGenModelConverter ecoreToGenModelConverter = new EcoreToGenModelConverter(genModel);
 		final EcoreModelAdaptor ecoreModelAdaptor = new CMoflonEcoreModelAdaptor(ecoreToGenModelConverter);
 
 		final STGroup controlFlowTemplateGroup = createControlFlowTemplates();
 		controlFlowTemplateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
-		templates.put(CONTROL_FLOW_GENERATOR, controlFlowTemplateGroup);
+		templates.put(CMoflonTemplateConstants.CONTROL_FLOW_GENERATOR, controlFlowTemplateGroup);
 
 		final STGroup headerGroup = new STGroup();
 		headerGroup.setListener(new LoggingSTErrorListener(logger));
-		headerGroup.loadGroupFile("/" + HEADER_FILE_GENERATOR + "/", getTemplateUriPrefix() + "/header/header.stg");
-		templates.put(HEADER_FILE_GENERATOR, headerGroup);
+		headerGroup.loadGroupFile(CMoflonTemplateConstants.HEADER_PREFIX, getTemplateUriPrefix() + "/header/header.stg");
+		templates.put(CMoflonTemplateConstants.HEADER_FILE_GENERATOR, headerGroup);
 
 		final STGroup cMoflonHeaderGroup = new STGroup();
 		cMoflonHeaderGroup.setListener(new LoggingSTErrorListener(logger));
-		cMoflonHeaderGroup.loadGroupFile("/" + CMOFLON_HEADER_FILE_GENERATOR + "/",
-				getTemplateUriPrefix() + "/header/cMoflonHeader.stg");
-		templates.put(CMOFLON_HEADER_FILE_GENERATOR, cMoflonHeaderGroup);
+		cMoflonHeaderGroup.loadGroupFile(CMoflonTemplateConstants.CMOFLON_HEADER_PREFIX, getTemplateUriPrefix() + "/header/cMoflonHeader.stg");
+		templates.put(CMoflonTemplateConstants.CMOFLON_HEADER_FILE_GENERATOR, cMoflonHeaderGroup);
 
 		final STGroup sourceGroup = new STGroup();
 		sourceGroup.setListener(new LoggingSTErrorListener(logger));
-		sourceGroup.loadGroupFile("/" + SOURCE_FILE_GENERATOR + "/", getTemplateUriPrefix() + "/cFile/cFile.stg");
-		templates.put(SOURCE_FILE_GENERATOR, sourceGroup);
+		sourceGroup.loadGroupFile(CMoflonTemplateConstants.SOURCE_PREFIX, getTemplateUriPrefix() + "/cFile/cFile.stg");
+		templates.put(CMoflonTemplateConstants.SOURCE_FILE_GENERATOR, sourceGroup);
+
+		final STGroup evaluationStatementsGroup = new STGroup();
+		evaluationStatementsGroup.setListener(new LoggingSTErrorListener(logger));
+		evaluationStatementsGroup.loadGroupFile(CMoflonTemplateConstants.EVALUATION_PREFIX,
+				getTemplateUriPrefix() + "/stringtemplate/EvaluationStatements.stg");
+		templates.put(CMoflonTemplateConstants.EVALUATION_STATEMENTS, evaluationStatementsGroup);
 
 		final STGroup bindingAndBlackTemplateGroup = createBindingAndBlackTemplates();
 		bindingAndBlackTemplateGroup.registerModelAdaptor(EModelElement.class, ecoreModelAdaptor);
@@ -168,8 +151,7 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	private STGroup createControlFlowTemplates() {
 		final STGroup group = new STGroup();
 		group.setListener(new LoggingSTErrorListener(logger));
-		group.loadGroupFile("/" + CONTROL_FLOW_GENERATOR + "/",
-				getTemplateUriPrefix() + "stringtemplate/ControlFlow.stg");
+		group.loadGroupFile(CMoflonTemplateConstants.CONTROL_FLOW_PREFIX, getTemplateUriPrefix() + "stringtemplate/ControlFlow.stg");
 		final ControlFlowModelAdaptor adaptor = new ControlFlowModelAdaptor();
 		group.registerModelAdaptor(PatternInvocation.class, adaptor);
 		group.registerModelAdaptor(VariableReference.class, adaptor);
@@ -182,12 +164,12 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	}
 
 	@Override
-	public STGroup getTemplateGroup(String patternType) {
+	public STGroup getTemplateGroup(final String patternType) {
 		return templates.get(patternType);
 	}
 
 	@Override
-	public OperationSequenceCompiler getOperationSequenceCompiler(String patternType) {
+	public OperationSequenceCompiler getOperationSequenceCompiler(final String patternType) {
 		return operationSequenceCompilers.get(patternType);
 	}
 
