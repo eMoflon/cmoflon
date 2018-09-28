@@ -2,9 +2,8 @@
 <testConf xmlns="http://www.flocklab.ethz.ch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.flocklab.ethz.ch xml/flocklab.xsd">
 	<!-- General configuration -->
 	<generalConf>
-		<name>Cmoflon kTC patternmatching Evaluation</name>
+		<name>Topology control algorithm generated with cMoflon</name>
 		<description>
-			Large Generated. Evaluation of kTC code generated from a PatternMatcher. Results evaluated are Runtime, ErrorRate and the resulting topology.
 		</description>
 		<scheduleAsap>
 			<durationSecs>1800</durationSecs>
