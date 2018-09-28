@@ -76,6 +76,7 @@ We suggest to mount a [shared folder](https://help.ubuntu.com/community/VirtualB
 1. Copy both generated files (.c and .h) from the */gen* folder of your cMoflon workspace into the folder *$ToCoCo/src/components/topologycontrol/*
 1. Insert the constants from the cMoflon-generated file *app-conf-constants.h.sample* into *$ToCoCo/src/app-conf-constants.h*. These constants assign to each generated algorithm a unique ID, indicate which .c file implements which TC algorithm, and signal ToCoCo to use the link-state attribute (`TOPOLOGYCONTROL_LINKS_HAVE_STATES`). The latter constant enables that the type ```neighbor_t``` has a member called ```state```.
 1. Copy *$ToCoCo/src/app-conf-default* to *$ToCoCo/src/app-conf*. The file contains some sensible default settings for the FlockLab testbed and the Cooja simulator.
+   * If you want to update the waiting time until topology control is executed, update the corresponding preprocessor constants that end with `_UPDATEINTERVAL` (e.g., `COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL`).
 1. Copy *$ToCoCo/src/Makefile-conf-default.include* to *$ToCoCo/src/Makefile-conf.include* 
    * The `Contiki` property points to the Contiki distribution. In the Instant Contiki Vm, choose ```Contiki=/home/user/contiki```.
    * Disable `NETWORK_IPV6`: ```NETWORK_IPV6 = 0``` (With IPv6, the resulting image would be too large for Sky motes).
@@ -91,16 +92,16 @@ We suggest to mount a [shared folder](https://help.ubuntu.com/community/VirtualB
 FlockLab (https://www.flocklab.ethz.ch/) is a wireless sensor testbed at ETH Zurich.
 
 1. You will need a Flocklab account for testing so create one here: https://www.flocklab.ethz.ch/user/login.php
-1. Follow all the Steps for Cooja until compilation has terminated.
+1. Follow all the steps for Cooja until compilation has terminated.
 1. Go to the test image section (https://www.flocklab.ethz.ch/user/images.php) and upload the compiled *app.sky* file, located in *$ToCoCo/src*.
    * As *OS*, choose *TinyOS*.
    * As *Platform*, choose *Tmote*.
-1. Create a copy of the xml configuration file *org.cmoflon.runtime/resources/Evaluation/flocklabConfig.xml*.
-   * Copy the image ID into the ```<dbImageId/>``` element
-   * (optional) Adjust the duration of the test (```<durationSecs/>```, e.g., 960).
+1. Create a copy of the FlockLab configuration file *https://github.com/eMoflon/cmoflon/blob/master/evaluation/FlockLab/flocklabConfig.xml*.
+   * Copy the image ID that you received in the following step into the ```<dbImageId/>``` element
+   * (optional) Adjust the duration of the test in seconds (e.g., ```<durationSecs>960</durationSecs>```).
 1. Create a new test (https://www.flocklab.ethz.ch/user/index.php) by uploading the adjusted xml configuration file.
-   * The image ID can be modified as long as the test has not started yet.
-1. After the test is run, you will receive an e-mail with the results in a zip folder.
+   * The configuration can be updated as long as the test has not started yet.
+1. After the test, you will receive an e-mail with the results in a zip folder.
    * The contents of the *serial.csv* file allow you to debug/analyze the topology control behavior (Watch out for lines like ```[topologycontrol-*]```).
 
    
