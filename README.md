@@ -73,18 +73,18 @@ Cooja is the network simulator that ships with Contiki.
 It is quite a powerful simulator for a first test of your code.
 We suggest to mount a [shared folder](https://help.ubuntu.com/community/VirtualBox/SharedFolders) to copy cMoflon-generated files to the Instant Contiki VM.
 
-1. Copy both generated files (.c and .h) from the */gen* folder of your cMoflon workspace into the folder *$ToCoCo/src/components/topologycontrol/*
+1. Copy both all .c and .h files from the */gen* folder of your cMoflon project to the folder *$ToCoCo/src/components/topologycontrol/*
 1. Insert the constants from the cMoflon-generated file *app-conf-constants.h.sample* into *$ToCoCo/src/app-conf-constants.h*. These constants 
-   * assign to each generated algorithm a unique ID,
-   * indicate which .c file implements which TC algorithm, and 
+   * assign to each generated algorithm a unique ID (e.g., `COMPONENT_TOPOLOGYCONTROL_CMOFLONTOPOLOGYCONTROL_MAXPOWERTOPOLOGYCONTROL`),
+   * indicate which .c file implements which TC algorithm (e.g., `COMPONENT_TOPOLOGYCONTROL_IMPL_FILE_CMOFLONTOPOLOGYCONTROL_MAXPOWERTOPOLOGYCONTROL`), and 
    * signal ToCoCo to use the link-state attribute (`TOPOLOGYCONTROL_LINKS_HAVE_STATES`). The latter constant enables that the type ```neighbor_t``` has a member called ```state```.
 1. Copy *$ToCoCo/src/app-conf-default* to *$ToCoCo/src/app-conf*. The file contains some sensible default settings for the FlockLab testbed and the Cooja simulator.
-   * If you want to change the waiting time until topology control is executed, update the corresponding preprocessor constants that end with `_UPDATEINTERVAL` (e.g., `COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL`).
+   * To change the waiting time until topology control is executed, update the corresponding preprocessor constants that end with `_UPDATEINTERVAL` (e.g., `COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL`).
 1. Copy *$ToCoCo/src/Makefile-conf-default.include* to *$ToCoCo/src/Makefile-conf.include* 
    * The `Contiki` property points to the Contiki distribution. In the Instant Contiki Vm, choose ```Contiki=/home/user/contiki```.
    * Disable `NETWORK_IPV6`: ```NETWORK_IPV6 = 0``` (With IPv6, the resulting image would be too large for Sky motes).
-   * Select `TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE` that contains the implementation of the TC algorithm: `TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE=topologycontrol-CMoflonTopologyControl-MaxpowerTopologyControl.c`
-1. Open a terminal, navigate to */home/user/contiki/tools/cooja* (for Instant Contiki).
+   * To select the active .c file that contains the implementation of the generated algorithm, update the assignment of `TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE` in *Makefile-conf-default.include*  according to the file with the same name in the */gen* folder of your cMoflon project (e.g., `TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE=topologycontrol-CMoflonTopologyControl-MaxpowerTopologyControl.c`).
+1. Open a terminal and navigate to */home/user/contiki/tools/cooja* (for Instant Contiki).
 1. Use the command ```ant run``` to start the Cooja Simulator.
 1. Create a new simulation (*File &rarr; New Simulation* or *CTRL+N*)
 1. Navigate to *Motes &rarr; Add motes &rarr; Create New Mote Type &rarr; Sky mote*, browse to *$ToCoCo/src/app.c*, and hit *Compile*.
