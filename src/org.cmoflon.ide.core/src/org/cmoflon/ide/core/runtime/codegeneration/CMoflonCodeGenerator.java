@@ -78,7 +78,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * Generates the source and the header File.
+ * Generates the source and the header files in /gen
  *
  * @author David Giessing
  * @author Roland Kluge
@@ -86,11 +86,45 @@ import org.stringtemplate.v4.STGroup;
 public class CMoflonCodeGenerator {
 
 	private static final Logger logger = Logger.getLogger(CMoflonCodeGenerator.class);
+	/**
+	 * The currently built Eclipse project
+	 */
+	private final IProject project;
+	/**
+	 * The GenModel of the project
+	 */
+	private final GenModel genModel;
 
+	/**
+	 * The Democles import manager to be used during the build process
+	 */
+	private ImportManager democlesImportManager;
+
+	/**
+	 * The Democles code generator to invoke for generating pattern-matching code
+	 */
+	private final DemoclesGeneratorAdapterFactory codeGenerationEngine;
+
+	/**
+	 * Contains preprocessor directives to be placed in the file with the same name
+	 * in TOCOCO_HOME/src
+	 */
 	private static final String APPLICATION_DEFAULTS_FILENAME = "app-conf-constants.h.sample";
 
+	/**
+	 * Contains Makefile directives to be placed in the file with the same name in
+	 * TOCOCO_HOME/src
+	 */
+	private static final String MAKE_CONF_FILENAME = "Makefile-conf-default.include";
+
+	/**
+	 * Name of the class that serves as parent class of TC algorithms
+	 */
 	private static final String DEFAULT_TC_PARENT_CLASS_NAME = "TopologyControlAlgorithm";
 
+	/**
+	 * Name of the TC component in ToCoCo
+	 */
 	private static final String COMPONENT_TOPOLOGY_CONTROL_PREFIX = "topologycontrol";
 
 	/**
@@ -98,22 +132,18 @@ public class CMoflonCodeGenerator {
 	 */
 	private final List<String> builtInTypes;
 
-	private final IProject project;
-
-	// Contains all algorithm names for which dropping Unidirectional edges should
-	// be inactive
+	/**
+	 * Contains all algorithm names for which dropping unidirectional edges should
+	 * be inactive
+	 */
 	private final Set<String> dropUnidirectionalEdgesOff = new HashSet<>();
 
-	// Contains all algorithm names for which hopcounts are requested
+	/**
+	 * Contains all algorithm names for which hop-count data are requested
+	 */
 	private final Set<String> useHopCountProcess = new HashSet<>();
 
-	private ImportManager democlesImportManager;
-
 	private final List<String> blockDeclarations = new ArrayList<>();
-
-	private final GenModel genModel;
-
-	private final DemoclesGeneratorAdapterFactory codeGenerationEngine;
 
 	private final List<GenClass> tcClasses = new ArrayList<>();
 
@@ -287,10 +317,28 @@ public class CMoflonCodeGenerator {
 				&& tcAlgorithmParentGenClass.getEcoreClass().isSuperTypeOf(genClass.getEcoreClass());
 	}
 
+	private boolean useHopCount(final GenClass tcClass) {
+		return useHopCountProcess.contains(tcClass.getName());
+	}
+
+	private String getDateCommentCode() {
+		return String.format("// Generated using cMoflon on %s%s", timeFormatter.format(new Date()), nl());
+	}
+
 	private void initializeCaches() {
 		initializeCachedMetamodelElementLists();
 		initializeCachedPatternMatchingCode();
 		blockDeclarations.addAll(getBlockDeclarations(cachedConcreteClasses));
+	}
+
+	/**
+	 * Resets all fields that store cached artefacts to their default state
+	 */
+	private void resetCaches() {
+		cachedMethodSignatures.clear();
+		cachedFields.clear();
+		cachedConcreteClasses.clear();
+		blockDeclarations.clear();
 	}
 
 	private void initializeCachedPatternMatchingCode() {
@@ -331,8 +379,7 @@ public class CMoflonCodeGenerator {
 							intermediateBuffer.append("){").append(nl());
 							for (final String line : generatedMethodBody.trim().replaceAll("\\r", "")
 									.split(Pattern.quote(nl()))) {
-								intermediateBuffer.append(idt() + line);
-								intermediateBuffer.append(nl());
+								intermediateBuffer.append(idt() + line).append(nl());
 							}
 							intermediateBuffer.append(nl() + "}").append(nl());
 
@@ -382,14 +429,6 @@ public class CMoflonCodeGenerator {
 		fields.addAll(getFields(genClass));
 		genClass.getGenOperations().forEach(genOperation -> {
 			final EClassifier operationType = genOperation.getEcoreOperation().getEType();
-			/*
-			 * EOperation eOp=genOperation.getEcoreOperation(); if(eOp instanceof
-			 * MoflonEOperation) { MoflonEOperation mEOp=(MoflonEOperation)eOp;
-			 * if(mEOp.getActivity()==null) { //The method is unimplemented and is added to
-			 * the list of unimplemented methods furter down ; } //The method is implemented
-			 * and hence does not need a declaration else return; }
-			 */
-			// Add methods to unimplemented methods
 			final String operationTypeName = operationType == null ? "void" : operationType.getName();
 			final boolean isOperationTypeBuiltIn = operationType == null ? true : isBuiltInType(operationTypeName);
 			final String genClassName = genOperation.getGenClass().getName();
@@ -403,16 +442,6 @@ public class CMoflonCodeGenerator {
 					new Type(isOperationTypeBuiltIn, operationTypeName), genOperation.getName(),
 					getParametersFromEcore(genOperation.getEcoreOperation())));
 		});
-	}
-
-	/**
-	 * Resets all fields that store cached artefacts to their default state
-	 */
-	private void resetCaches() {
-		cachedMethodSignatures.clear();
-		cachedFields.clear();
-		cachedConcreteClasses.clear();
-		blockDeclarations.clear();
 	}
 
 	private String getComponentName() {
@@ -517,35 +546,38 @@ public class CMoflonCodeGenerator {
 		}
 	}
 
-	private boolean useHopCount(final GenClass tcClass) {
-		return useHopCountProcess.contains(tcClass.getName());
-	}
-
-	private String getDateCommentCode() {
-		return String.format("// Generated using cMoflon on %s%s", timeFormatter.format(new Date()), nl());
-	}
-
 	private void generateSampleFiles(final IProgressMonitor monitor) throws CoreException {
-		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate sample files", 1);
-		final String appConfConstants = WorkspaceHelper.GEN_FOLDER + "/" + APPLICATION_DEFAULTS_FILENAME;
-		final List<String> linesForSampleFile = new ArrayList<>();
-		linesForSampleFile.add("#define TOPOLOGYCONTROL_LINKS_HAVE_STATES");
-		for (final GenClass tcAlgorithm : tcClasses) {
-			linesForSampleFile.add(String.format("#define %s %d", getAlgorithmPreprocessorId(tcAlgorithm),
-					calculateUniqueId(tcAlgorithm)));
+		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate sample file", 4);
+		{
+			final String appConfConstantsFilename = WorkspaceHelper.GEN_FOLDER + "/" + APPLICATION_DEFAULTS_FILENAME;
+			final List<String> lines = new ArrayList<>();
+			lines.add("#define TOPOLOGYCONTROL_LINKS_HAVE_STATES");
+			for (final GenClass tcAlgorithm : tcClasses) {
+				lines.add(String.format("#define %s %d", getAlgorithmPreprocessorId(tcAlgorithm),
+						getUniqueId(tcAlgorithm)));
+				lines.add(String.format("#define %s %s", getAlgorithmImplementationFileId(tcAlgorithm),
+						getAlgorithmImplementationFileName(tcAlgorithm)));
+				lines.add("");
+			}
+			final String content = StringUtils.join(lines, nl());
+			WorkspaceHelper.addFile(project, appConfConstantsFilename, content, subMon.split(2));
 		}
-		final String content = StringUtils.join(linesForSampleFile, nl());
-		final IFile sampleFile = project.getFile(appConfConstants);
-		if (sampleFile.exists()) {
-			sampleFile.setContents(new ReaderInputStream(new StringReader(content.toString())), true, true,
-					subMon.split(2));
-		} else {
-			WorkspaceHelper.addFile(project, appConfConstants, content, subMon.split(1));
+		{
+			final String makefileConfFilename = WorkspaceHelper.GEN_FOLDER + "/" + MAKE_CONF_FILENAME;
+			final List<String> lines = new ArrayList<>();
+			lines.add("ifndef TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE");
+			lines.add(String.format("#%sUncomment the line that corresponds to the current TC algorithm", idt2()));
+			for (final GenClass tcAlgorithm : tcClasses) {
+				lines.add(String.format("#%sTOPOLOGYCONTROL_PREDEFINED_IMPL_FILE=%s", //
+						idt2(), getAlgorithmImplementationFileName(tcAlgorithm)));
+			}
+			lines.add("endif");
+			final String content = StringUtils.join(lines, nl());
+			WorkspaceHelper.addFile(project, makefileConfFilename, content, subMon.split(2));
 		}
-
 	}
 
-	private int calculateUniqueId(final GenClass tcAlgorithm) {
+	private int getUniqueId(final GenClass tcAlgorithm) {
 		return 10000 + tcAlgorithm.getName().hashCode() % 10000;
 	}
 
@@ -615,6 +647,15 @@ public class CMoflonCodeGenerator {
 
 	private String getAlgorithmPreprocessorId(final GenClass tcClass) {
 		return ("COMPONENT_" + getComponentName() + "_" + project.getName() + "_" + tcClass.getName()).toUpperCase();
+	}
+
+	private String getAlgorithmImplementationFileId(final GenClass tcClass) {
+		return ("COMPONENT_" + getComponentName() + "_IMPL_FILE_" + project.getName() + "_" + tcClass.getName())
+				.toUpperCase();
+	}
+
+	private String getAlgorithmImplementationFileName(final GenClass tcClass) {
+		return getComponentName() + "-" + project.getName() + "-" + tcClass.getName() + ".c";
 	}
 
 	private String getProcessBodyCode(final GenClass tcClass, final STGroup sourceFileGeneratorTemplateGroup) {
