@@ -18,7 +18,7 @@ If you encounter any problems or need support, please
 
 ## cMoflon user setup
 If you want to run the generated code in the testbed, follow the steps in the *Complete walkthrough* section.
-This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 and Enterprise Architect 12
+This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 and Enterprise Architect 12.
 
 1. **Install Eclipse with Modeling Components Oxygen (or newer)**
    * All Eclipse packages are available here: https://eclipse.org/downloads/
@@ -29,9 +29,9 @@ This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 an
    * From eMoflon Tool you only need the basic eMoflon Tool feature
    * If not done automatically, you will have to enable the update site https://emoflon.org/emoflon-core-updatesite/stable/updatesite/ in the Software Site dialog of the Eclipse preferences.
    * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.org/eclipse-plugin/beta/updatesite/ea-ecore-addin.zip
-1. **Install cMoflon 1.0.0**
-   * Stable update site:
-   * Unstable update Site: http://emoflon.github.io/cmoflon/updatesite/
+1. **Install cMoflon**
+   * Eclipse update site cMoflon 1.0.0: https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/cmoflon_1.0.0/updatesite
+   * Current Eclipse update site: https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/master/updatesite
    * You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.
 1. **Demo specification**
    1. Import the sample projects into your workspace as follows: 
@@ -104,7 +104,6 @@ FlockLab (https://www.flocklab.ethz.ch/) is a wireless sensor testbed at ETH Zur
 1. After the test, you will receive an e-mail with the results in a zip folder.
    * The contents of the *serial.csv* file allow you to debug/analyze the topology control behavior (Watch out for lines like ```[topologycontrol-*]```).
 
-   
 ### How to use the evaluation tools (excerpt)
 The ToCoCo evaluation tools help you to analyze the serial logging output of the FlockLab sensor nodes.
 
@@ -113,3 +112,11 @@ The ToCoCo evaluation tools help you to analyze the serial logging output of the
 If you are interested in compiling all of the considered topology control algorithms as a batch, we recommend to use the Bash script that can be found at *$ToCoCo/evaluation/src/BatchCompilation*.
 This script is tailored to the topology control algorithms of the ECMFA evaluation.
 
+### Developer setup
+
+The following steps describe how to build cMoflon from source.
+
+1. Create a fresh Eclipse workspace
+1. Checkout all projects from the Git repository https://github.com/eMoflon/cmoflon.git
+1. In the project *org.cmoflon.updatesite*, open *site.xml*, and select *Build all*.
+1. After the build is complete, reset *site.xml* because 
