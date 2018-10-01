@@ -18,8 +18,6 @@ public class SourceFileGenerator {
 
 	private static final String WATCHDOG_STOP = "watchdogStop";
 
-	// TODO@rkluge contains general as well as specific parts, should be splitted
-	// later on
 	/**
 	 * Generates the closing part of a ToCoCo process
 	 *
@@ -46,8 +44,6 @@ public class SourceFileGenerator {
 	 * @param componentPreprocessorId
 	 * @return
 	 */
-	// TODO@rkluge contains general as well as specific parts, should be splitted
-	// later on
 	public static String generateUpperPart(final String component, final GenClass tcClass, final STGroup templateGroup,
 			final boolean hopcount, final String componentPreprocessorId) {
 		final String algorithmName = tcClass.getName();

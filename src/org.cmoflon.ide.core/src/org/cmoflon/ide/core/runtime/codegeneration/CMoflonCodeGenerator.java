@@ -1,5 +1,10 @@
 package org.cmoflon.ide.core.runtime.codegeneration;
 
+import static org.cmoflon.ide.core.runtime.codegeneration.FormattingUtils.idt;
+import static org.cmoflon.ide.core.runtime.codegeneration.FormattingUtils.idt2;
+import static org.cmoflon.ide.core.runtime.codegeneration.FormattingUtils.nl;
+import static org.cmoflon.ide.core.runtime.codegeneration.FormattingUtils.nl2;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -548,33 +553,53 @@ public class CMoflonCodeGenerator {
 
 	private void generateSampleFiles(final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate sample file", 4);
-		{
-			final String appConfConstantsFilename = WorkspaceHelper.GEN_FOLDER + "/" + APPLICATION_DEFAULTS_FILENAME;
-			final List<String> lines = new ArrayList<>();
-			lines.add("#define TOPOLOGYCONTROL_LINKS_HAVE_STATES");
-			for (final GenClass tcAlgorithm : tcClasses) {
-				lines.add(String.format("#define %s %d", getAlgorithmPreprocessorId(tcAlgorithm),
-						getUniqueId(tcAlgorithm)));
-				lines.add(String.format("#define %s %s", getAlgorithmImplementationFileId(tcAlgorithm),
-						getAlgorithmImplementationFileName(tcAlgorithm)));
-				lines.add("");
-			}
-			final String content = StringUtils.join(lines, nl());
-			WorkspaceHelper.addFile(project, appConfConstantsFilename, content, subMon.split(2));
+		generatePreprocessorConstantsFile(subMon);
+		generateMakefileConstantsFile(subMon);
+	}
+
+	/**
+	 * Generates the file {@link #MAKE_CONF_FILENAME}.
+	 *
+	 * @param subMon
+	 *            the progress monitor. Shall advance two work units
+	 * @throws CoreException
+	 *             if writing the file fails
+	 */
+	private void generateMakefileConstantsFile(final SubMonitor subMon) throws CoreException {
+		final String makefileConfFilename = WorkspaceHelper.GEN_FOLDER + "/" + MAKE_CONF_FILENAME;
+		final List<String> lines = new ArrayList<>();
+		lines.add("ifndef TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE");
+		lines.add(String.format("#%sUncomment the line that corresponds to the current TC algorithm", idt2()));
+		for (final GenClass tcAlgorithm : tcClasses) {
+			lines.add(String.format("#%sTOPOLOGYCONTROL_PREDEFINED_IMPL_FILE=%s", //
+					idt2(), getAlgorithmImplementationFileName(tcAlgorithm)));
 		}
-		{
-			final String makefileConfFilename = WorkspaceHelper.GEN_FOLDER + "/" + MAKE_CONF_FILENAME;
-			final List<String> lines = new ArrayList<>();
-			lines.add("ifndef TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE");
-			lines.add(String.format("#%sUncomment the line that corresponds to the current TC algorithm", idt2()));
-			for (final GenClass tcAlgorithm : tcClasses) {
-				lines.add(String.format("#%sTOPOLOGYCONTROL_PREDEFINED_IMPL_FILE=%s", //
-						idt2(), getAlgorithmImplementationFileName(tcAlgorithm)));
-			}
-			lines.add("endif");
-			final String content = StringUtils.join(lines, nl());
-			WorkspaceHelper.addFile(project, makefileConfFilename, content, subMon.split(2));
+		lines.add("endif");
+		final String content = StringUtils.join(lines, nl());
+		WorkspaceHelper.addFile(project, makefileConfFilename, content, subMon.split(2));
+	}
+
+	/**
+	 * Generates the file {@link #APPLICATION_DEFAULTS_FILENAME}.
+	 *
+	 * @param subMon
+	 *            the progress monitor. Shall advance two work units
+	 * @throws CoreException
+	 *             if writing the file fails
+	 */
+	private void generatePreprocessorConstantsFile(final SubMonitor subMon) throws CoreException {
+		final String appConfConstantsFilename = WorkspaceHelper.GEN_FOLDER + "/" + APPLICATION_DEFAULTS_FILENAME;
+		final List<String> lines = new ArrayList<>();
+		lines.add("#define TOPOLOGYCONTROL_LINKS_HAVE_STATES");
+		for (final GenClass tcAlgorithm : tcClasses) {
+			lines.add(
+					String.format("#define %s %d", getAlgorithmPreprocessorId(tcAlgorithm), getUniqueId(tcAlgorithm)));
+			lines.add(String.format("#define %s %s", getAlgorithmImplementationFileId(tcAlgorithm),
+					getAlgorithmImplementationFileName(tcAlgorithm)));
+			lines.add("");
 		}
+		final String content = StringUtils.join(lines, nl());
+		WorkspaceHelper.addFile(project, appConfConstantsFilename, content, subMon.split(2));
 	}
 
 	private int getUniqueId(final GenClass tcAlgorithm) {
@@ -617,7 +642,6 @@ public class CMoflonCodeGenerator {
 		final EClass clazz = genClass.getEcoreClass();
 
 		for (final EAttribute att : clazz.getEAllAttributes()) {
-			// TODO: it is assumed, that EAttributes are not of List Type
 			fields.add(new FieldAttribute(new Type(isBuiltInType(clazz.getName()), clazz.getName()),
 					new Type(isBuiltInType(att.getEAttributeType().getName()), att.getEAttributeType().getName()),
 					att.getName(), false));
@@ -684,20 +708,16 @@ public class CMoflonCodeGenerator {
 			final ST templateForEnd = evalStatementGroup
 					.getInstanceOf(CMoflonTemplateConstants.EVALUATION_STATEMETNS_END);
 
-			algorithmInvocationCode.append(prependEachLineWithPrefix(templateForBegin.render(), idt2()));
+			algorithmInvocationCode
+					.append(FormattingUtils.prependEachLineWithPrefix(templateForBegin.render(), idt2()));
 			algorithmInvocationCode.append(idt2() + algorithmInvocationStatement).append(nl());
-			algorithmInvocationCode.append(prependEachLineWithPrefix(templateForEnd.render(), idt2()));
+			algorithmInvocationCode.append(FormattingUtils.prependEachLineWithPrefix(templateForEnd.render(), idt2()));
 
 		} else {
 			algorithmInvocationCode.append(idt2() + algorithmInvocationStatement).append(nl());
 		}
 		final String result = algorithmInvocationCode.toString();
 		return result;
-	}
-
-	private String prependEachLineWithPrefix(final String code, final String prefix) {
-		return Arrays.asList(code.split(Pattern.quote(nl()))).stream().map(s -> prefix + s)
-				.collect(Collectors.joining(nl()));
 	}
 
 	private String generateCleanupCode(final STGroup templateGroup) {
@@ -723,7 +743,9 @@ public class CMoflonCodeGenerator {
 	private String getProcessClosingCode(final GenClass tcClass, final STGroup templateGroup) {
 		final StringBuilder sb = new StringBuilder();
 		if (!dropUnidirectionalEdgesOff.contains(tcClass.getName())) {
-			sb.append(templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_DROP_UNIDIRECTIONAL_EDGES).render());
+			final String templateCode = templateGroup
+					.getInstanceOf(CMoflonTemplateConstants.SOURCE_DROP_UNIDIRECTIONAL_EDGES).render();
+			sb.append(FormattingUtils.prependEachLineWithPrefix(templateCode, idt2()));
 		}
 		sb.append(SourceFileGenerator.generateClosingPart(templateGroup, useHopCount(tcClass)));
 		return sb.toString();
@@ -732,7 +754,6 @@ public class CMoflonCodeGenerator {
 	/**
 	 * Creates the code that is used by the hop-count calculation
 	 *
-	 * @param component
 	 * @param tcClass
 	 * @param source
 	 * @return
@@ -1014,23 +1035,11 @@ public class CMoflonCodeGenerator {
 	}
 
 	private StringBuilder getConstantsDefinitionsCode(final GenClass tcClass, final STGroup templateGroup) {
-		// TODO:fix for CMoflonReader with prefixes
 		final StringBuilder constantsCode = new StringBuilder();
 		if (constantsMapping.containsKey(tcClass.getName())) {
 			for (final Entry<String, String> pair : constantsMapping.get(tcClass.getName()).entrySet()) {
-				if (reduceCodeSize) {
-					if (tcClass.getName().contentEquals(TC_INDEPENDANT)) {
-
-						constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(),
-								tcClass, templateGroup));
-					} else {
-						constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(),
-								tcClass, templateGroup));
-					}
-				} else {
-					constantsCode.append(generateConstant(pair.getKey(), pair.getValue(), getComponentName(), tcClass,
-							templateGroup));
-				}
+				constantsCode.append(
+						generateConstant(pair.getKey(), pair.getValue(), getComponentName(), tcClass, templateGroup));
 			}
 		}
 		return constantsCode;
@@ -1071,9 +1080,8 @@ public class CMoflonCodeGenerator {
 	private String getGenerateDuplicatesDefinition(final GenClass tcClass) {
 		final StringBuilder mycontents = new StringBuilder();
 		if (generateDuplicates.contains(tcClass.getName())) {
-			mycontents.append("#ifndef GENERATE_DUPLICATES");
-			mycontents.append(nl());
-			mycontents.append("#define GENERATE_DUPLICATES").append(nl());
+			mycontents.append("#ifndef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES").append(nl());
+			mycontents.append("#define COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES").append(nl());
 			mycontents.append("#endif").append(nl());
 			mycontents.append("LIST(list_duplicates);" + nl()).append(nl());
 			return mycontents.toString();
@@ -1115,8 +1123,6 @@ public class CMoflonCodeGenerator {
 	}
 
 	private String getUnimplementedMethodsCode(final STGroup stg, final GenClass tcClass) {
-		// FIXME: currently all methods are classified as unimplemented, but maybe this
-		// is needed as forward declaration
 		final StringBuilder builder = new StringBuilder();
 		if (reduceCodeSize) {
 			if (tcClass == null) {
@@ -1144,7 +1150,6 @@ public class CMoflonCodeGenerator {
 
 		final StringBuilder builder = new StringBuilder();
 		if (reduceCodeSize) {
-			// TODO: filter more exactly
 			if (tcClass == null) {
 				final ST declarations = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_DECLARATION);
 				declarations.add("fields", cachedFields.get(TC_INDEPENDANT));
@@ -1532,7 +1537,6 @@ public class CMoflonCodeGenerator {
 		} catch (final CoreException e) {
 			throw new IllegalArgumentException("Could not read cMoflon Properties." + e.toString(), e);
 		}
-		// TODO: check initialization of fields
 		for (final Entry<Object, Object> entry : cMoflonProperties.entrySet()) {
 			final String key = entry.getKey().toString();
 			final String value = entry.getValue().toString();
@@ -1645,21 +1649,5 @@ public class CMoflonCodeGenerator {
 			helperClassesList.add(DEFAULT_TC_PARENT_CLASS_NAME);
 			helperClasses.put(algorithmName, helperClassesList);
 		}
-	}
-
-	public static String nl() {
-		return "\n";
-	}
-
-	public static String nl2() {
-		return nl() + nl();
-	}
-
-	private static String idt() {
-		return "  ";
-	}
-
-	private static String idt2() {
-		return idt() + idt();
 	}
 }

@@ -59,12 +59,10 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 
 		final IProject project = getProject();
 
-		// Remove all problem markers
 		project.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_INFINITE);
 		project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 		subMon.worked(1);
 
-		// Remove generated code
 		cleanFolderButKeepHiddenFiles(project.getFolder(WorkspaceHelper.GEN_FOLDER), subMon.split(1));
 	}
 

@@ -112,12 +112,12 @@ watchdogStop()::=<<
 
 
 dropUnidirectionalEdges()::=<<
-  LINK_T* onehop;
-  for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
-    if(networkaddr_equal(onehop->node1, networkaddr_node_addr()) && onehop->weight_node1_to_node2 == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
-      component_network_ignoredlinks_add(onehop->node2);
-    }
+LINK_T* onehop;
+for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
+  if(networkaddr_equal(onehop->node1, networkaddr_node_addr()) && onehop->weight_node1_to_node2 == COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN) {
+    component_network_ignoredlinks_add(onehop->node2);
   }
+}
 
 
 >>
@@ -132,7 +132,7 @@ LIST(list_matches_<name>);<\n>
 init(blocks,duplicates)::=<<
 void init(){
   <blocks:{x| memb_init(&memb_<x>);<\n>list_init(list_matches_<x>);};separator="\n">
-  <if(duplicates)>#ifdef GENERATE_DUPLICATES
+  <if(duplicates)>#ifdef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES
   list_t neighbors=component_neighbordiscovery_neighbors();
   neighbor_t* onehop;
   int count=0;
@@ -144,7 +144,7 @@ void init(){
         neighbor_t* sender= (neighbor_t*)malloc(sizeof(neighbor_t));
         count++;
         if(sender  == NULL) {
-          printf("ERROR[TC-init]: Could not allocate memory\n");
+          printf("ERROR[topologycontrol]: Could not allocate memory for duplicates\n");
         } else {
           realcount++;
           sender->node1 = networkaddr_reference_alloc(onehop->node2);
@@ -174,7 +174,7 @@ void init(){
 
 cleanup(duplicates)::=<<
 void cleanup() {
-  <if(duplicates)>#ifdef GENERATE_DUPLICATES
+  <if(duplicates)>#ifdef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES
   list_t neighbors=component_neighbordiscovery_neighbors();
   neighbor_t* list_item;
   for(list_item=list_head(list_duplicates);list_item!=NULL;list_item=list_item_next(list_item)){
