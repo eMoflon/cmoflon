@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
 import org.gervarro.eclipse.workspace.util.RelevantElementCollector;
 import org.gervarro.eclipse.workspace.util.VisitorCondition;
 
@@ -46,6 +47,16 @@ public class SingleResourceRelevantElementCollector extends RelevantElementColle
 			return relevantResources;
 		} else {
 			return relevantResources.subList(0, 1);
+		}
+	}
+
+	@Override
+	public List<IResourceDelta> getRelevantDeltas() {
+		final List<IResourceDelta> relevantDeltas = getDelegateCollector().getRelevantDeltas();
+		if (relevantDeltas.isEmpty()) {
+			return relevantDeltas;
+		} else {
+			return relevantDeltas.subList(0, 1);
 		}
 	}
 

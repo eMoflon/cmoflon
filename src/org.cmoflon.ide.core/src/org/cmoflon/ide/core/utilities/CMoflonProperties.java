@@ -72,6 +72,11 @@ public class CMoflonProperties {
 					+ getCMoflonPropertiesLinesForDefaultTypeMappings() //
 					+ "\n";
 
+	/**
+	 * Constant definitions for algorithms that rely on hop-count information
+	 */
+	public static final String DEFAULT_HOPCOUNT_CONSTANTS = "const-updateinterval=300, const-broadcasthopcount_immediate_max = 10, const-broadcasthopcount_immediate_min = 1, const-broadcasthopcount_smalldelay_min = 55, const-broadcasthopcount_smalldelay_max = 65, const-broadcasthopcount_periodic_min = 270, const-broadcasthopcount_periodic_max = 330";
+
 	public static String getDefaultCMoflonPropertiesContent() {
 		return DEFAULT_CMOFLON_PROPERTIES_CONTENT;
 	}

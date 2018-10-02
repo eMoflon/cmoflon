@@ -93,6 +93,8 @@ import org.stringtemplate.v4.STGroup;
  */
 public class CMoflonCodeGenerator {
 
+	private static final String PARAMETER_SEPARATOR = ",";
+	private static final String KEY_VALUE_SEPARATOR = "=";
 	private static final Logger logger = Logger.getLogger(CMoflonCodeGenerator.class);
 	/**
 	 * The currently built Eclipse project
@@ -878,7 +880,7 @@ public class CMoflonCodeGenerator {
 		if (property == null) {
 			return "";
 		} else {
-			final String[] params = property.split(",");
+			final String[] params = property.split(PARAMETER_SEPARATOR);
 			for (final String p : params) {
 				if (p.trim().contains(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS)) {
 					template.remove("name");
@@ -1321,7 +1323,7 @@ public class CMoflonCodeGenerator {
 			template.add("type", new Type(isBuiltInType(p.getEType().getName()), p.getEType().getName()));
 			result.append(template.render());
 		}
-		return result.substring(0, result.lastIndexOf(","));
+		return result.substring(0, result.lastIndexOf(PARAMETER_SEPARATOR));
 	}
 
 	private String getDefaultHelperMethods() throws CoreException {
@@ -1530,8 +1532,7 @@ public class CMoflonCodeGenerator {
 	}
 
 	private String generateConstant(final Object key, final Object value, final String component,
-			final GenClass tcClass,
-			final STGroup templateGroup) {
+			final GenClass tcClass, final STGroup templateGroup) {
 		final ST constantTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_DEFINITION);
 		constantTemplate.add("comp", component);
 		constantTemplate.add("algo", tcClass.getName());
@@ -1552,7 +1553,7 @@ public class CMoflonCodeGenerator {
 			final String value = entry.getValue().toString();
 			switch (key) {
 			case CMoflonProperties.PROPERTY_TC_ALGORITHMS:
-				final List<String> classNames = splitForNonEmptyValues(value, ",");
+				final List<String> classNames = splitForNonEmptyValues(value, PARAMETER_SEPARATOR);
 				classNames.stream()//
 						.filter(c -> !isClassInGenmodel(c)) //
 						.forEach(c -> reportMissingTopologyControlClass(c));
@@ -1585,71 +1586,74 @@ public class CMoflonCodeGenerator {
 	}
 
 	private void readTopologyControlRelatedProperty(final String key, final String value) {
-		{
-			// TCmethod.
-			String copyString = key;
-			copyString = copyString.replaceFirst(CMoflonProperties.PROPERTY_PREFIX_TOPOLOGYCONTROL, "");
-			// Index of dot before option
-			final int dotIndex = copyString.indexOf(".");
-			final String tcAlgorithm = copyString.substring(0, dotIndex);
-			final String option = (copyString.substring(dotIndex)).trim();
-			switch (option) {
-			case CMoflonProperties.PROPERTY_POSTFIX_PARAMETERS:
-				tcAlgorithmCallParameters.put(tcAlgorithm, value);
-				return;
-			case CMoflonProperties.PROPERTY_POSTFIX_CONSTANTS:
-				Arrays.asList(value.split(",")).stream().map(s -> s.trim()).forEach(kv -> {
-					final List<String> list = Arrays.asList(kv.split("=")).stream().map(s -> s.trim())
-							.collect(Collectors.toList());
-					if (list.size() != 2) {
-						return;
-					} else {
-						if (!constantsMapping.containsKey(tcAlgorithm)) {
-							// Initialize map on first parameter
-							final Map<String, String> constantsForAlgorithm = new HashMap<>();
-							constantsMapping.put(tcAlgorithm, constantsForAlgorithm);
-						}
-						final Map<String, String> constantsForAlgorithm = constantsMapping.get(tcAlgorithm);
-						constantsForAlgorithm.put(list.get(0).replaceFirst("const-", ""), list.get(1));
-						constantsMapping.put(tcAlgorithm, constantsForAlgorithm);
-					}
-				});
-				return;
-			case CMoflonProperties.PROPERTY_POSTFIX_HELPERCLASSES:
-				if (this.helperClasses.containsKey(tcAlgorithm)) {
-					final List<String> helperClassesList = splitForNonEmptyValues(value, ",");
-					this.helperClasses.get(tcAlgorithm).addAll(helperClassesList);
-				}
-				return;
-			case CMoflonProperties.PROPERTY_POSTFIX_DROP_UNIDIRECTIONAL_EDGES:
-				if (!Boolean.parseBoolean(value)) {
-					dropUnidirectionalEdgesOff.add(tcAlgorithm);
-				}
-				return;
-			case CMoflonProperties.PROPERTY_POSTFIX_INCLUDE_EVALUATION_STATEMENTS:
-				if (Boolean.parseBoolean(value)) {
-					useEvalStatements.add(tcAlgorithm);
-				}
-				return;
-			case CMoflonProperties.PROPERTY_POSTFIX_USE_HOPCOUNT:
-				if (Boolean.parseBoolean(value)) {
-					useHopCountProcess.add(tcAlgorithm);
-					// TODO@rkluge: Provide default values for
-					// const-updateinterval=300,
-					// const-broadcasthopcount_immediate_max = 10,
-					// const-broadcasthopcount_immediate_min = 1,
-					// const-broadcasthopcount_smalldelay_min = 55,
-					// const-broadcasthopcount_smalldelay_max = 65,
-					// const-broadcasthopcount_periodic_min = 270,
-					// const-broadcasthopcount_periodic_max = 330
-				}
-				return;
-			case CMoflonProperties.PROPERTY_POSTFIX_DUPLICATE_EDGES:
-				if (Boolean.parseBoolean(value)) {
-					generateDuplicates.add(tcAlgorithm);
-				}
-				return;
+		String copyString = key;
+		copyString = copyString.replaceFirst(CMoflonProperties.PROPERTY_PREFIX_TOPOLOGYCONTROL, "");
+		// Index of dot before option
+		final int dotIndex = copyString.indexOf(".");
+		final String tcAlgorithm = copyString.substring(0, dotIndex);
+		final String option = (copyString.substring(dotIndex)).trim();
+		switch (option) {
+		case CMoflonProperties.PROPERTY_POSTFIX_PARAMETERS:
+			tcAlgorithmCallParameters.put(tcAlgorithm, value);
+			return;
+		case CMoflonProperties.PROPERTY_POSTFIX_CONSTANTS:
+			registerConstants(value, tcAlgorithm, true);
+			return;
+		case CMoflonProperties.PROPERTY_POSTFIX_HELPERCLASSES:
+			if (this.helperClasses.containsKey(tcAlgorithm)) {
+				final List<String> helperClassesList = splitForNonEmptyValues(value, PARAMETER_SEPARATOR);
+				this.helperClasses.get(tcAlgorithm).addAll(helperClassesList);
 			}
+			return;
+		case CMoflonProperties.PROPERTY_POSTFIX_DROP_UNIDIRECTIONAL_EDGES:
+			if (!Boolean.parseBoolean(value)) {
+				dropUnidirectionalEdgesOff.add(tcAlgorithm);
+			}
+			return;
+		case CMoflonProperties.PROPERTY_POSTFIX_INCLUDE_EVALUATION_STATEMENTS:
+			if (Boolean.parseBoolean(value)) {
+				useEvalStatements.add(tcAlgorithm);
+			}
+			return;
+		case CMoflonProperties.PROPERTY_POSTFIX_USE_HOPCOUNT:
+			if (Boolean.parseBoolean(value)) {
+				useHopCountProcess.add(tcAlgorithm);
+				registerConstants(CMoflonProperties.DEFAULT_HOPCOUNT_CONSTANTS, tcAlgorithm, false);
+			}
+			return;
+		case CMoflonProperties.PROPERTY_POSTFIX_DUPLICATE_EDGES:
+			if (Boolean.parseBoolean(value)) {
+				generateDuplicates.add(tcAlgorithm);
+			}
+			return;
+		}
+	}
+
+	private void registerConstants(final String parameterValueList, final String tcAlgorithm, final boolean override) {
+		splitForNonEmptyValues(parameterValueList, PARAMETER_SEPARATOR).stream().map(s -> s.trim()).forEach(kv -> {
+			final List<String> list = splitForNonEmptyValues(kv, KEY_VALUE_SEPARATOR);
+			if (list.size() != 2) {
+				logger.warn(String.format("Cannot parse the following entry: '%s'", kv));
+				return;
+			} else {
+				final Map<String, String> constantsForAlgorithm = initializeConstantsMappingIfNecessary(tcAlgorithm);
+				final String constantName = list.get(0).replaceFirst("const-", "");
+				final String constantValue = list.get(1);
+				if (override || !constantsForAlgorithm.containsKey(constantName)) {
+					constantsForAlgorithm.put(constantName, constantValue);
+				}
+			}
+		});
+	}
+
+	private Map<String, String> initializeConstantsMappingIfNecessary(final String tcAlgorithm) {
+		if (!constantsMapping.containsKey(tcAlgorithm)) {
+			// Initialize map on first parameter
+			final Map<String, String> constantsForAlgorithm = new HashMap<>();
+			constantsMapping.put(tcAlgorithm, constantsForAlgorithm);
+			return constantsForAlgorithm;
+		} else {
+			return constantsMapping.get(tcAlgorithm);
 		}
 	}
 
