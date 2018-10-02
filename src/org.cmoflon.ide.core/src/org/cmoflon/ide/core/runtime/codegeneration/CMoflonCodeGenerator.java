@@ -234,7 +234,6 @@ public class CMoflonCodeGenerator {
 		contents.append(getDateCommentCode());
 		contents.append(getIncludeGuardCode(null, templateGroup));
 		contents.append(getIncludesCode(templateGroup, null));
-		contents.append(getConstantsDefinitionsCode(null, templateGroup));
 		contents.append(getMaxMatchCountDefinition(null));
 		contents.append(getMatchTypeDefinitionCode(templateGroup, null));
 		contents.append(getTypeMappingCode(templateGroup, null));
@@ -1013,11 +1012,7 @@ public class CMoflonCodeGenerator {
 
 	private String getIncludesCode(final STGroup templateGroup, final GenClass tcClass) {
 		if (tcClass == null || !reduceCodeSize) {
-			if (tcClass == null) {
-				return (HeaderFileGenerator.generateIncludes(ToCoCoComponents.TOPOLOGYCONTROL, templateGroup));
-			} else {
-				return (HeaderFileGenerator.generateIncludes(ToCoCoComponents.TOPOLOGYCONTROL, templateGroup));
-			}
+			return (HeaderFileGenerator.generateIncludes(ToCoCoComponents.TOPOLOGYCONTROL, templateGroup));
 		} else {
 			return "#include \"cMoflon.h\" " + nl();
 		}
@@ -1025,7 +1020,7 @@ public class CMoflonCodeGenerator {
 
 	private String getIncludeGuardCode(final GenClass tcClass, final STGroup templateGroup) {
 		final ST definition = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_DEFINITION);
-		if (!(reduceCodeSize && tcClass != null)) {
+		if (!reduceCodeSize && tcClass != null) {
 			final String algorithmName = tcClass.getName();
 			definition.add("comp", getComponentName().toUpperCase());
 			definition.add("algo", algorithmName.toUpperCase());
