@@ -228,7 +228,6 @@ public class CMoflonCodeGenerator {
 			subMon.worked(10);
 		}
 
-
 		for (final GenClass tcClass : tcClasses) {
 			codeGenerationResult.add(generateCodeForAlgorithm(tcClass, codeGenerationResult, subMon.split(10)));
 		}
@@ -383,8 +382,7 @@ public class CMoflonCodeGenerator {
 		final String generatedMethodBody = getGeneratedMethodBody(genOperation.getEcoreOperation());
 		if (!generatedMethodBody.equals(MoflonUtil.DEFAULT_METHOD_BODY)) {
 			final StringBuilder intermediateBuffer = new StringBuilder();
-			LogUtils.info(logger, "Generate method body for '%s::%s'", genClass.getName(),
-					genOperation.getName());
+			LogUtils.info(logger, "Generate method body for '%s::%s'", genClass.getName(), genOperation.getName());
 			intermediateBuffer.append(nl());
 			intermediateBuffer.append("static ");
 			intermediateBuffer.append(genOperation.getTypeParameters(genClass));
@@ -405,18 +403,16 @@ public class CMoflonCodeGenerator {
 			intermediateBuffer.append("(");
 			intermediateBuffer.append(getParametersFromEcore(genOperation.getEcoreOperation()));
 			intermediateBuffer.append("){").append(nl());
-			for (final String line : generatedMethodBody.trim().replaceAll("\\r", "")
-					.split(Pattern.quote(nl()))) {
+			for (final String line : generatedMethodBody.trim().replaceAll("\\r", "").split(Pattern.quote(nl()))) {
 				intermediateBuffer.append(idt() + line).append(nl());
 			}
 			intermediateBuffer.append(nl() + "}").append(nl());
 
-			final StringBuilder cachedPatternMatchingCodeForTCAlgorithm = cachedPatternMatchingCode
-					.get(genClass);
+			final StringBuilder cachedPatternMatchingCodeForTCAlgorithm = cachedPatternMatchingCode.get(genClass);
 			cachedPatternMatchingCodeForTCAlgorithm.append(intermediateBuffer.toString());
 		} else {
-			LogUtils.info(logger, "Skip method body due to missing specification: '%s::%s'",
-					genClass.getName(), genOperation.getName());
+			LogUtils.info(logger, "Skip method body due to missing specification: '%s::%s'", genClass.getName(),
+					genOperation.getName());
 		}
 	}
 
@@ -1363,55 +1359,66 @@ public class CMoflonCodeGenerator {
 	}
 
 	private String getUserDefinedHelperMethods(final GenClass tcClass) throws CoreException {
-		final StringBuilder result = new StringBuilder();
-		{
-			final String projectRelativePath = "injection/custom-helpers.c";
-			result.append(
-					"// --- Begin of user-defined algorithm-independent helpers (Path: '" + projectRelativePath + "')")
-					.append(nl());
-			final IFile helperFile = project.getFile(projectRelativePath);
-			if (helperFile.exists()) {
-				final InputStream stream = helperFile.getContents();
-				try {
-					result.append(IOUtils.toString(stream));
-				} catch (final IOException e) {
-					throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
-							"Failed to read user-defined helpers " + helperFile, e));
-				} finally {
-					IOUtils.closeQuietly(stream);
-				}
-			} else {
-				createInjectionFolder();
-				WorkspaceHelper.addFile(project, projectRelativePath,
-						"// Algorithm-independent helper definitions." + nl(), new NullProgressMonitor());
-			}
-			result.append("// --- End of user-defined algorithm-independent helpers").append(nl());
-			result.append(nl());
-		}
-		{
-			final String projectRelativePath = "injection/custom-helpers_" + tcClass.getName() + ".c";
-			result.append("// --- Begin of user-defined helpers for " + tcClass.getName() + " (Path: '"
-					+ projectRelativePath + "')").append(nl());
-			final IFile helperFile = project.getFile(projectRelativePath);
-			if (helperFile.exists()) {
-				final InputStream stream = helperFile.getContents();
-				try {
-					result.append(IOUtils.toString(stream));
-				} catch (final IOException e) {
-					throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
-							"Failed to read user-defined helpers " + helperFile, e));
-				} finally {
-					IOUtils.closeQuietly(stream);
-				}
-			} else {
-				createInjectionFolder();
-				WorkspaceHelper.addFile(project, projectRelativePath,
-						"// Helper definitions for '" + tcClass + "'." + nl(), new NullProgressMonitor());
-			}
-			result.append("// --- End of user-defined helpers for " + tcClass).append(nl2());
-		}
-		return result.toString();
+		final StringBuilder combiner = new StringBuilder();
+		combiner.append(generateUserDefinedAlgorithmIndependentCode());
+		combiner.append(generateUserDefinedAlgorithmSpecificCode(tcClass));
+		return combiner.toString();
 
+	}
+
+	private String generateUserDefinedAlgorithmSpecificCode(final GenClass tcClass) throws CoreException {
+		final StringBuilder result = new StringBuilder();
+		final String algorithmName = tcClass.getName();
+		final String projectRelativePath = "injection/custom-helpers_" + algorithmName + ".c";
+		result.append(
+				"// --- Begin of user-defined helpers for " + algorithmName + " (Path: '" + projectRelativePath + "')")
+				.append(nl());
+		final IFile helperFile = project.getFile(projectRelativePath);
+		if (helperFile.exists()) {
+			final InputStream stream = helperFile.getContents();
+			try {
+				result.append(IOUtils.toString(stream));
+			} catch (final IOException e) {
+				throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
+						"Failed to read user-defined helpers " + helperFile, e));
+			} finally {
+				IOUtils.closeQuietly(stream);
+			}
+		} else {
+			createInjectionFolder();
+			WorkspaceHelper.addFile(project, projectRelativePath,
+					"// Helper definitions for '" + algorithmName + "'." + nl(), new NullProgressMonitor());
+		}
+		result.append("// --- End of user-defined helpers for " + algorithmName).append(nl2());
+		final String string = result.toString();
+		return string;
+	}
+
+	private String generateUserDefinedAlgorithmIndependentCode() throws CoreException {
+		final StringBuilder result = new StringBuilder();
+		final String projectRelativePath = "injection/custom-helpers.c";
+		result.append(
+				"// --- Begin of user-defined algorithm-independent helpers (Path: '" + projectRelativePath + "')")
+				.append(nl());
+		final IFile helperFile = project.getFile(projectRelativePath);
+		if (helperFile.exists()) {
+			final InputStream stream = helperFile.getContents();
+			try {
+				result.append(IOUtils.toString(stream));
+			} catch (final IOException e) {
+				throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
+						"Failed to read user-defined helpers " + helperFile, e));
+			} finally {
+				IOUtils.closeQuietly(stream);
+			}
+		} else {
+			createInjectionFolder();
+			WorkspaceHelper.addFile(project, projectRelativePath, "// Algorithm-independent helper definitions." + nl(),
+					new NullProgressMonitor());
+		}
+		result.append("// --- End of user-defined algorithm-independent helpers").append(nl2());
+		final String string = result.toString();
+		return string;
 	}
 
 	private void createInjectionFolder() throws CoreException {
