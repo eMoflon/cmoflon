@@ -121,5 +121,9 @@ The following steps describe how to build cMoflon from source.
 
 1. Create a fresh Eclipse workspace
 1. Checkout all projects from the Git repository https://github.com/eMoflon/cmoflon.git
+   * You will not need *org.cmoflon.evaluation.flocklab*
 1. In the project *org.cmoflon.updatesite*, open *site.xml*, and select *Build all*.
-1. After the build is complete, reset *site.xml* because 
+1. After the build is complete, reset *site.xml* because the build process for update sites modifies *site.xml*.
+1. You find launch configurations for packaging and publishing the created update site in *org.cmoflon.updatesite/.launch*
+  * *... createArchive.launch* packages the update site as ZIP archive
+  * *... releaseCMoflon.launch* copies the update site to the project *cmoflon-updatesite*, which is located here: https://github.com/eMoflon/cmoflon-updatesite
