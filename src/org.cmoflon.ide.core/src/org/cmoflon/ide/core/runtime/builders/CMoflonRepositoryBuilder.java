@@ -40,9 +40,9 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 	private static final VisitorCondition VISITOR_CONDITION = new AntPatternCondition(
 			new String[] { "model/*.ecore", CMoflonProperties.CMOFLON_PROPERTIES_FILENAME });
 
-	public static final Logger logger = Logger.getLogger(CMoflonRepositoryBuilder.class);
-
 	public static final String BUILDER_ID = CMoflonRepositoryBuilder.class.getName();
+
+	private static final Logger logger = Logger.getLogger(CMoflonRepositoryBuilder.class);
 
 	public CMoflonRepositoryBuilder() {
 		super(VISITOR_CONDITION);
@@ -139,7 +139,7 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 		}
 	}
 
-	public void handleErrorsInEclipse(final IStatus status, final IFile ecoreFile) {
+	private void handleErrorsInEclipse(final IStatus status, final IFile ecoreFile) {
 		final String reporterClass = "org.moflon.compiler.sdm.democles.eclipse.EclipseErrorReporter";
 		final ErrorReporter eclipseErrorReporter = (ErrorReporter) Platform.getAdapterManager().loadAdapter(ecoreFile,
 				reporterClass);
@@ -150,7 +150,7 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 		}
 	}
 
-	public void handleErrorsInEA(final IStatus status) {
+	private void handleErrorsInEA(final IStatus status) {
 		final String reporterClass = "org.moflon.validation.EnterpriseArchitectValidationHelper";
 		final ErrorReporter errorReporter = (ErrorReporter) Platform.getAdapterManager().loadAdapter(getProject(),
 				reporterClass);

@@ -1,9 +1,9 @@
 package org.cmoflon.ide.core.runtime.codegeneration;
 
-import static org.cmoflon.ide.core.runtime.codegeneration.FormattingUtils.idt;
-import static org.cmoflon.ide.core.runtime.codegeneration.FormattingUtils.idt2;
-import static org.cmoflon.ide.core.runtime.codegeneration.FormattingUtils.nl;
-import static org.cmoflon.ide.core.runtime.codegeneration.FormattingUtils.nl2;
+import static org.cmoflon.ide.core.utilities.FormattingUtils.idt;
+import static org.cmoflon.ide.core.utilities.FormattingUtils.idt2;
+import static org.cmoflon.ide.core.utilities.FormattingUtils.nl;
+import static org.cmoflon.ide.core.utilities.FormattingUtils.nl2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +31,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
+import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes.ToCoCoComponents;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonStringRenderer;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.FieldAttribute;
@@ -39,6 +41,7 @@ import org.cmoflon.ide.core.runtime.codegeneration.utilities.MethodAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.Type;
 import org.cmoflon.ide.core.utilities.CMoflonProperties;
 import org.cmoflon.ide.core.utilities.CMoflonWorkspaceHelper;
+import org.cmoflon.ide.core.utilities.FormattingUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -232,7 +235,7 @@ public class CMoflonCodeGenerator {
 
 		final StringBuilder contents = new StringBuilder();
 		contents.append(getDateCommentCode());
-		contents.append(getIncludeGuardCode(null, templateGroup));
+		contents.append(getIncludeGuardCMoflonHeader());
 		contents.append(getIncludesCode(templateGroup, null));
 		contents.append(getMaxMatchCountDefinition(null));
 		contents.append(getMatchTypeDefinitionCode(templateGroup, null));
@@ -336,7 +339,7 @@ public class CMoflonCodeGenerator {
 	}
 
 	/**
-	 * Resets all fields that store cached artefacts to their default state
+	 * Resets all fields that store cached artifacts to their default state
 	 */
 	private void resetCaches() {
 		cachedMethodSignatures.clear();
@@ -346,7 +349,6 @@ public class CMoflonCodeGenerator {
 	}
 
 	private void initializeCachedPatternMatchingCode() {
-		// Initialize StringBuilder
 		for (final GenClass tcAlgorithm : tcClasses) {
 			cachedPatternMatchingCode.put(tcAlgorithm.getName(), new StringBuilder());
 		}
@@ -363,6 +365,7 @@ public class CMoflonCodeGenerator {
 							LogUtils.info(logger, "Generate method body for '%s::%s'", genClass.getName(),
 									genOperation.getName());
 							intermediateBuffer.append(nl());
+							intermediateBuffer.append("static ");
 							intermediateBuffer.append(genOperation.getTypeParameters(genClass));
 							final String[] typechain = genOperation.getImportedType(genClass).split("\\.");
 							String type = "";
@@ -521,7 +524,7 @@ public class CMoflonCodeGenerator {
 
 		final StringBuilder contents = new StringBuilder();
 		contents.append(getDateCommentCode());
-		contents.append(getIncludeGuardCode(tcClass, templateGroup));
+		contents.append(getIncludeGuardForAlgorithm(tcClass));
 		contents.append(getIncludesCode(templateGroup, tcClass));
 		contents.append(getConstantsDefinitionsCode(tcClass, templateGroup));
 		contents.append(getMaxMatchCountDefinition(tcClass));
@@ -984,7 +987,7 @@ public class CMoflonCodeGenerator {
 	 * @param eOperation
 	 * @return the code for the eop or MoflonUtil.DEFAULT_METHOD_BODY
 	 */
-	protected String getGeneratedMethodBody(final EOperation eOperation) {
+	private String getGeneratedMethodBody(final EOperation eOperation) {
 		String generatedMethodBody = null;
 
 		final AdapterResource cfResource = (AdapterResource) EcoreUtil.getExistingAdapter(eOperation,
@@ -1012,24 +1015,33 @@ public class CMoflonCodeGenerator {
 
 	private String getIncludesCode(final STGroup templateGroup, final GenClass tcClass) {
 		if (tcClass == null || !reduceCodeSize) {
-			return (HeaderFileGenerator.generateIncludes(ToCoCoComponents.TOPOLOGYCONTROL, templateGroup));
+			return (CMoflonCodeGenerator.generateIncludes(ToCoCoComponents.TOPOLOGYCONTROL, templateGroup));
 		} else {
 			return "#include \"cMoflon.h\" " + nl();
 		}
 	}
 
-	private String getIncludeGuardCode(final GenClass tcClass, final STGroup templateGroup) {
+	private String getIncludeGuardForAlgorithm(final GenClass tcClass) {
+		final STGroup templateGroup = getTemplateConfigurationProvider()
+				.getTemplateGroup(CMoflonTemplateConstants.HEADER_FILE_GENERATOR);
 		final ST definition = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_DEFINITION);
-		if (!reduceCodeSize && tcClass != null) {
-			final String algorithmName = tcClass.getName();
-			definition.add("comp", getComponentName().toUpperCase());
-			definition.add("algo", algorithmName.toUpperCase());
-		}
+		final String algorithmName = tcClass.getName();
+		definition.add("comp", getComponentName().toUpperCase());
+		definition.add("algo", algorithmName.toUpperCase());
+		return definition.render();
+	}
+
+	private String getIncludeGuardCMoflonHeader() {
+		final STGroup templateGroup = getTemplateConfigurationProvider()
+				.getTemplateGroup(CMoflonTemplateConstants.CMOFLON_HEADER_FILE_GENERATOR);
+		final ST definition = templateGroup.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_DEFINITION);
 		final String guardCode = definition.render();
 		return guardCode;
 	}
 
 	private StringBuilder getConstantsDefinitionsCode(final GenClass tcClass, final STGroup templateGroup) {
+		Validate.notNull(tcClass);
+
 		final StringBuilder constantsCode = new StringBuilder();
 		if (constantsMapping.containsKey(tcClass.getName())) {
 			for (final Entry<String, String> pair : constantsMapping.get(tcClass.getName()).entrySet()) {
@@ -1037,13 +1049,14 @@ public class CMoflonCodeGenerator {
 						generateConstant(pair.getKey(), pair.getValue(), getComponentName(), tcClass, templateGroup));
 			}
 		}
+
 		return constantsCode;
 	}
 
 	private String getMatchTypeDefinitionCode(final STGroup templateGroup, final GenClass tcClass) {
 		if (reduceCodeSize) {
 			if (tcClass == null) {
-				final ST match = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_MATCH);
+				final ST match = templateGroup.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_MATCH);
 				final String matchTypeDef = match.render();
 				return matchTypeDef;
 			} else {
@@ -1062,7 +1075,7 @@ public class CMoflonCodeGenerator {
 		mycontents.append(String.format("#define MAX_MATCH_COUNT %d%s", maximumMatchCount, nl()));
 		mycontents.append("#endif").append(nl());
 		if (reduceCodeSize) {
-			if (tcClass.getName().contentEquals(TC_INDEPENDANT)) {
+			if (tcClass == null) {
 				return mycontents.toString();
 			} else {
 				return "";
@@ -1089,7 +1102,8 @@ public class CMoflonCodeGenerator {
 		final StringBuilder typeMappingCodeBuilder = new StringBuilder();
 		if (reduceCodeSize) {
 			if (tcClass == null) {
-				final ST typeMappingTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_DEFINE);
+				final ST typeMappingTemplate = templateGroup
+						.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_DEFINE);
 				for (final Entry<String, String> pair : typeMappings.entrySet()) {
 					typeMappingCodeBuilder
 							.append(getTypeMappingCode(typeMappingTemplate, pair.getKey(), pair.getValue()));
@@ -1190,7 +1204,7 @@ public class CMoflonCodeGenerator {
 		final StringBuilder builder = new StringBuilder();
 		if (reduceCodeSize) {
 			if (tcClass == null) {
-				final ST equals = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_EQUALS_DELCARATION);
+				final ST equals = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_EQUALS_DELCARATION);
 				equals.add("types", getBuiltInTypes());
 				builder.append(equals.render());
 				equals.remove("types");
@@ -1214,8 +1228,8 @@ public class CMoflonCodeGenerator {
 
 	private String getHeaderTail(final GenClass tcClass, final STGroup stg) {
 		ST end;
-		if (reduceCodeSize && tcClass == null) {
-			end = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_END);
+		if (tcClass == null) {
+			end = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_CONSTANTS_END);
 		} else {
 			end = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_END);
 			end.add("comp", getComponentName().toUpperCase());
@@ -1504,7 +1518,7 @@ public class CMoflonCodeGenerator {
 	/**
 	 * Gets a String with Typedefs from EType to the C language Type.
 	 */
-	public String getAllBuiltInMappings(final GenClass tcClass) {
+	private String getAllBuiltInMappings(final GenClass tcClass) {
 		final StringBuilder result = new StringBuilder();
 		if (tcClass == null || !reduceCodeSize) {
 			for (final CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values()) {
@@ -1515,7 +1529,8 @@ public class CMoflonCodeGenerator {
 		return result.toString();
 	}
 
-	public String generateConstant(final Object key, final Object value, final String component, final GenClass tcClass,
+	private String generateConstant(final Object key, final Object value, final String component,
+			final GenClass tcClass,
 			final STGroup templateGroup) {
 		final ST constantTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_DEFINITION);
 		constantTemplate.add("comp", component);
@@ -1619,6 +1634,14 @@ public class CMoflonCodeGenerator {
 			case CMoflonProperties.PROPERTY_POSTFIX_USE_HOPCOUNT:
 				if (Boolean.parseBoolean(value)) {
 					useHopCountProcess.add(tcAlgorithm);
+					// TODO@rkluge: Provide default values for
+					// const-updateinterval=300,
+					// const-broadcasthopcount_immediate_max = 10,
+					// const-broadcasthopcount_immediate_min = 1,
+					// const-broadcasthopcount_smalldelay_min = 55,
+					// const-broadcasthopcount_smalldelay_max = 65,
+					// const-broadcasthopcount_periodic_min = 270,
+					// const-broadcasthopcount_periodic_max = 330
 				}
 				return;
 			case CMoflonProperties.PROPERTY_POSTFIX_DUPLICATE_EDGES:
@@ -1644,5 +1667,28 @@ public class CMoflonCodeGenerator {
 			helperClassesList.add(DEFAULT_TC_PARENT_CLASS_NAME);
 			helperClasses.put(algorithmName, helperClassesList);
 		}
+	}
+
+	/**
+	 * Generates the general Includes for CMoflon as well as the Component Specific
+	 * stuff
+	 *
+	 * @param comp
+	 *            The desired Component
+	 * @param templateGroup
+	 *            The StringTemplate for the includes
+	 * @return
+	 */
+	private static String generateIncludes(final ToCoCoComponents comp, final STGroup templateGroup) {
+		final ST template = templateGroup.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_INCLUDE);
+		final StringBuilder result = new StringBuilder();
+		final List<String> includes = CMoflonIncludes.getCMoflonIncludes();
+		includes.addAll(CMoflonIncludes.getComponentSpecificIncludes(comp));
+		for (final String path : includes) {
+			template.add("path", path);
+			result.append(template.render());
+			template.remove("path");
+		}
+		return result.toString();
 	}
 }

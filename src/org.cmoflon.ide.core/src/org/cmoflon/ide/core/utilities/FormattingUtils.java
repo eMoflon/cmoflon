@@ -1,4 +1,4 @@
-package org.cmoflon.ide.core.runtime.codegeneration;
+package org.cmoflon.ide.core.utilities;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;

@@ -61,6 +61,7 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 		final EcoreModelAdaptor ecoreModelAdaptor = new CMoflonEcoreModelAdaptor(ecoreToGenModelConverter);
 
 		final STGroup controlFlowTemplateGroup = createControlFlowTemplates();
+		controlFlowTemplateGroup.setListener(new LoggingSTErrorListener(logger));
 		controlFlowTemplateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
 		templates.put(CMoflonTemplateConstants.CONTROL_FLOW_GENERATOR, controlFlowTemplateGroup);
 
@@ -173,7 +174,7 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 		return operationSequenceCompilers.get(patternType);
 	}
 
-	public static final STGroup createRedTemplates() {
+	private static final STGroup createRedTemplates() {
 		final STGroup group = new STGroup();
 		group.setListener(new LoggingSTErrorListener(logger));
 		group.loadGroupFile("/democles/", getTemplateUriPrefix() + "democlestemplates/DemoclesCommon.stg");
@@ -195,16 +196,16 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final OperationSequenceCompiler createRedOperationSequenceCompiler() {
+	private static final OperationSequenceCompiler createRedOperationSequenceCompiler() {
 		return new OperationSequenceCompiler(new EMFRedTemplateProvider());
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final OperationSequenceCompiler createGreenOperationSequenceCompiler() {
+	private static final OperationSequenceCompiler createGreenOperationSequenceCompiler() {
 		return new OperationSequenceCompiler(new AttributeAssignmentTemplateProvider(), new EMFGreenTemplateProvider());
 	}
 
-	public static final STGroup createGreenTemplates() {
+	private static final STGroup createGreenTemplates() {
 		final STGroup group = new STGroup();
 		group.setListener(new LoggingSTErrorListener(logger));
 		group.loadGroupFile("/democles/", getTemplateUriPrefix() + "democlestemplates/DemoclesCommon.stg");
@@ -229,11 +230,11 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final OperationSequenceCompiler createExpressionOperationSequenceCompiler() {
+	private static final OperationSequenceCompiler createExpressionOperationSequenceCompiler() {
 		return new OperationSequenceCompiler(new AssignmentTemplateProvider(), new EMFTemplateProvider());
 	}
 
-	public static final STGroup createExpressionTemplates() {
+	private static final STGroup createExpressionTemplates() {
 		final STGroup group = new STGroup();
 		group.setListener(new LoggingSTErrorListener(logger));
 		group.loadGroupFile("/democles/", getTemplateUriPrefix() + "democlestemplates/DemoclesCommon.stg");
@@ -257,11 +258,11 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final OperationSequenceCompiler createBindingAndBlackOperationSequenceCompiler() {
+	private static final OperationSequenceCompiler createBindingAndBlackOperationSequenceCompiler() {
 		return new OperationSequenceCompiler(new BindingAndBlackTemplateProvider());
 	}
 
-	public static final STGroup createBindingAndBlackTemplates() {
+	private static final STGroup createBindingAndBlackTemplates() {
 		final STGroup group = new STGroup();
 		group.setListener(new LoggingSTErrorListener(logger));
 		group.loadGroupFile("/democles/", getTemplateUriPrefix() + "democlestemplates/DemoclesCommon.stg");
@@ -283,11 +284,11 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final OperationSequenceCompiler createBindingOperationSequenceCompiler() {
+	private static final OperationSequenceCompiler createBindingOperationSequenceCompiler() {
 		return new OperationSequenceCompiler(new AssignmentTemplateProvider(), new EMFTemplateProvider());
 	}
 
-	public static final STGroup createBindingTemplates() {
+	private static final STGroup createBindingTemplates() {
 		final STGroup group = new STGroup();
 		group.setListener(new LoggingSTErrorListener(logger));
 		group.loadGroupFile("/democles/", getTemplateUriPrefix() + "democlestemplates/DemoclesCommon.stg");
@@ -311,12 +312,12 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	}
 
 	@SuppressWarnings("unchecked")
-	public static OperationSequenceCompiler createBlackOperationSequenceCompiler() {
+	private static OperationSequenceCompiler createBlackOperationSequenceCompiler() {
 		return new OperationSequenceCompiler(new PatternInvocationConstraintTemplateProvider(),
 				new RelationalConstraintTemplateProvider(), new EMFTemplateProvider());
 	}
 
-	public static final STGroup createBlackTemplates() {
+	private static final STGroup createBlackTemplates() {
 		final STGroup group = new STGroup();
 		group.setListener(new LoggingSTErrorListener(logger));
 		group.loadGroupFile("/democles/", getTemplateUriPrefix() + "democlestemplates/DemoclesCommon.stg");

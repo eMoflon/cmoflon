@@ -130,7 +130,7 @@ LIST(list_matches_<name>);<\n>
 >>
 
 init(blocks,duplicates)::=<<
-void init(){
+static void init(){
   <blocks:{x| memb_init(&memb_<x>);<\n>list_init(list_matches_<x>);};separator="\n">
   <if(duplicates)>#ifdef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES
   list_t neighbors=component_neighbordiscovery_neighbors();
@@ -173,7 +173,7 @@ void init(){
 
 
 cleanup(duplicates)::=<<
-void cleanup() {
+static void cleanup() {
   <if(duplicates)>#ifdef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES
   list_t neighbors=component_neighbordiscovery_neighbors();
   neighbor_t* list_item;

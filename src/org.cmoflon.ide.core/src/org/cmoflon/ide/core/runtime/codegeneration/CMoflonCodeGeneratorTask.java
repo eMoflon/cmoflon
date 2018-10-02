@@ -118,8 +118,7 @@ public class CMoflonCodeGeneratorTask implements ITask {
 		return this.processResource(subMon.split(7));
 	}
 
-	@SuppressWarnings("deprecation")
-	public IStatus processResource(final IProgressMonitor monitor) {
+	private IStatus processResource(final IProgressMonitor monitor) {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Code generation task", 100);
 		try {
 			final MoflonPropertiesContainer moflonProperties = getMoflonProperties();
@@ -154,14 +153,7 @@ public class CMoflonCodeGeneratorTask implements ITask {
 			final IStatus validatorStatus = validationJob.getResult();
 
 			if (validatorStatus == null) {
-				try {
-					validationJob.getThread().stop();
-				} catch (final ThreadDeath e) {
-					// Simply ignore it
-				}
-				throw new OperationCanceledException("Validation took longer than "
-						+ (preferencesStorage.getValidationTimeout() / 1000)
-						+ " seconds. This could(!) mean that some of your patterns have no valid search plan. You may increase the timeout value using the eMoflon property page");
+				stopJob(validationJob);
 			} else if (subMon.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
@@ -213,6 +205,18 @@ public class CMoflonCodeGeneratorTask implements ITask {
 			return new Status(IStatus.ERROR, getPluginId(), IStatus.ERROR,
 					e.getClass().getName() + ": " + e.getMessage(), e);
 		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private void stopJob(final WorkspaceJob job) {
+		try {
+			job.getThread().stop();
+		} catch (final ThreadDeath e) {
+			// Simply ignore it
+		}
+		throw new OperationCanceledException("Validation took longer than "
+				+ (preferencesStorage.getValidationTimeout() / 1000)
+				+ " seconds. This could(!) mean that some of your patterns have no valid search plan. You may increase the timeout value using the eMoflon property page");
 	}
 
 	private String getPluginId() {

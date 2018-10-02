@@ -13,7 +13,7 @@ public class CMoflonProperties {
 
 	public static final String PROPERTY_PREFIX_FOR_CONSTANTS = "const-";
 
-	public static final String PROPERTY_REDUCE_CODE_SIZE = "codegen.reduceCodeSize";
+	public static final String PROPERTY_REDUCE_CODE_SIZE = "cMoflon.reduceCodeSize";
 
 	public static final String PROPERTY_POSTFIX_USE_HOPCOUNT = ".enableHopcountProcess";
 
@@ -39,11 +39,11 @@ public class CMoflonProperties {
 
 	public static final String CMOFLON_PROPERTIES_FILENAME = "cMoflon.properties";
 
-	public static final String PROPERTY_TC_MIN_ALGORITHM_ID = PROPERTY_PREFIX_TOPOLOGYCONTROL + "minId";
+	private static final String PROPERTY_TC_MIN_ALGORITHM_ID = PROPERTY_PREFIX_TOPOLOGYCONTROL + "minId";
 
-	public static final int DEFAULT_MAX_MATCH_COUNT = 40;
+	private static final int DEFAULT_MAX_MATCH_COUNT = 40;
 
-	public static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
+	private static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
 	public static final boolean DEFAULT_REDUCE_CODE_SIZE = false;
 

@@ -4,7 +4,7 @@ import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-public class SourceFileGenerator {
+class SourceFileGenerator {
 
 	private static final String PROCESS_BEGIN = "processBegin";
 

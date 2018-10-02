@@ -11,13 +11,13 @@ package org.cmoflon.ide.core.runtime.codegeneration.utilities;
 public class ClassAttribute {
 
 	// the name of the attribute
-	protected final String name;
+	private final String name;
 
 	// The Type of this attribute (return type for methods)
-	protected final Type type;
+	private final Type type;
 
 	// The Type(Class) this Attribute belongs to.
-	protected final Type owningType;
+	private final Type owningType;
 
 	public ClassAttribute(final Type owningType, final Type type, final String name) {
 		this.name = name;
