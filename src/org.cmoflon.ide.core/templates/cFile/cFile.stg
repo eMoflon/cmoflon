@@ -5,7 +5,8 @@ parameter(name, type)::=<<
 >>
 
 parameterConstant(comp,algo,name)::=<<
-tc.<name> = COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">
+tc.<name> = COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">;
+printf("[topologycontrol] Parameter value: <name>=%.2f", COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">);
 >>
 processBegin(component,algo,componentId)::=<<
 

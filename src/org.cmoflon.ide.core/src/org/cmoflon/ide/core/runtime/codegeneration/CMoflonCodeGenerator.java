@@ -884,29 +884,27 @@ public class CMoflonCodeGenerator {
 	 * @return a full String with comma separated parameters
 	 */
 	private String getParameters(final String property, final GenClass tcClass, final ST template) {
+		if (property == null) {
+			return "";
+		}
+
 		final StringBuilder result = new StringBuilder();
 		template.add("comp", getComponentName());
 		template.add("algo", tcClass.getName());
-		if (property == null) {
-			return "";
-		} else {
-			final String[] params = property.split(PARAMETER_SEPARATOR);
-			for (final String p : params) {
-				if (p.trim().contains(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS)) {
-					template.remove("name");
-					template.add("name", p.trim().split(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS)[1]);
-					result.append(template.render() + ";").append(nl());
-					result.append(idt2() + "");
-				} else {
-					result.append(p.trim() + ";").append(nl());
-				}
+		final String[] params = property.split(PARAMETER_SEPARATOR);
+		for (final String p : params) {
+			if (p.trim().contains(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS)) {
+				template.remove("name");
+				template.add("name", p.trim().split(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS)[1]);
+				result.append(template.render()).append(nl());
+				result.append(idt2() + "");
+			} else {
+				result.append(p.trim()).append(nl());
 			}
 		}
-		String returnValue = result.substring(0, result.lastIndexOf(";"));
-		if (!returnValue.isEmpty()) {
-			returnValue = idt2() + returnValue + ";" + nl();
-		}
-		return returnValue;
+
+		final String returnValue = FormattingUtils.prependEachLineWithPrefix(result.toString(), idt2());
+		return returnValue + FormattingUtils.nl();
 	}
 
 	/**
