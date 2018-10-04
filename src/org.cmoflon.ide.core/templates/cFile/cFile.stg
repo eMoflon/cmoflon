@@ -6,7 +6,7 @@ parameter(name, type)::=<<
 
 parameterConstant(comp,algo,name)::=<<
 tc.<name> = COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">;
-printf("[topologycontrol] Parameter value: <name>=%.2f", COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">);
+printf("[topologycontrol] Parameter value (*100): <name>=%d", (int)(100*COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">));
 >>
 processBegin(component,algo,componentId)::=<<
 
@@ -40,7 +40,8 @@ processEnd()::=<<
 
 bootCompWait(component, hopcount,algo)::=<<
   BOOT_COMPONENT_WAIT(component_<component>);
-  <if(hopcount)>messagetype_hopcount = uniqueid_assign();
+  <if(hopcount)>
+  messagetype_hopcount = uniqueid_assign();
   component_network_packet_subscribe(messagetype_hopcount, _hopcount_recv);
 
   static struct etimer etimer_hopcountstart;
@@ -50,45 +51,52 @@ bootCompWait(component, hopcount,algo)::=<<
   etimer_set(&etimer_broadcast, CLOCK_SECOND * 500); // unimportant high value, real interval is set later in time
 
   static struct etimer etimer_hopcountupdate;
-  etimer_set(&etimer_hopcountupdate, CLOCK_SECOND * 30);<endif>
+  etimer_set(&etimer_hopcountupdate, CLOCK_SECOND * 30);
+  <endif>
   static struct etimer waittime;
   etimer_set(&waittime, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_UPDATEINTERVAL);
 
 >>
 
 mainLoop(hopcount, component, algo)::=<<
-    while(1) {
-      <if(hopcount)>PROCESS_WAIT_EVENT();<else>PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&waittime));
-      etimer_reset(&waittime);<endif>
-      // a small delay for the base station to start broadcasting that all motes have booted and can receive this information
-      <if(hopcount)>if(etimer_expired(&etimer_hopcountstart)) {
-        if(networkaddr_equal(component_network_address_basestation(), networkaddr_node_addr())) {
-          printf("DEBUG: [topologycontrol-lktc] updated hopcount to 0 hops\n");
-          my_hopcount = 0;
+  while(1) {
+<if(hopcount)>
+    PROCESS_WAIT_EVENT();
+<else>
+    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&waittime));
+    etimer_reset(&waittime);
+<endif>
+    // a small delay for the base station to start broadcasting that all motes have booted and can receive this information
+<if(hopcount)>
+    if(etimer_expired(&etimer_hopcountstart)) {
+      if(networkaddr_equal(component_network_address_basestation(), networkaddr_node_addr())) {
+        printf("DEBUG: [topologycontrol-hopcount] updated hopcount to 0 hops\n");
+        my_hopcount = 0;
 
-          etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
-        }
-
-        etimer_stop(&etimer_hopcountstart);
-        etimer_hopcountstart.p = PROCESS_ZOMBIE; // etimer_expired is true if no process is assigned to etimer which happens when expiring (event if stopped), so assign the zombie process
+        etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
       }
 
-      if(etimer_expired(&etimer_broadcast)) {
-        _hopcount_broadcast();
-        // _hopcount_broadcast will update the timer, so no reseting here
-      }
+      etimer_stop(&etimer_hopcountstart);
+      etimer_hopcountstart.p = PROCESS_ZOMBIE; // etimer_expired is true if no process is assigned to etimer which happens when expiring (event if stopped), so assign the zombie process
+    }
 
-      if(etimer_expired(&etimer_hopcountupdate)) {
-        etimer_reset(&etimer_hopcountupdate);
+    if(etimer_expired(&etimer_broadcast)) {
+      _hopcount_broadcast();
+      // _hopcount_broadcast will update the timer, so no reseting here
+    }
 
-        // in some cases the hopcount information has already been received but the route to the basestation has
-        // not been found at the time of receiving the messages or it has changed
-        if(_hopcount_update()) {
-          etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
-        }
+    if(etimer_expired(&etimer_hopcountupdate)) {
+      etimer_reset(&etimer_hopcountupdate);
+
+      // in some cases the hopcount information has already been received but the route to the basestation has
+      // not been found at the time of receiving the messages or it has changed
+      if(_hopcount_update()) {
+        etimer_set(&etimer_broadcast, random(CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MIN, CLOCK_SECOND * COMPONENT_<component;format="fulluppercase">_<algo;format="fulluppercase">_BROADCASTHOPCOUNT_IMMEDIATE_MAX));
       }
-      if(etimer_expired(&waittime)) {
-        etimer_reset(&waittime);<endif>
+    }
+    if(etimer_expired(&waittime)) {
+      etimer_reset(&waittime);
+<endif>
 
 
 >>
@@ -133,7 +141,8 @@ LIST(list_matches_<name>);<\n>
 init(blocks,duplicates)::=<<
 static void init(){
   <blocks:{x| memb_init(&memb_<x>);<\n>list_init(list_matches_<x>);};separator="\n">
-  <if(duplicates)>#ifdef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES
+  <if(duplicates)>
+  #ifdef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES
   list_t neighbors=component_neighbordiscovery_neighbors();
   neighbor_t* onehop;
   int count=0;
@@ -166,7 +175,8 @@ static void init(){
     list_add(neighbors, onehop);
   }
   printf("Duplicated %d out of %d links.\n",realcount,count);
-#endif<endif>
+  #endif
+<endif>
 
 }
 
@@ -175,7 +185,8 @@ static void init(){
 
 cleanup(duplicates)::=<<
 static void cleanup() {
-  <if(duplicates)>#ifdef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES
+  <if(duplicates)>
+  #ifdef COMPONENT_TOPOLOGYCONTROL_GENERATE_DUPLICATES
   list_t neighbors=component_neighbordiscovery_neighbors();
   neighbor_t* list_item;
   for(list_item=list_head(list_duplicates);list_item!=NULL;list_item=list_item_next(list_item)){
@@ -184,8 +195,8 @@ static void cleanup() {
   while(list_length(list_duplicates) > 0) {
     free(list_pop(list_duplicates));
   }
-  #endif<endif>
-
+  #endif
+  <endif>
 }
 
 >>

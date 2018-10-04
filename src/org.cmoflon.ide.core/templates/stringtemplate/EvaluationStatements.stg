@@ -20,9 +20,10 @@ EvaluationStatementEnd() ::= <<
 // Detailed evaluation output - begin
 unsigned long finish=RTIMER_NOW();
 unsigned long ticks= finish>start? finish-start:start-finish;
-double runtime = ticks / RTIMER_SECOND * 1000.0;
+unsigned long runtimeMicro = (ticks * 1000000)/ RTIMER_SECOND;
 printf("[topologycontrol]: Ticks: %lu\n", ticks);
-printf("[topologycontrol]: TIME: %.1fms\n", runtime);
+printf("[topologycontrol]: RTIMER_SECOND (ticks per second): %lu\n", RTIMER_SECOND);
+printf("[topologycontrol]: TIME: %lu microsecs.\n", runtimeMicro);
 // Detailed evaluation output - end
 
 >>
