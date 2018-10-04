@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="org.moflon.core.releng.target" sequenceNumber="5">
+<?pde version="3.8"?><target name="org.moflon.core.releng.target" sequenceNumber="6">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.draw2d.feature.group" version="0.0.0"/>
@@ -19,6 +19,12 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.moflon.ide.feature.feature.group" version="3.2.0.201804101444"/>
 <repository location="https://github.com/eMoflon/eMoflon.github.io/raw/emoflon-tool-updatesite_3.2.0/eclipse-plugin/beta/updatesite"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="1.1.20"/>
+<unit id="net.sourceforge.plantuml.feature.feature.group" version="1.1.20"/>
+<unit id="net.sourceforge.plantuml.lib.feature.feature.group" version="1.2018.9"/>
+<repository location="http://hallvard.github.io/plantuml"/>
 </location>
 </locations>
 </target>
