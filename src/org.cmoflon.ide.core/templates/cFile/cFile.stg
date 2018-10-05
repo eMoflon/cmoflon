@@ -6,8 +6,10 @@ parameter(name, type)::=<<
 
 parameterConstant(comp,algo,name)::=<<
 tc.<name> = COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">;
-printf("[topologycontrol] Parameter value (*100): <name>=%d", (int)(100*COMPONENT_<comp;format="fulluppercase">_<algo;format="fulluppercase">_<name;format="fulluppercase">));
+printf("[topologycontrol] Parameter value (x100): <name>=%d\n", (int)(100 * tc.<name>));
+
 >>
+
 processBegin(component,algo,componentId)::=<<
 
 #if COMPONENT_<component;format="fulluppercase"> == <componentId>

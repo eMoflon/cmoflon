@@ -4,6 +4,7 @@ import static org.cmoflon.ide.core.utilities.FormattingUtils.idt;
 import static org.cmoflon.ide.core.utilities.FormattingUtils.idt2;
 import static org.cmoflon.ide.core.utilities.FormattingUtils.nl;
 import static org.cmoflon.ide.core.utilities.FormattingUtils.nl2;
+import static org.cmoflon.ide.core.utilities.FormattingUtils.prependEachLineWithPrefix;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -708,30 +709,46 @@ public class CMoflonCodeGenerator {
 
 	private String generateAlgorithmInvocationCode(final GenClass tcClass,
 			final STGroup sourceFileGeneratorTemplateGroup) {
-		final ST template = sourceFileGeneratorTemplateGroup
-				.getInstanceOf(CMoflonTemplateConstants.SOURCE_FILE_PARAMETER_CONSTANT);
-		final String algorithmInvocation = tcAlgorithmCallParameters.get(tcClass);
-		final String algorithmInvocationStatement = getClassPrefixForMethods(tcClass) + "run(&tc);";
+
 		final StringBuilder algorithmInvocationCode = new StringBuilder();
-		algorithmInvocationCode.append(getParameters(algorithmInvocation, tcClass, template));
+
+		final String algorithmInvocation = tcAlgorithmCallParameters.get(tcClass);
+		final ST parametersTemplate = sourceFileGeneratorTemplateGroup
+				.getInstanceOf(CMoflonTemplateConstants.SOURCE_FILE_PARAMETER_CONSTANT);
+		algorithmInvocationCode.append(getParameters(algorithmInvocation, tcClass, parametersTemplate));
+
 		if (useEvalStatements.contains(tcClass.getName())) {
-			final STGroup evalStatementGroup = getTemplateConfigurationProvider()
-					.getTemplateGroup(CMoflonTemplateConstants.EVALUATION_STATEMENTS);
-			final ST templateForBegin = evalStatementGroup
-					.getInstanceOf(CMoflonTemplateConstants.EVALUATION_STATEMENTS_BEGIN);
-			final ST templateForEnd = evalStatementGroup
-					.getInstanceOf(CMoflonTemplateConstants.EVALUATION_STATEMETNS_END);
-
 			algorithmInvocationCode
-					.append(FormattingUtils.prependEachLineWithPrefix(templateForBegin.render(), idt2()));
-			algorithmInvocationCode.append(idt2() + algorithmInvocationStatement).append(nl());
-			algorithmInvocationCode.append(FormattingUtils.prependEachLineWithPrefix(templateForEnd.render(), idt2()));
+					.append(prependEachLineWithPrefix(generateEvaluationBeginCode(), idt2()));
+		}
 
-		} else {
-			algorithmInvocationCode.append(idt2() + algorithmInvocationStatement).append(nl());
+		final String algorithmInvocationStatement = getClassPrefixForMethods(tcClass) + "run(&tc);";
+		algorithmInvocationCode.append(idt2()).append(algorithmInvocationStatement).append(nl());
+
+		if (useEvalStatements.contains(tcClass.getName())) {
+			algorithmInvocationCode
+					.append(prependEachLineWithPrefix(generateEvaluationEndCode(), idt2()));
+
 		}
 		final String result = algorithmInvocationCode.toString();
 		return result;
+	}
+
+	private String generateEvaluationEndCode() {
+		final STGroup evalStatementGroup = getTemplateConfigurationProvider()
+				.getTemplateGroup(CMoflonTemplateConstants.EVALUATION_STATEMENTS);
+		final ST templateForEnd = evalStatementGroup.getInstanceOf(CMoflonTemplateConstants.EVALUATION_STATEMETNS_END);
+		final String render = templateForEnd.render();
+		return render;
+	}
+
+	private String generateEvaluationBeginCode() {
+		final STGroup evalStatementGroup = getTemplateConfigurationProvider()
+				.getTemplateGroup(CMoflonTemplateConstants.EVALUATION_STATEMENTS);
+		final ST templateForBegin = evalStatementGroup
+				.getInstanceOf(CMoflonTemplateConstants.EVALUATION_STATEMENTS_BEGIN);
+		final String render = templateForBegin.render();
+		return render;
 	}
 
 	private String generateCleanupCode(final STGroup templateGroup) {
@@ -759,7 +776,7 @@ public class CMoflonCodeGenerator {
 		if (!dropUnidirectionalEdgesOff.contains(tcClass.getName())) {
 			final String templateCode = templateGroup
 					.getInstanceOf(CMoflonTemplateConstants.SOURCE_DROP_UNIDIRECTIONAL_EDGES).render();
-			sb.append(FormattingUtils.prependEachLineWithPrefix(templateCode, idt2()));
+			sb.append(prependEachLineWithPrefix(templateCode, idt2()));
 		}
 		sb.append(SourceFileGenerator.generateClosingPart(templateGroup, useHopCount(tcClass)));
 		return sb.toString();
@@ -897,13 +914,12 @@ public class CMoflonCodeGenerator {
 				template.remove("name");
 				template.add("name", p.trim().split(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS)[1]);
 				result.append(template.render()).append(nl());
-				result.append(idt2() + "");
 			} else {
 				result.append(p.trim()).append(nl());
 			}
 		}
 
-		final String returnValue = FormattingUtils.prependEachLineWithPrefix(result.toString(), idt2());
+		final String returnValue = prependEachLineWithPrefix(result.toString(), idt2());
 		return returnValue + FormattingUtils.nl();
 	}
 
