@@ -28,7 +28,7 @@ if(_result == NULL){
 MatchSingleMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain, alwaysSuccessful) ::= <<
 static void** <body.header.name><adornment>(<boundSymbolicParameters:{x |<if(x.Type.LinkedElement.EClassIsBuiltIn)><x.Type.LinkedElement.name><else><x.Type.LinkedElement.Name;format="fulluppercase">_T*<endif> <x:/democles/Name(importManager)>};separator=", ">) {
   #ifdef CMOFLON_PRINT_PATTERN_INVOCATION
-  printf("<body.header.name>");
+  printf("<body.header.name>\n");
   #endif
   <if (chain)><(chain.value.template)(engine, importManager, body, chain)>
 <if (!alwaysSuccessful)>return NULL;<endif>
@@ -40,7 +40,7 @@ static void** <body.header.name><adornment>(<boundSymbolicParameters:{x |<if(x.T
 MatchAllMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain, alwaysSuccessful) ::= <<
 static list_t <body.header.name><adornment>(<boundSymbolicParameters:{x| <if(x.Type.LinkedElement.EClassIsBuiltIn)><x.Type.LinkedElement.name><else><x.Type.LinkedElement.Name;format="fulluppercase">_T*<endif> <x:/democles/Name(importManager)>};separator=", ">) {
   #ifdef CMOFLON_PRINT_PATTERN_INVOCATION
-  printf("<body.header.name>");
+  printf("<body.header.name>\n");
   #endif
   <if (chain)><(chain.value.template)(engine, importManager, body, chain)>
   <else>if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL) {
