@@ -3,7 +3,7 @@ return <first(body.header.internalSymbolicParameters):/democles/Name(importManag
 >>
 
 MatchSingleMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain, alwaysSuccessful) ::= <<
-<if (first(adornment.rawBindingInformation).isFree)><if(first(body.header.internalSymbolicParameters).type.LinkedElement.EClassIsBuiltIn)><first(body.header.internalSymbolicParameters).type.linkedElement.name><else><first(body.header.internalSymbolicParameters).type.linkedElement.name;format="fulluppercase">_T*<endif><else>void<endif> <body.header.name><adornment>(<boundSymbolicParameters:/democles/TypeAndName(importManager); separator=", ">) {
+static <if (first(adornment.rawBindingInformation).isFree)><if(first(body.header.internalSymbolicParameters).type.LinkedElement.EClassIsBuiltIn)><first(body.header.internalSymbolicParameters).type.linkedElement.name><else><first(body.header.internalSymbolicParameters).type.linkedElement.name;format="fulluppercase">_T*<endif><else>void<endif> <body.header.name><adornment>(<boundSymbolicParameters:/democles/TypeAndName(importManager); separator=", ">) {
   <if (chain)><(chain.value.template)(engine, importManager, body, chain)><endif>
   <if (!alwaysSuccessful)>return<if (first(adornment.rawBindingInformation).isFree)> <first(body.header.internalSymbolicParameters).type.linkedElement.defaultValue><endif>;<endif>
 }
