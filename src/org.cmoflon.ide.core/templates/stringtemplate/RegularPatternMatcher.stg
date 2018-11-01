@@ -15,14 +15,8 @@ else {
 >>
 
 SingleMatch(engine, importManager, body, chain) ::= <<
-void** _result = (void**) malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
-if(_result == NULL){
-  printf("ERROR[topologycontrol]: could not allocate memory (%s:%d)\n", __FILE__, __LINE__);
-  return NULL;
-}else{
-  <body.header.internalSymbolicParameters:{x  |_result[<i0>]= <if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}>
-  return _result;
-}
+<body.header.internalSymbolicParameters:{x  |_result[<i0>]= <if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}>
+return _result;
 >>
 
 MatchSingleMethod(engine, importManager, body, adornment, boundSymbolicParameters, chain, alwaysSuccessful) ::= <<

@@ -75,6 +75,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.gervarro.democles.codegen.ImportManager;
 import org.gervarro.democles.codegen.OperationSequenceCompiler;
 import org.gervarro.democles.codegen.TemplateInvocation;
+import org.gervarro.democles.compiler.CompilerPattern;
 import org.gervarro.democles.compiler.CompilerPatternBody;
 import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
@@ -279,11 +280,9 @@ public class CMoflonCodeGenerator {
 			final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Generating code for " + tcClass, 100);
 
-		subMon.worked(10);
+		generateHeaderFile(tcClass, subMon.split(50));
 
-		generateHeaderFile(tcClass, subMon.split(45));
-
-		generateSourceFile(tcClass, subMon.split(45));
+		generateSourceFile(tcClass, subMon.split(50));
 
 		return Status.OK_STATUS;
 	}
@@ -297,8 +296,7 @@ public class CMoflonCodeGenerator {
 			}
 		}
 
-		throw new IllegalStateException(
-				"Expected to find superclass '" + tcAlgorithmParentClassName + "' in genmodel.");
+		throw new IllegalStateException("Expected to find class '" + tcAlgorithmParentClassName + "' in genmodel.");
 	}
 
 	private final boolean isClassInGenmodel(final String className) {
@@ -499,6 +497,7 @@ public class CMoflonCodeGenerator {
 		}
 		contents.append(getDefaultHelperMethods());
 		contents.append(getUserDefinedHelperMethods(tcClass));
+		contents.append(generatedGlobalMatchDataStructure(tcClass));
 		contents.append(getPatternMatchingCode(tcClass));
 		contents.append(cachedPatternMatchingCode.get(tcClass).toString());
 		contents.append(getInitMethod(templateGroup));
@@ -519,6 +518,51 @@ public class CMoflonCodeGenerator {
 					subMon.split(2));
 		}
 
+	}
+
+	/**
+	 * Generates the code fragment for the global match data structure
+	 *
+	 * @param tcClass
+	 *            the current TC class
+	 * @return the code fragment for the match data structure
+	 */
+	private String generatedGlobalMatchDataStructure(final GenClass tcClass) {
+		final int maximumMatchSize = determineMaximumMatchSize(tcClass);
+
+		final StringBuilder allinjectedCode = new StringBuilder();
+		allinjectedCode.append("// Common match data structure").append(nl());
+		allinjectedCode.append(String.format("static void* _result[%d];", maximumMatchSize)).append(nl2());
+		return allinjectedCode.toString();
+	}
+
+	/**
+	 * Determines the maximum number of elements in any match returned by the
+	 * {@link CompilerPattern} invocations that are attached this {@link GenClass}
+	 *
+	 * @param tcClass
+	 *            the {@link GenClass} to analyze
+	 * @return the maximum match size. Is 0 if no pattern invocations can be found.
+	 */
+	private int determineMaximumMatchSize(final GenClass tcClass) {
+		int maximumMatchSize = 0;
+		final EClass eClass = tcClass.getEcoreClass();
+		for (final Adapter adapter : eClass.eAdapters()) {
+			if (adapter.isAdapterForType(SearchPlanAdapter.class)) {
+				final SearchPlanAdapter searchPlanAdapter = (SearchPlanAdapter) adapter;
+				final String patternType = searchPlanAdapter.getPatternType();
+				final OperationSequenceCompiler operationSequenceCompiler = getTemplateConfigurationProvider()
+						.getOperationSequenceCompiler(patternType);
+				final TemplateInvocation template = searchPlanAdapter
+						.prepareTemplateInvocation(operationSequenceCompiler, democlesImportManager);
+
+				final Map<String, Object> attributes = template.getAttributes();
+				final CompilerPatternBody body = CompilerPatternBody.class.cast(attributes.get("body"));
+				final int currentMatchSize = body.getHeader().getInternalSymbolicParameters().size();
+				maximumMatchSize = Math.max(maximumMatchSize, currentMatchSize);
+			}
+		}
+		return maximumMatchSize;
 	}
 
 	/**
@@ -718,16 +762,14 @@ public class CMoflonCodeGenerator {
 		algorithmInvocationCode.append(getParameters(algorithmInvocation, tcClass, parametersTemplate));
 
 		if (useEvalStatements.contains(tcClass.getName())) {
-			algorithmInvocationCode
-					.append(prependEachLineWithPrefix(generateEvaluationBeginCode(), idt2()));
+			algorithmInvocationCode.append(prependEachLineWithPrefix(generateEvaluationBeginCode(), idt2()));
 		}
 
 		final String algorithmInvocationStatement = getClassPrefixForMethods(tcClass) + "run(&tc);";
 		algorithmInvocationCode.append(idt2()).append(algorithmInvocationStatement).append(nl());
 
 		if (useEvalStatements.contains(tcClass.getName())) {
-			algorithmInvocationCode
-					.append(prependEachLineWithPrefix(generateEvaluationEndCode(), idt2()));
+			algorithmInvocationCode.append(prependEachLineWithPrefix(generateEvaluationEndCode(), idt2()));
 
 		}
 		final String result = algorithmInvocationCode.toString();
@@ -759,6 +801,7 @@ public class CMoflonCodeGenerator {
 
 	private String getPatternMatchingCode(final GenClass tcClass) {
 		final StringBuilder allinjectedCode = new StringBuilder();
+
 		for (final GenClass genClass : cachedConcreteClasses) {
 			if ((!genClass.getName().contentEquals(tcClass.getName())) && isIrrelevantForAlgorithm(genClass, tcClass)) {
 				continue;
@@ -930,7 +973,6 @@ public class CMoflonCodeGenerator {
 	 * @return returns the pattern matching code as string
 	 */
 	private String getPatternImplementationCode(final GenClass genClass) {
-		// Produces pattern matching code
 		final StringBuilder code = new StringBuilder();
 
 		for (final Adapter adapter : genClass.getEcoreClass().eAdapters()) {
@@ -952,8 +994,7 @@ public class CMoflonCodeGenerator {
 				final String result = st.render();
 				// code.append(st.render());
 				code.append(result);
-				code.append(nl());
-				code.append(nl());
+				code.append(nl2());
 			}
 		}
 		return code.length() > 0 ? code.toString() : null;
@@ -1096,9 +1137,12 @@ public class CMoflonCodeGenerator {
 
 	private String getMaxMatchCountDefinition(final GenClass tcClass) {
 		final StringBuilder mycontents = new StringBuilder();
+		mycontents.append(
+				"// The following preprocessor constant is relevant for match collections (foreach story nodes)")
+				.append(nl());
 		mycontents.append("#ifndef MAX_MATCH_COUNT").append(nl());
 		mycontents.append(String.format("#define MAX_MATCH_COUNT %d%s", maximumMatchCount, nl()));
-		mycontents.append("#endif").append(nl());
+		mycontents.append("#endif").append(nl2());
 		if (reduceCodeSize) {
 			if (tcClass == null) {
 				return mycontents.toString();
