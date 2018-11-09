@@ -36,6 +36,7 @@ public interface CMoflonTemplateConstants {
 	String EVALUATION_STATEMENTS = "EvaluationStatements";
 	String EVALUATION_PREFIX = "/" + EVALUATION_STATEMENTS + "/";
 	String SOURCE_FILE_PARAMETER_CONSTANT = SOURCE_PREFIX + CMoflonTemplateConstants.PARAMETER_CONSTANT;
+	String SOURCE_FILE_PARAMETER_RAW = SOURCE_PREFIX + CMoflonTemplateConstants.PARAMETER_RAW;
 	String EVALUATION_STATEMETNS_END = "/" + EVALUATION_STATEMENTS + "/EvaluationStatementEnd";
 	String EVALUATION_STATEMENTS_BEGIN = "/" + EVALUATION_STATEMENTS + "/EvaluationStatementBegin";
 
@@ -72,6 +73,7 @@ public interface CMoflonTemplateConstants {
 
 	String DROP_UNIDIRECTIONAL_EDGES = "dropUnidirectionalEdges";
 	String PARAMETER_CONSTANT = "parameterConstant";
+	String PARAMETER_RAW = "parameterRaw";
 	String PARAMETER = "parameter";
 	String MEMB_DECLARATION = "membDeclaration";
 	String LIST_DECLARATION = "listDeclaration";

@@ -13,8 +13,6 @@ public class CMoflonProperties {
 
 	public static final String PROPERTY_PREFIX_FOR_CONSTANTS = "const-";
 
-	public static final String PROPERTY_REDUCE_CODE_SIZE = "cMoflon.reduceCodeSize";
-
 	public static final String PROPERTY_POSTFIX_USE_HOPCOUNT = ".enableHopcountProcess";
 
 	public static final String PROPERTY_POSTFIX_DROP_UNIDIRECTIONAL_EDGES = ".dropUnidirectionalEdges";
@@ -63,10 +61,8 @@ public class CMoflonProperties {
 					+ "# <option>={parameters,constants,helperclasses,enableHopcountProcess,generateDuplicates,dropUnidirectionalEdges,useEvaluationStatements}\n"
 					+ "# You can find a description on how to use any of these options in the documentation under: https://github.com/eMoflon/cmoflon/wiki/cMoflon-Properties\n"
 					+ "\n\n" //
-					+ "# Set to 'false' if you want the complete amount of generated code in every source file, not only the code specific to each TC algorithm\n"
-					+ PROPERTY_REDUCE_CODE_SIZE + " = true\n\n" //
 					+ "# " + " Type mapping definitions follow \n"//
-					+ "# The Key is the EClass, and the value is the C Struct you want it to be mapped to.\n" //
+					+ "# The key is the EClass, and the value is the C Struct you want it to be mapped to.\n" //
 					+ "# Default: " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Node = " + DEFAULT_TYPE_MAPPINGS.get("Node")
 					+ " and " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Link = " + DEFAULT_TYPE_MAPPINGS.get("Link") + "\n" //
 					+ getCMoflonPropertiesLinesForDefaultTypeMappings() //

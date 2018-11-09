@@ -119,6 +119,46 @@ static void link_setMarked(LINK_T* _this, LinkState value) {
 	//IF this node is not part of the edge don't ignore any of the nodes
 }
 
+/*
+ * Returns 0 if both values are equal.
+ * Returns a value greater than 0 if _this is true and other is false
+ * Returns a value smaller than 0 if _this is false and other is true
+ */
+static int eBoolean_compare(EBoolean _this, EBoolean other) {
+  return _this == other ? 0 : (_this ? 1 : -1);
+}
+
+static int eDouble_compare(EDouble _this, EDouble other) {
+  return _this == other ? 0 : (_this > other ? 1 : -1);
+}
+
+static int eFloat_compare(EFloat _this, EFloat other) {
+  return _this == other ? 0 : (_this > other ? 1 : -1);
+}
+
+static int eInt_compare(EInt _this, EInt other) {
+  return _this == other ? 0 : (_this > other ? 1 : -1);
+}
+
+static int eLong_compare(ELong _this, ELong other) {
+  return _this == other ? 0 : (_this > other ? 1 : -1);
+}
+
+static int eChar_compare(EChar _this, EChar other) {
+  return _this == other ? 0 : (_this > other ? 1 : -1);
+}
+static int eShort_compare(EShort _this, EShort other) {
+  return _this == other ? 0 : (_this > other ? 1 : -1);
+}
+
+static int eByte_compare(EByte _this, EByte other) {
+  return _this == other ? 0 : (_this > other ? 1 : -1);
+}
+
+static int eString_compare(EString _this, EString other) {
+  return strcmp(_this, other);
+}
+
 static bool node_equals(NODE_T* _this, NODE_T* other) {
 	return networkaddr_equal(_this, other);
 }

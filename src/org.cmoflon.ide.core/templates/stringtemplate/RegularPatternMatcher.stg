@@ -1,13 +1,13 @@
 AllMatches(engine, importManager, body, chain) ::= <<
 match_t* _result;
-if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL)
+if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL) {
   printf("ERROR[topologycontrol]: match list is full (%s:%d)\n", __FILE__, __LINE__);
-else {
+} else {
   _result->match = (void**) malloc(<length(body.header.internalSymbolicParameters)>*sizeof(void*));
   if(_result->match == NULL){
     printf("ERROR[topologycontrol]: could not allocate memory (%s:%d)\n", __FILE__, __LINE__);
     break;
-  }else{
+  } else {
   <body.header.internalSymbolicParameters:{x  |_result->match[<i0>]=<if(x.Type.LinkedElement.EClassIsBuiltIn)>&<x:/democles/Name(importManager)>;<\n><else><x:/democles/Name(importManager)>;<\n><endif>}>
   list_add(list_matches_<body.header.name><adornment>, _result);
   }
@@ -38,16 +38,18 @@ static list_t <body.header.name><adornment>(<boundSymbolicParameters:{x| <if(x.T
   #endif
   <if (chain)><(chain.value.template)(engine, importManager, body, chain)>
   <else>if((_result = memb_alloc(&memb_<body.header.name><adornment>)) == NULL) {
-      printf("ERROR[topologycontrol]: match-list is full (%s:%d)\n", __FILE__, __LINE__);
-  }else {
+      printf("ERROR[topologycontrol]: match list is full (%s:%d)\n", __FILE__, __LINE__);
+  } else {
     _result->match = (void**) malloc(<length((boundSymbolicParameters))>*sizeof(void*))
     if(_result == NULL){
       printf("ERROR[topologycontrol]: could not allocate memory (%s:%d)\n", __FILE__, __LINE__);
       break;
-    }else{
+    } else {
       <boundSymbolicParameters:{x  |_result->match[<i0>]= <x:/democles/Name(importManager)>;<\n>}>
-      list_add(list_matches_<body.header.name><adornment>, _result);<endif>
+      list_add(list_matches_<body.header.name><adornment>, _result);
     }
+  }
+  <endif>
   return list_matches_<body.header.name><adornment>;
 }
 >>
