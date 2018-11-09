@@ -38,7 +38,7 @@ import org.moflon.ide.ui.preferences.EMoflonPreferenceInitializer;
  */
 public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 	private static final VisitorCondition VISITOR_CONDITION = new AntPatternCondition(
-			new String[] { "model/*.ecore", CMoflonProperties.CMOFLON_PROPERTIES_FILENAME });
+			new String[] { "model/*.ecore", CMoflonProperties.CMOFLON_PROPERTIES_FILENAME, "injection/*" });
 
 	public static final String BUILDER_ID = CMoflonRepositoryBuilder.class.getName();
 
