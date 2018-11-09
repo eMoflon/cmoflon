@@ -19,4 +19,11 @@ public class FieldAttribute extends ClassAttribute {
 	public boolean getIslist() {
 		return this.islist;
 	}
+
+	@Override
+	public String toString() {
+		return "FieldAttribute [islist=" + islist + ", getOwningType()=" + getOwningType() + ", getType()=" + getType()
+				+ ", getName()=" + getName() + "]";
+	}
+
 }

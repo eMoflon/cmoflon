@@ -33,12 +33,15 @@ compareDeclaration(types)::=<<
 
 getDeclarations(fields)::=<<
 
-<fields:{field|//Begin of declarations for <field.name><\n><if(field.type.Boolean)><isDeclarationBool(field)><setterDeclaration(field)><else><if(field.islist)><getterDeclaration(field)><addDeclaration(field)><removeDeclaration(field)><containsDeclaration(field)><isDeclaration(field)><else><getterDeclaration(field)><setterDeclaration(field)><endif><endif>//End of declarations for <field.name>};separator="\n\n">
-<\n>
+<fields:{field|//Begin of declarations for <field.name>
+<if(field.type.Boolean)><isDeclarationBool(field)><setterDeclaration(field)><else>
+<if(field.islist)><getterDeclaration(field)><addDeclaration(field)><removeDeclaration(field)><containsDeclaration(field)><isDeclaration(field)><else><getterDeclaration(field)><setterDeclaration(field)><endif><endif>
+//End of declarations for <field.name>};separator="\n\n">
+
 >>
 
 getterDeclaration(field)::=<<
-<if(field.islist)>list_t<else><if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif><endif> <field.owningType.name; format="firstlowercase">_get<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this);
+static <if(field.islist)>list_t <else><if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T* <endif><endif><field.owningType.name; format="firstlowercase">_get<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this);
 
 >>
 
