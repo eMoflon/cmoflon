@@ -138,6 +138,38 @@ static bool eBoolean_equals(EBoolean b1, EBoolean b2) {
 	return b1 == b2;
 }
 
+static bool eDouble_equals(EDouble _this, EDouble other) {
+  return _this == other;
+}
+
+static bool eFloat_equals(EFloat _this, EFloat other) {
+  return _this == other;
+}
+
+static bool eInt_equals(EInt _this, EInt other) {
+  return _this == other;
+}
+
+static bool eLong_equals(ELong _this, ELong other) {
+  return _this == other;
+}
+
+static bool eChar_equals(EChar _this, EChar other) {
+  return _this == other;
+}
+
+static bool eShort_equals(EShort _this, EShort other) {
+  return _this == other;
+}
+
+static bool eByte_equals(EByte _this, EByte other) {
+  return _this == other;
+}
+
+static bool eString_equals(EString _this, EString other) {
+  return strcmp(_this, other) == 0;
+}
+
 /**
  * This function sets the state of all links to UNCLASSIFIED
  *
