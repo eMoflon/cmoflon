@@ -67,12 +67,14 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 
 		final STGroup headerGroup = new STGroup();
 		headerGroup.setListener(new LoggingSTErrorListener(logger));
-		headerGroup.loadGroupFile(CMoflonTemplateConstants.HEADER_PREFIX, getTemplateUriPrefix() + "/header/header.stg");
+		headerGroup.loadGroupFile(CMoflonTemplateConstants.HEADER_PREFIX,
+				getTemplateUriPrefix() + "/header/header.stg");
 		templates.put(CMoflonTemplateConstants.HEADER_FILE_GENERATOR, headerGroup);
 
 		final STGroup cMoflonHeaderGroup = new STGroup();
 		cMoflonHeaderGroup.setListener(new LoggingSTErrorListener(logger));
-		cMoflonHeaderGroup.loadGroupFile(CMoflonTemplateConstants.CMOFLON_HEADER_PREFIX, getTemplateUriPrefix() + "/header/cMoflonHeader.stg");
+		cMoflonHeaderGroup.loadGroupFile(CMoflonTemplateConstants.CMOFLON_HEADER_PREFIX,
+				getTemplateUriPrefix() + "/header/cMoflonHeader.stg");
 		templates.put(CMoflonTemplateConstants.CMOFLON_HEADER_FILE_GENERATOR, cMoflonHeaderGroup);
 
 		final STGroup sourceGroup = new STGroup();
@@ -152,7 +154,8 @@ public class CMoflonTemplateConfiguration implements TemplateConfigurationProvid
 	private STGroup createControlFlowTemplates() {
 		final STGroup group = new STGroup();
 		group.setListener(new LoggingSTErrorListener(logger));
-		group.loadGroupFile(CMoflonTemplateConstants.CONTROL_FLOW_PREFIX, getTemplateUriPrefix() + "stringtemplate/ControlFlow.stg");
+		group.loadGroupFile(CMoflonTemplateConstants.CONTROL_FLOW_PREFIX,
+				getTemplateUriPrefix() + "stringtemplate/ControlFlow.stg");
 		final ControlFlowModelAdaptor adaptor = new ControlFlowModelAdaptor();
 		group.registerModelAdaptor(PatternInvocation.class, adaptor);
 		group.registerModelAdaptor(VariableReference.class, adaptor);
