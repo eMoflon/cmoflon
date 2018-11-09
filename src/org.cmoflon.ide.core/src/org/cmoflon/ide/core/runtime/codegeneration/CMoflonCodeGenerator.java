@@ -261,7 +261,8 @@ public class CMoflonCodeGenerator {
 		contents.append(getAccessorsCode(templateGroup, null));
 		contents.append(getComparisonFunctionsCode(templateGroup, null));
 		contents.append(getEqualsFunctionsCode(templateGroup, null));
-		contents.append(getHeaderTail(null, templateGroup));
+		contents.append(getPrintPatternEnablingCode());
+		contents.append(getHeaderTailCode(null, templateGroup));
 		subMon.worked(8);
 
 		final String parentFolderForAlgorithm = getProjectRelativePathForAlgorithm(null);
@@ -595,7 +596,7 @@ public class CMoflonCodeGenerator {
 		contents.append(getAccessorsCode(templateGroup, tcClass));
 		contents.append(getComparisonFunctionsCode(templateGroup, tcClass));
 		contents.append(getEqualsFunctionsCode(templateGroup, tcClass));
-		contents.append(getHeaderTail(tcClass, templateGroup));
+		contents.append(getHeaderTailCode(tcClass, templateGroup));
 		subMon.worked(8);
 
 		final String parentFolderForAlgorithm = getProjectRelativePathForAlgorithm(tcClass);
@@ -1295,7 +1296,18 @@ public class CMoflonCodeGenerator {
 		return builder.toString();
 	}
 
-	private String getHeaderTail(final GenClass tcClass, final STGroup stg) {
+	private String getPrintPatternEnablingCode() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(
+				"// Uncomment the following directive to enable the printing of pattern invocations for debuging purposes.")
+				.append(nl());
+		sb.append("#ifndef CMOFLON_PRINT_PATTERN_INVOCATION").append(nl());
+		sb.append("//#define CMOFLON_PRINT_PATTERN_INVOCATION").append(nl());
+		sb.append("#endif").append(nl2());
+		return sb.toString();
+	}
+
+	private String getHeaderTailCode(final GenClass tcClass, final STGroup stg) {
 		ST end;
 		if (tcClass == null) {
 			end = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_CONSTANTS_END);
