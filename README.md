@@ -78,8 +78,8 @@ We suggest to mount a [shared folder](https://help.ubuntu.com/community/VirtualB
    * assign to each generated algorithm a unique ID (e.g., `COMPONENT_TOPOLOGYCONTROL_CMOFLONTOPOLOGYCONTROL_MAXPOWERTOPOLOGYCONTROL`),
    * indicate which .c file implements which TC algorithm (e.g., `COMPONENT_TOPOLOGYCONTROL_IMPL_FILE_CMOFLONTOPOLOGYCONTROL_MAXPOWERTOPOLOGYCONTROL`), and 
    * signal ToCoCo to use the link-state attribute (`TOPOLOGYCONTROL_LINKS_HAVE_STATES`). The latter constant enables that the type ```neighbor_t``` has a member called ```state```.
-1. Copy *$ToCoCo/src/app-conf-default* to *$ToCoCo/src/app-conf*. The file contains some sensible default settings for the FlockLab testbed and the Cooja simulator.
-   * To change the waiting time until topology control is executed, update the corresponding preprocessor constants that end with `_UPDATEINTERVAL` (e.g., `COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL`).
+1. Copy *$ToCoCo/src/app-conf-default.h* to *$ToCoCo/src/app-conf.h*. The file contains some sensible default settings for the FlockLab testbed and the Cooja simulator.
+   * To change the waiting time until topology control is executed, insert or update the corresponding preprocessor constants that end with `_UPDATEINTERVAL` (e.g., for the algorithm with ID `COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM`, the corresponding definition is `#define COMPONENT_TOPOLOGYCONTROL_KTCALGORITHM_UPDATEINTERVAL 660`).
 1. Copy *$ToCoCo/src/Makefile-conf-default.include* to *$ToCoCo/src/Makefile-conf.include* 
    * The `Contiki` property points to the Contiki distribution. In the Instant Contiki Vm, choose ```Contiki=/home/user/contiki```.
    * Disable `NETWORK_IPV6`: ```NETWORK_IPV6 = 0``` (With IPv6, the resulting image would be too large for Sky motes).
