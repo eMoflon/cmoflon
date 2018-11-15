@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.gervarro.eclipse.workspace.util.AntPatternCondition;
+import org.gervarro.eclipse.workspace.util.RelevantElementCollector;
+import org.gervarro.eclipse.workspace.util.VisitorCondition;
 import org.moflon.core.build.AbstractVisitorBuilder;
 import org.moflon.core.preferences.EMoflonPreferencesActivator;
 import org.moflon.core.preferences.EMoflonPreferencesStorage;
@@ -35,12 +37,15 @@ import org.moflon.ide.ui.preferences.EMoflonPreferenceInitializer;
  * @author Roland Kluge
  */
 public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
-	public static final Logger logger = Logger.getLogger(CMoflonRepositoryBuilder.class);
+	private static final VisitorCondition VISITOR_CONDITION = new AntPatternCondition(
+			new String[] { "model/*.ecore", CMoflonProperties.CMOFLON_PROPERTIES_FILENAME, "injection/*" });
 
 	public static final String BUILDER_ID = CMoflonRepositoryBuilder.class.getName();
 
+	private static final Logger logger = Logger.getLogger(CMoflonRepositoryBuilder.class);
+
 	public CMoflonRepositoryBuilder() {
-		super(new AntPatternCondition(new String[] { "model/*.ecore", CMoflonProperties.CMOFLON_PROPERTIES_FILENAME }));
+		super(VISITOR_CONDITION);
 	}
 
 	@Override
@@ -50,33 +55,25 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 
 	@Override
 	protected void clean(final IProgressMonitor monitor) throws CoreException {
-		SubMonitor subMon = SubMonitor.convert(monitor, "Cleaning " + getProject(), 4);
+		final SubMonitor subMon = SubMonitor.convert(monitor, "Cleaning " + getProject(), 4);
 
 		final IProject project = getProject();
 
-		// Remove all problem markers
 		project.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_INFINITE);
 		project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 		subMon.worked(1);
 
-		// Remove generated code
 		cleanFolderButKeepHiddenFiles(project.getFolder(WorkspaceHelper.GEN_FOLDER), subMon.split(1));
 	}
 
 	@Override
-	protected void processResource(IResource ecoreResource, int kind, Map<String, String> args,
-			IProgressMonitor monitor) {
+	protected void processResource(final IResource ecoreResource, final int kind, final Map<String, String> args,
+			final IProgressMonitor monitor) {
 		final IFile ecoreFile = Platform.getAdapterManager().getAdapter(ecoreResource, IFile.class);
-
 		try {
 			final SubMonitor subMon = SubMonitor.convert(monitor, "Processing Resource", 53);
 			logger.info("Generating code for " + this.getProject());
-			EMoflonPreferencesStorage preferencesStorage = EMoflonPreferencesActivator.getDefault()
-					.getPreferencesStorage();
-			preferencesStorage.setValidationTimeout(EMoflonPreferenceInitializer.getValidationTimeoutMillis());
-			preferencesStorage.setReachabilityEnabled(EMoflonPreferenceInitializer.getReachabilityEnabled());
-			preferencesStorage.setReachabilityMaximumAdornmentSize(
-					EMoflonPreferenceInitializer.getReachabilityMaxAdornmentSize());
+			initializePreferencesStorage();
 
 			final CMoflonRepositoryCodeGenerator generator = new CMoflonRepositoryCodeGenerator(getProject());
 
@@ -89,6 +86,23 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 					new Status(e.getStatus().getSeverity(), WorkspaceHelper.getPluginId(getClass()), e.getMessage(), e),
 					ecoreFile);
 		}
+	}
+
+	@Override
+	protected void postprocess(final RelevantElementCollector buildVisitor, final int originalKind,
+			final Map<String, String> builderArguments, final IProgressMonitor monitor) {
+		final RelevantElementCollector filteredBuildVisitor = new SingleResourceRelevantElementCollector(buildVisitor,
+				VISITOR_CONDITION, getProject());
+		super.postprocess(filteredBuildVisitor, originalKind, builderArguments, monitor);
+	}
+
+	private void initializePreferencesStorage() {
+		final EMoflonPreferencesStorage preferencesStorage = EMoflonPreferencesActivator.getDefault()
+				.getPreferencesStorage();
+		preferencesStorage.setValidationTimeout(EMoflonPreferenceInitializer.getValidationTimeoutMillis());
+		preferencesStorage.setReachabilityEnabled(EMoflonPreferenceInitializer.getReachabilityEnabled());
+		preferencesStorage
+				.setReachabilityMaximumAdornmentSize(EMoflonPreferenceInitializer.getReachabilityMaxAdornmentSize());
 	}
 
 	/**
@@ -125,7 +139,7 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 		}
 	}
 
-	public void handleErrorsInEclipse(final IStatus status, final IFile ecoreFile) {
+	private void handleErrorsInEclipse(final IStatus status, final IFile ecoreFile) {
 		final String reporterClass = "org.moflon.compiler.sdm.democles.eclipse.EclipseErrorReporter";
 		final ErrorReporter eclipseErrorReporter = (ErrorReporter) Platform.getAdapterManager().loadAdapter(ecoreFile,
 				reporterClass);
@@ -136,7 +150,7 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 		}
 	}
 
-	public void handleErrorsInEA(final IStatus status) {
+	private void handleErrorsInEA(final IStatus status) {
 		final String reporterClass = "org.moflon.validation.EnterpriseArchitectValidationHelper";
 		final ErrorReporter errorReporter = (ErrorReporter) Platform.getAdapterManager().loadAdapter(getProject(),
 				reporterClass);
@@ -149,17 +163,20 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 
 	private void cleanFolderButKeepHiddenFiles(final IFolder folder, final IProgressMonitor monitor)
 			throws CoreException {
-		if (!folder.exists())
+		if (!folder.exists()) {
 			return;
+		}
 
-		SubMonitor subMon = SubMonitor.convert(monitor, "Cleaning " + folder.getName(), 2 * folder.members().length);
+		final SubMonitor subMon = SubMonitor.convert(monitor, "Cleaning " + folder.getName(),
+				2 * folder.members().length);
 
 		for (final IResource resource : folder.members()) {
 			if (!resource.getName().startsWith(".")) {
-				if (WorkspaceHelper.isFolder(resource))
+				if (WorkspaceHelper.isFolder(resource)) {
 					cleanFolderButKeepHiddenFiles(IFolder.class.cast(resource), subMon.split(1));
-				else
+				} else {
 					subMon.worked(1);
+				}
 
 				resource.delete(true, subMon.split(1));
 			} else {

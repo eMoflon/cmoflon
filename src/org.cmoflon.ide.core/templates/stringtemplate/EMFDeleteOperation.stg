@@ -4,16 +4,16 @@ DeleteToManyLink(engine, importManager, body, chain) ::= <<
 >>
 
 DeleteToOneLink(engine, importManager, body, chain) ::= <<
-<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>.set<chain.value.operation.type.linkedElement.genModelElement.accessorName; format="uppercase">(null);
+<first(chain.value.operation.parameters).specification.Type.LinkedElement.Name; format="lowercase">_set<chain.value.operation.type.linkedElement.genModelElement.accessorName; format="uppercase">(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, NULL);
 <if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
 >>
 
 ReverseDeleteToOneEReference(engine, importManager, body, chain) ::= <<
-<first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>.set<chain.value.operation.type.linkedElement.eOpposite.genModelElement.accessorName; format="uppercase"><if (chain.value.operation.type.linkedElement.genModelElement.collidingSetAccessorOperation)>_<endif>(null);
+<first(rest(chain.value.operation.parameters)).specification.Type.LinkedElement.Name; format="lowercase">_set<chain.value.operation.type.linkedElement.eOpposite.genModelElement.accessorName; format="uppercase"><if (chain.value.operation.type.linkedElement.genModelElement.collidingSetAccessorOperation)>_<endif>(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>, NULL);
 <if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
 >>
 
 ReverseDeleteToManyEReference(engine, importManager, body, chain) ::= <<
-<first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>.<chain.value.operation.type.linkedElement.eOpposite.genModelElement.getAccessor>().remove(<first(chain.value.operation.parameters):/democles/ParameterName(importManager)>);
+<first(rest(chain.value.operation.parameters)).specification.Type.LinkedElement.Name; format="lowercase">_remove<chain.value.operation.type.linkedElement.eOpposite.genModelElement.getAccessor>(<first(rest(chain.value.operation.parameters)):/democles/ParameterName(importManager)>, <first(chain.value.operation.parameters):/democles/ParameterName(importManager)>);
 <if (chain.next)><(chain.next.value.template)(engine, importManager, body, chain.next)><endif>
 >>

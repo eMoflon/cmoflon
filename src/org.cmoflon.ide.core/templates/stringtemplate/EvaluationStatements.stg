@@ -19,8 +19,11 @@ printf("[topologycontrol]: STATUS: Run\n");
 EvaluationStatementEnd() ::= <<
 // Detailed evaluation output - begin
 unsigned long finish=RTIMER_NOW();
-unsigned long runtime= finish>start? finish-start:start-finish;
-printf("[topologycontrol]: TIME: %lu\n", runtime);
+unsigned long ticks= finish > start ? finish-start : start-finish;
+unsigned long runtimeMillis = (ticks * 1000)/ RTIMER_SECOND;
+printf("[topologycontrol]: Ticks: %lu\n", ticks);
+printf("[topologycontrol]: RTIMER_SECOND: %u ticks per second\n", RTIMER_SECOND);
+printf("[topologycontrol]: TIME: %lu ms.\n", runtimeMillis);
 // Detailed evaluation output - end
 
 >>

@@ -19,62 +19,65 @@ include(path)::=<<
 
 equalsDeclaration(types)::=<<
 //Begin of equals declarations
-<types:{t|bool <t.name;format="firstlowercase">_equals(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
+<types:{t|static bool <t.name;format="firstlowercase">_equals(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
 //End of equals declarations
 <\n>
 >>
 
 compareDeclaration(types)::=<<
 //Begin of compare declarations
-<types:{t|int <t.name;format="firstlowercase">_compare(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
+<types:{t|static int <t.name;format="firstlowercase">_compare(<if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> _this, <if(t.builtIn)><t.name><else><t.name;format="fulluppercase">_T*<endif> other);};separator="\n">
 //End of compare declarations
 <\n>
 >>
 
 getDeclarations(fields)::=<<
 
-<fields:{field|//Begin of declarations for <field.name><\n><if(field.type.Boolean)><isDeclarationBool(field)><setterDeclaration(field)><else><if(field.islist)><getterDeclaration(field)><addDeclaration(field)><removeDeclaration(field)><containsDeclaration(field)><isDeclaration(field)><else><getterDeclaration(field)><setterDeclaration(field)><endif><endif>//End of declarations for <field.name>};separator="\n\n">
-<\n>
+<fields:{field|//Begin of declarations for <field.name>
+<if(field.type.Boolean)><isDeclarationBool(field)><setterDeclaration(field)><else>
+<if(field.islist)><getterDeclaration(field)><addDeclaration(field)><removeDeclaration(field)><containsDeclaration(field)><isDeclaration(field)><else><getterDeclaration(field)><setterDeclaration(field)><endif><endif>
+//End of declarations for <field.name>};separator="\n\n">
+
 >>
 
 getterDeclaration(field)::=<<
-<if(field.islist)>list_t<else><if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif><endif> <field.owningType.name; format="firstlowercase">_get<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this);
+static <if(field.islist)>list_t <else><if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T* <endif><endif><field.owningType.name; format="firstlowercase">_get<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this);
 
 >>
 
 isDeclarationBool(field)::=<<
-bool <field.owningType.name; format="firstlowercase">_is<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this);
+static bool <field.owningType.name; format="firstlowercase">_is<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this);
 
 >>
 
 isDeclaration(field)::=<<
-bool <field.owningType.name; format="firstlowercase">_is<field.name;format="uppercase">(void* candidate, void* _this);
+static bool <field.owningType.name; format="firstlowercase">_is<field.name;format="uppercase">(void* candidate, void* _this);
 
 >>
 
 setterDeclaration(field)::=<<
-void <field.owningType.name;format="firstlowercase">_set<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
+static void <field.owningType.name;format="firstlowercase">_set<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
 
 >>
 
 addDeclaration(field)::=<<
-void <field.owningType.name;format="firstlowercase">_add<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
+static void <field.owningType.name;format="firstlowercase">_add<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
 
 >>
 
 removeDeclaration(field)::=<<
-void <field.owningType.name;format="firstlowercase">_remove<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> item);
+static void <field.owningType.name;format="firstlowercase">_remove<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> item);
 
 >>
 
 containsDeclaration(fields)::=<<
-bool <field.owningType.name;format="firstlowercase">_contains<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
+static bool <field.owningType.name;format="firstlowercase">_contains<field.name;format="uppercase">(<field.owningType.name; format="fulluppercase">_T* _this, <if(field.type.builtIn)><field.type.name><else><field.type.name;format="fulluppercase">_T*<endif> value);
 
 >>
 
 methodDeclaration(methods)::=<<
 //Begin of non SDM implemented methods
-<methods:{method|<if(method.type.builtIn)><method.type.name><else><method.type.name;format="fulluppercase">_T*<endif> <method.owningType.name; format="firstlowercase">_<method.name>(<method.parameters>);};separator="\n">
+<methods:{method|static <if(method.type.builtIn)><method.type.name><else><method.type.name;format="fulluppercase">_T*<endif> <method.owningType.name; format="firstlowercase">_<method.name>(<method.parameters>);};separator="\n">
 //End of non SDM implemented methods
 <\n>
 >>

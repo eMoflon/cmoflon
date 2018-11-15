@@ -96,13 +96,11 @@ public class CMoflonCodeGeneratorTask implements ITask {
 			if (subMon.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
-		} catch (WrappedException wrappedException) {
+		} catch (final WrappedException wrappedException) {
 			final Exception exception = wrappedException.exception();
-			return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), exception.getMessage(),
-					exception);
-		} catch (RuntimeException runtimeException) {
-			return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), runtimeException.getMessage(),
-					runtimeException);
+			return new Status(IStatus.ERROR, getPluginId(), exception.getMessage(), exception);
+		} catch (final RuntimeException runtimeException) {
+			return new Status(IStatus.ERROR, getPluginId(), runtimeException.getMessage(), runtimeException);
 		}
 
 		// (2) Load metamodel
@@ -120,8 +118,7 @@ public class CMoflonCodeGeneratorTask implements ITask {
 		return this.processResource(subMon.split(7));
 	}
 
-	@SuppressWarnings("deprecation")
-	public IStatus processResource(final IProgressMonitor monitor) {
+	private IStatus processResource(final IProgressMonitor monitor) {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Code generation task", 100);
 		try {
 			final MoflonPropertiesContainer moflonProperties = getMoflonProperties();
@@ -136,7 +133,7 @@ public class CMoflonCodeGeneratorTask implements ITask {
 			// (1) Instantiate code generation engine
 			final CMoflonAttributeConstraintCodeGeneratorConfig defaultCodeGeneratorConfig = new CMoflonAttributeConstraintCodeGeneratorConfig(
 					resourceSet, ecoreFile.getProject(), preferencesStorage);
-			MethodBodyHandler methodBodyHandler = new DemoclesMethodBodyHandler(resourceSet,
+			final MethodBodyHandler methodBodyHandler = new DemoclesMethodBodyHandler(resourceSet,
 					defaultCodeGeneratorConfig);
 			subMon.worked(5);
 
@@ -149,21 +146,14 @@ public class CMoflonCodeGeneratorTask implements ITask {
 					return validator.run(subMon.split(100));
 				}
 			};
-			JobGroup jobGroup = new JobGroup("Validation job group", 1, 1);
+			final JobGroup jobGroup = new JobGroup("Validation job group", 1, 1);
 			validationJob.setJobGroup(jobGroup);
 			validationJob.schedule();
 			jobGroup.join(preferencesStorage.getValidationTimeout(), subMon.split(10));
 			final IStatus validatorStatus = validationJob.getResult();
 
 			if (validatorStatus == null) {
-				try {
-					validationJob.getThread().stop();
-				} catch (ThreadDeath e) {
-					// Simply ignore it
-				}
-				throw new OperationCanceledException("Validation took longer than "
-						+ (preferencesStorage.getValidationTimeout() / 1000)
-						+ " seconds. This could(!) mean that some of your patterns have no valid search plan. You may increase the timeout value using the eMoflon property page");
+				stopJob(validationJob);
 			} else if (subMon.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
@@ -187,7 +177,7 @@ public class CMoflonCodeGeneratorTask implements ITask {
 
 			// (6) Generate code
 			subMon.subTask("Generating code for project " + project.getName());
-			Descriptor codeGenerationEngine = new DemoclesGeneratorAdapterFactory(
+			final Descriptor codeGenerationEngine = new DemoclesGeneratorAdapterFactory(
 					defaultCodeGeneratorConfig.createTemplateConfiguration(genModel), null);
 			final CMoflonCodeGenerator codeGenerator = new CMoflonCodeGenerator(resource, project, this.genModel,
 					codeGenerationEngine);
@@ -200,21 +190,37 @@ public class CMoflonCodeGeneratorTask implements ITask {
 			}
 			subMon.worked(5);
 
-			long tic = System.nanoTime();
+			final long tic = System.nanoTime();
 
 			final double timeInSeconds = (tic - toc) / 1e9;
 			LogUtils.info(logger, String.format(Locale.US, "Completed in %.3fs", timeInSeconds));
 
-			return validatorStatus.isOK()
-					? new Status(IStatus.OK, WorkspaceHelper.getPluginId(getClass()), "Code generation succeeded")
-					: new MultiStatus(WorkspaceHelper.getPluginId(getClass()), validatorStatus.getCode(),
-							new IStatus[] { validatorStatus }, "Code generation warnings/errors", null);
+			return validatorStatus.isOK() ? new Status(IStatus.OK, getPluginId(), "Code generation succeeded")
+					: new MultiStatus(getPluginId(), validatorStatus.getCode(), new IStatus[] { validatorStatus },
+							"Code generation warnings/errors", null);
 		} catch (final Exception e) {
-			if (e instanceof NullPointerException)
+			if (e instanceof NullPointerException) {
 				LogUtils.error(logger, e);
-			return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), IStatus.ERROR,
+			}
+			return new Status(IStatus.ERROR, getPluginId(), IStatus.ERROR,
 					e.getClass().getName() + ": " + e.getMessage(), e);
 		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private void stopJob(final WorkspaceJob job) {
+		try {
+			job.getThread().stop();
+		} catch (final ThreadDeath e) {
+			// Simply ignore it
+		}
+		throw new OperationCanceledException("Validation took longer than "
+				+ (preferencesStorage.getValidationTimeout() / 1000)
+				+ " seconds. This could(!) mean that some of your patterns have no valid search plan. You may increase the timeout value using the eMoflon property page");
+	}
+
+	private String getPluginId() {
+		return WorkspaceHelper.getPluginId(getClass());
 	}
 
 	@Override

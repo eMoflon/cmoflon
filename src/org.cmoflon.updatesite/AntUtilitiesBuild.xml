@@ -1,35 +1,64 @@
-<project name="org.cmoflon.updatesite" default="clean" basedir=".">
-  <description>
+<project name="org.cMoflon.updatesite" default="createArchive" basedir=".">
+	<description>
     Helper ant file for the update site of cMoflon
   </description>
-  <!--
+
+	<property name="buildDirectory" value="build" />
+	<property name="updateSiteSourceProject" value="org.cmoflon.updatesite" />
+	<property name="cMoflonUpdatesiteProject" value="cmoflon-updatesite" />
+	<property name="updateSiteLocation" value="${cMoflonUpdatesiteProjectRoot}/updatesite" />
+	<property name="updateSiteArchive" value="${buildDirectory}/updatesite.zip" />
+
+	<target name="releaseCMoflon" depends="createArchive" description="Release snapshot update site">
+		<delete failonerror="false">
+			<fileset dir="${updateSiteLocation}">
+				<include name="**/*" />
+			</fileset>
+		</delete>
+		<unzip src="${updateSiteArchive}" dest="${updateSiteLocation}">
+		</unzip>
+		<eclipse.refreshLocal resource="${cMoflonUpdatesiteProject}" depth="infinite" />
+	</target>
+
+	<!--
   This target creates an archive that contains a ready-to-upload update site for cMoflon
   -->
-  <target name="createArchive">
-  	<delete file="build/updatesite.zip"/>
-  	<zip destfile="build/updatesite.zip"
-  		update="false">
-	    <fileset dir="." includes="features/*" excludes="**/*.signedjar"/>
-	    <fileset dir="." includes="plugins/*" excludes="**/*.signedjar"/>
-  		<fileset dir="." includes="web/*"/>
-	    <fileset dir="." includes="artifacts.jar"/>
-	    <fileset dir="." includes="associateSites.xml"/>
-	    <fileset dir="." includes="changelog.txt"/>
-	    <fileset dir="." includes="content.jar"/>
-	    <fileset dir="." includes="index.html"/>
-	    <fileset dir="." includes="site.xml"/>
-  	</zip>
-  </target>
-	
-  <!--
-  This target removes all generated artefacts  
+	<target name="createArchive">
+		<delete file="${updateSiteArchive}" />
+		<zip destfile="${updateSiteArchive}" update="false">
+			<fileset dir="." includes="features/*" excludes="**/*.signedjar" />
+			<fileset dir="." includes="plugins/*" excludes="**/*.signedjar" />
+			<fileset dir="." includes="web/*" />
+			<fileset dir="." includes="artifacts.jar" />
+			<fileset dir="." includes="associateSites.xml" />
+			<fileset dir="." includes="changelog.txt" />
+			<fileset dir="." includes="content.jar" />
+			<fileset dir="." includes="index.html" />
+			<fileset dir="." includes="site.xml" />
+		</zip>
+		<antcall target="refresh">
+		</antcall>
+	</target>
+
+	<!--
+  This target removes all generated artefacts
   -->
-  <target name="clean" description="Remove generated artifacts">
-    <delete dir="build"/>
-    <delete dir="features"/>
-    <delete dir="plugins"/>
-    <delete file="artifacts.jar"/>
-    <delete file="content.jar"/>
-    <delete file="logs.zip"/>
-  </target>
+	<target name="clean" description="Remove generated artifacts">
+		<delete dir="build" />
+		<delete dir="features" />
+		<delete dir="plugins" />
+		<delete file="artifacts.jar" />
+		<delete file="content.jar" />
+		<delete file="logs.zip" />
+    <antcall target="refresh">
+    </antcall>
+	</target>
+
+	<!--
+	      This task triggers Eclipse's refresh for the update-site project.
+	      This only works if the ant script is run in the JRE of Eclipse.
+	    -->
+	<target name="refresh" description="Refresh update-site project">
+		<eclipse.refreshLocal resource="${updateSiteSourceProject}" depth="infinite" />
+	</target>
 </project>

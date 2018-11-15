@@ -13,8 +13,6 @@ public class CMoflonProperties {
 
 	public static final String PROPERTY_PREFIX_FOR_CONSTANTS = "const-";
 
-	public static final String PROPERTY_REDUCE_CODE_SIZE = "codegen.reduceCodeSize";
-
 	public static final String PROPERTY_POSTFIX_USE_HOPCOUNT = ".enableHopcountProcess";
 
 	public static final String PROPERTY_POSTFIX_DROP_UNIDIRECTIONAL_EDGES = ".dropUnidirectionalEdges";
@@ -39,19 +37,11 @@ public class CMoflonProperties {
 
 	public static final String CMOFLON_PROPERTIES_FILENAME = "cMoflon.properties";
 
-	public static final String PROPERTY_TC_MIN_ALGORITHM_ID = PROPERTY_PREFIX_TOPOLOGYCONTROL + "minId";
+	private static final String PROPERTY_TC_MIN_ALGORITHM_ID = PROPERTY_PREFIX_TOPOLOGYCONTROL + "minId";
 
-	public static final int DEFAULT_MAX_MATCH_COUNT = 40;
+	private static final int DEFAULT_MAX_MATCH_COUNT = 40;
 
-	public static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
-
-	public static final boolean DEFAULT_USE_HOPCOUNT = false;
-
-	public static final boolean DEFAULT_DUPLICATE_EDGES = false;
-
-	public static final boolean DEFAULT_DROP_UNIDIRECTIONAL_EDGES = true;
-
-	public static final boolean DEFAULT_INCLUDE_EVALUATION_STATEMENTS = false;
+	private static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
 	public static final boolean DEFAULT_REDUCE_CODE_SIZE = false;
 
@@ -71,14 +61,17 @@ public class CMoflonProperties {
 					+ "# <option>={parameters,constants,helperclasses,enableHopcountProcess,generateDuplicates,dropUnidirectionalEdges,useEvaluationStatements}\n"
 					+ "# You can find a description on how to use any of these options in the documentation under: https://github.com/eMoflon/cmoflon/wiki/cMoflon-Properties\n"
 					+ "\n\n" //
-					+ "# Set to 'false' if you want the complete amount of generated code in every source file, not only the code specific to each TC algorithm\n"
-					+ PROPERTY_REDUCE_CODE_SIZE + " = true\n\n" //
 					+ "# " + " Type mapping definitions follow \n"//
-					+ "# The Key is the EClass, and the value is the C Struct you want it to be mapped to.\n" //
+					+ "# The key is the EClass, and the value is the C Struct you want it to be mapped to.\n" //
 					+ "# Default: " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Node = " + DEFAULT_TYPE_MAPPINGS.get("Node")
 					+ " and " + PROPERTY_PREFIX_FOR_TYPE_MAPPINGS + "Link = " + DEFAULT_TYPE_MAPPINGS.get("Link") + "\n" //
 					+ getCMoflonPropertiesLinesForDefaultTypeMappings() //
 					+ "\n";
+
+	/**
+	 * Constant definitions for algorithms that rely on hop-count information
+	 */
+	public static final String DEFAULT_HOPCOUNT_CONSTANTS = "const-updateinterval=300, const-broadcasthopcount_immediate_max = 10, const-broadcasthopcount_immediate_min = 1, const-broadcasthopcount_smalldelay_min = 55, const-broadcasthopcount_smalldelay_max = 65, const-broadcasthopcount_periodic_min = 270, const-broadcasthopcount_periodic_max = 330";
 
 	public static String getDefaultCMoflonPropertiesContent() {
 		return DEFAULT_CMOFLON_PROPERTIES_CONTENT;

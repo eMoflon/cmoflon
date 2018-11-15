@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class CMoflonIncludes {
 
-	public enum Components {
+	public enum ToCoCoComponents {
 		TOPOLOGYCONTROL, APPLICATION, RADIO, NEIGHBORDISCOVERY, NETWORK, POWERCONTROL
 	}
 
@@ -67,7 +67,7 @@ public class CMoflonIncludes {
 	 * @return a List containing the include Strings needed for an application of
 	 *         type comp
 	 */
-	public static List<String> getComponentSpecificIncludes(Components comp) {
+	public static List<String> getComponentSpecificIncludes(ToCoCoComponents comp) {
 		List<String> result = new ArrayList<String>();
 		switch (comp) {
 		case TOPOLOGYCONTROL:
