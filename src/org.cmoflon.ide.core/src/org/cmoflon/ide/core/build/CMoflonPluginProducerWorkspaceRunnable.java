@@ -14,6 +14,7 @@ import org.moflon.core.plugins.PluginProperties;
  * @author Roland Kluge - Initial implementation
  */
 public class CMoflonPluginProducerWorkspaceRunnable extends PluginProducerWorkspaceRunnable {
+
 	public CMoflonPluginProducerWorkspaceRunnable(final IProject project, final PluginProperties projectProperties) {
 		super(project, projectProperties);
 	}

@@ -42,7 +42,6 @@ public class CMoflonAttributeConstraintTemplateConfig extends CMoflonTemplateCon
 			for (final OperationSpecificationGroup opSpecGroup : library.getOperationSpecifications()) {
 				if (!opSpecGroup.isTemplateGroupGenerated()) {
 					opSpecGroup.gernerateTemplate();
-
 				}
 
 				final STGroup newGroup = new STGroupString("someName", opSpecGroup.getTemplateGroupString(),

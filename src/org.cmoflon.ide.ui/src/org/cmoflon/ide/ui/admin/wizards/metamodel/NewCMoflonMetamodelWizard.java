@@ -88,13 +88,12 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 			final String projectName = projectInfo.getProjectName();
 			final IPath location = projectInfo.getProjectLocation();
 
-			final IProject newProjectHandle = createProject(projectName, location,
-					subMon.split(1));
+			final IProject newProjectHandle = createProject(projectName, location, subMon.split(1));
 
 			final URL pathToDefaultEapFile = WorkspaceHelper.getPathRelToPlugIn(PATH_TO_DEFAULT_SPECIFICATION,
 					getPluginId());
-			WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap", pathToDefaultEapFile,
-					getPluginId(), subMon.split(1));
+			WorkspaceHelper.addFile(newProjectHandle, projectName + ".eap", pathToDefaultEapFile, getPluginId(),
+					subMon.split(1));
 
 			WorkspaceHelper.addFile(newProjectHandle, ".gitignore", ".temp\n*.ldb\n", subMon.split(1));
 
@@ -118,11 +117,13 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 	 * Creates a new project in current workspace
 	 *
 	 * @param projectName
-	 *            name of the new project
+	 *                        name of the new project
 	 * @param monitor
-	 *            a progress monitor, or null if progress reporting is not desired
+	 *                        a progress monitor, or null if progress reporting is
+	 *                        not desired
 	 * @param location
-	 *            the file system location where the project should be placed
+	 *                        the file system location where the project should be
+	 *                        placed
 	 * @return handle to newly created project
 	 * @throws CoreException
 	 */
@@ -138,7 +139,8 @@ public class NewCMoflonMetamodelWizard extends Wizard implements IWorkbenchWizar
 		description.setLocation(location);
 
 		if (newProject.exists()) {
-			throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(NewCMoflonMetamodelWizard.class), projectName + " exists already!"));
+			throw new CoreException(new Status(IStatus.ERROR,
+					WorkspaceHelper.getPluginId(NewCMoflonMetamodelWizard.class), projectName + " exists already!"));
 		}
 
 		newProject.create(description, subMon.split(1));

@@ -13,11 +13,9 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,8 +32,8 @@ import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
-import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes;
-import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonIncludes.ToCoCoComponents;
+import org.cmoflon.ide.core.runtime.codegeneration.file.AbstractFileGenerator;
+import org.cmoflon.ide.core.runtime.codegeneration.file.CMoflonCommonHeaderGenerator;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.CMoflonStringRenderer;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.FieldAttribute;
 import org.cmoflon.ide.core.runtime.codegeneration.utilities.MethodAttribute;
@@ -57,7 +55,6 @@ import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
 import org.eclipse.emf.codegen.ecore.genmodel.GenDataType;
 import org.eclipse.emf.codegen.ecore.genmodel.GenEnum;
 import org.eclipse.emf.codegen.ecore.genmodel.GenModel;
-import org.eclipse.emf.codegen.ecore.genmodel.GenModelFactory;
 import org.eclipse.emf.codegen.ecore.genmodel.GenOperation;
 import org.eclipse.emf.codegen.ecore.genmodel.GenPackage;
 import org.eclipse.emf.common.notify.Adapter;
@@ -69,7 +66,6 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EParameter;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.gervarro.democles.codegen.ImportManager;
@@ -80,7 +76,6 @@ import org.gervarro.democles.compiler.CompilerPatternBody;
 import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
 import org.moflon.compiler.sdm.democles.DemoclesMethodBodyHandler;
 import org.moflon.compiler.sdm.democles.SearchPlanAdapter;
-import org.moflon.compiler.sdm.democles.TemplateConfigurationProvider;
 import org.moflon.compiler.sdm.democles.eclipse.AdapterResource;
 import org.moflon.core.utilities.LogUtils;
 import org.moflon.core.utilities.MoflonUtil;
@@ -95,29 +90,16 @@ import org.stringtemplate.v4.STGroup;
  * @author David Giessing
  * @author Roland Kluge
  */
-public class CMoflonCodeGenerator {
+public class CMoflonCodeGenerator extends AbstractFileGenerator {
 
 	private static final String PARAMETER_SEPARATOR = ",";
 	private static final String KEY_VALUE_SEPARATOR = "=";
 	private static final Logger logger = Logger.getLogger(CMoflonCodeGenerator.class);
-	/**
-	 * The currently built Eclipse project
-	 */
-	private final IProject project;
-	/**
-	 * The GenModel of the project
-	 */
-	private final GenModel genModel;
 
 	/**
 	 * The Democles import manager to be used during the build process
 	 */
 	private ImportManager democlesImportManager;
-
-	/**
-	 * The Democles code generator to invoke for generating pattern-matching code
-	 */
-	private final DemoclesGeneratorAdapterFactory codeGenerationEngine;
 
 	/**
 	 * Contains preprocessor directives to be placed in the file with the same name
@@ -130,11 +112,6 @@ public class CMoflonCodeGenerator {
 	 * TOCOCO_HOME/src
 	 */
 	private static final String MAKE_CONF_FILENAME = "Makefile-conf-default.include";
-
-	/**
-	 * Name of the class that serves as parent class of TC algorithms
-	 */
-	private static final String DEFAULT_TC_PARENT_CLASS_NAME = "TopologyControlAlgorithm";
 
 	/**
 	 * Name of the TC component in ToCoCo
@@ -157,15 +134,11 @@ public class CMoflonCodeGenerator {
 	 */
 	private final Set<String> useHopCountProcess = new HashSet<>();
 
-	private final List<String> blockDeclarations = new ArrayList<>();
-
 	private final List<GenClass> tcClasses = new ArrayList<>();
 
 	private final Map<GenClass, List<String>> helperClasses = new HashMap<>();
 
 	private final Map<GenClass, String> tcAlgorithmCallParameters = new HashMap<>();
-
-	private int maximumMatchCount;
 
 	// Contains all algorithm names for which evaluation statements were requested
 	private final Set<String> useEvalStatements = new HashSet<>();
@@ -173,46 +146,29 @@ public class CMoflonCodeGenerator {
 	// Contains all algorithm names for which duplicate generation is requested
 	private final Set<String> generateDuplicates = new HashSet<>();
 
-	private final Map<String, String> typeMappings = new HashMap<>();
-
 	/**
 	 * Constants mapping Key: constant name Value: constant value to be used as is
 	 * during code generation
 	 */
 	private final Map<GenClass, Map<String, String>> constantsMapping = new HashMap<>();
 
-	private final Map<GenClass, List<MethodAttribute>> cachedMethodSignatures = new HashMap<>();
-
-	private final Map<GenClass, List<FieldAttribute>> cachedFields = new HashMap<>();
-
-	private final List<GenClass> cachedConcreteClasses = new ArrayList<>();
-
-	private final Map<GenClass, StringBuilder> cachedPatternMatchingCode = new HashMap<>();
-
 	private final String tcAlgorithmParentClassName = DEFAULT_TC_PARENT_CLASS_NAME;
 
-	private final SimpleDateFormat timeFormatter = new SimpleDateFormat("YYYY-MM-DD'T'hh:mm:ss");
-
 	private final GenClass tcAlgorithmParentGenClass;
-
-	private static final GenClass TC_INDEPENDENT_CLASS = GenModelFactory.eINSTANCE.createGenClass();
-
-	static {
-		final EClass tcIndependentEClass = EcoreFactory.eINSTANCE.createEClass();
-		tcIndependentEClass.setName("TC_INDEPENDANT");
-		TC_INDEPENDENT_CLASS.setEcoreClass(tcIndependentEClass);
-	}
+	private final CMoflonCommonHeaderGenerator commonHeaderFileGenerator;
 
 	public CMoflonCodeGenerator(final Resource ecore, final IProject project, final GenModel genModel,
 			final Descriptor codeGenerationEngine) {
-		this.codeGenerationEngine = (DemoclesGeneratorAdapterFactory) codeGenerationEngine;
-		this.project = project;
-		this.genModel = genModel;
-		tcAlgorithmParentGenClass = determineTopologyControlParentClass();
+		super(project, genModel, ((DemoclesGeneratorAdapterFactory) codeGenerationEngine),
+				new BuildProcessConfigurationProvider());
+		this.tcAlgorithmParentGenClass = determineTopologyControlParentClass();
 
 		readProperties(project);
 
-		builtInTypes = determineBuiltInTypes();
+		this.builtInTypes = determineBuiltInTypes();
+
+		this.commonHeaderFileGenerator = new CMoflonCommonHeaderGenerator(this.getProject(), this.getGenModel(),
+				this.getCodeGenerationEngine(), this.getBuildProcessConfigurationProvider());
 	}
 
 	public IStatus generateCode(final IProgressMonitor monitor) throws CoreException {
@@ -222,7 +178,7 @@ public class CMoflonCodeGenerator {
 
 		initializeCaches();
 
-		generateCMoflonHeader(subMon.split(10));
+		this.commonHeaderFileGenerator.generateCMoflonHeader(subMon.split(10));
 
 		for (final GenClass tcClass : tcClasses) {
 			codeGenerationResult.add(generateCodeForAlgorithm(tcClass, codeGenerationResult, subMon.split(10)));
@@ -230,45 +186,9 @@ public class CMoflonCodeGenerator {
 
 		generateSampleFiles(subMon.split(10));
 
-		resetCaches();
+		this.getBuildProcessConfigurationProvider().resetCaches();
 
 		return codeGenerationResult;
-	}
-
-	private void generateCMoflonHeader(final IProgressMonitor monitor) throws CoreException {
-		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate cMoflon header ", 10);
-		final STGroup templateGroup = getTemplateConfigurationProvider()
-				.getTemplateGroup(CMoflonTemplateConstants.CMOFLON_HEADER_FILE_GENERATOR);
-		templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
-
-		final StringBuilder contents = new StringBuilder();
-		contents.append(getDateCommentCode());
-		contents.append(getIncludeGuardCMoflonHeader());
-		contents.append(getIncludesCode(templateGroup, null));
-		contents.append(getMaxMatchCountDefinition(null));
-		contents.append(getMatchTypeDefinitionCode(templateGroup, null));
-		contents.append(getTypeMappingCode(templateGroup, null));
-		contents.append(getAllBuiltInMappings(null));
-		contents.append(getDefaultTypedefs(null));
-		contents.append(getUserDefinedTypedefs(null));
-		contents.append(getUnimplementedMethodsCode(templateGroup, null));
-		contents.append(getAccessorsCode(templateGroup, null));
-		contents.append(getComparisonFunctionsCode(templateGroup, null));
-		contents.append(getEqualsFunctionsCode(templateGroup, null));
-		contents.append(getPrintPatternEnablingCode());
-		contents.append(getHeaderTailCode(null, templateGroup));
-		subMon.worked(8);
-
-		final String parentFolderForAlgorithm = getProjectRelativePathForAlgorithm(null);
-		final String outputFileName = parentFolderForAlgorithm + "cMoflon.h";
-		final IFile headerFile = project.getFile(outputFileName);
-		if (!headerFile.exists()) {
-			WorkspaceHelper.addAllFolders(project, parentFolderForAlgorithm, subMon.split(1));
-			WorkspaceHelper.addFile(project, outputFileName, contents.toString(), subMon.split(1));
-		} else {
-			headerFile.setContents(new ReaderInputStream(new StringReader(contents.toString())), true, true,
-					subMon.split(2));
-		}
 	}
 
 	private IStatus generateCodeForAlgorithm(final GenClass tcClass, final MultiStatus codeGenerationResult,
@@ -283,7 +203,7 @@ public class CMoflonCodeGenerator {
 	}
 
 	private GenClass determineTopologyControlParentClass() {
-		for (final GenPackage genPackage : genModel.getAllGenPackagesWithClassifiers()) {
+		for (final GenPackage genPackage : getGenModel().getAllGenPackagesWithClassifiers()) {
 			for (final GenClass genClass : genPackage.getGenClasses()) {
 				if (tcAlgorithmParentClassName.equals(genClass.getName())) {
 					return genClass;
@@ -299,7 +219,7 @@ public class CMoflonCodeGenerator {
 	}
 
 	private Optional<? extends GenClass> getGenclassByName(final String className) {
-		for (final GenPackage genPackage : genModel.getGenPackages()) {
+		for (final GenPackage genPackage : getGenModel().getGenPackages()) {
 			for (final GenClass genClass : genPackage.getGenClasses()) {
 				if (genClass.getName().equals(className)) {
 					return Optional.of(genClass);
@@ -311,7 +231,7 @@ public class CMoflonCodeGenerator {
 
 	private void reportMissingTopologyControlClass(final String nameOfInappropriateClass) {
 		final List<GenClass> tcAlgorithmCandidateClasses = new ArrayList<>();
-		genModel.getAllGenPackagesWithClassifiers()
+		getGenModel().getAllGenPackagesWithClassifiers()
 				.forEach(genPackage -> genPackage.getGenClasses().stream()
 						.filter(genClass -> isTrueSubtypeOfTCAlgorithmParentClass(genClass))
 						.forEach(genClass -> tcAlgorithmCandidateClasses.add(genClass)));
@@ -334,28 +254,18 @@ public class CMoflonCodeGenerator {
 		return useHopCountProcess.contains(tcClass.getName());
 	}
 
-	private String getDateCommentCode() {
-		return String.format("// Generated using cMoflon on %s%s", timeFormatter.format(new Date()), nl());
-	}
-
 	private void initializeCaches() {
 		initializeCachedMetamodelElementLists();
 		initializeCachedPatternMatchingCode();
+		final List<GenClass> cachedConcreteClasses = getBuildProcessConfigurationProvider().getCachedConcreteClasses();
+		final List<String> blockDeclarations = getBuildProcessConfigurationProvider().getBlockDeclarations();
 		blockDeclarations.addAll(getBlockDeclarations(cachedConcreteClasses));
 	}
 
-	/**
-	 * Resets all fields that store cached artifacts to their default state
-	 */
-	private void resetCaches() {
-		cachedMethodSignatures.clear();
-		cachedFields.clear();
-		cachedConcreteClasses.clear();
-		blockDeclarations.clear();
-	}
-
 	private void initializeCachedPatternMatchingCode() {
-		genModel.getGenPackages()
+		final Map<GenClass, StringBuilder> cachedPatternMatchingCode = getBuildProcessConfigurationProvider()
+				.getCachedPatternMatchingCode();
+		getGenModel().getGenPackages()
 				.forEach(genPackage -> genPackage.getGenClasses().stream()
 						.filter(genClass -> isTrueSubtypeOfTCAlgorithmParentClass(genClass))//
 						.forEach(genClass -> {
@@ -363,7 +273,7 @@ public class CMoflonCodeGenerator {
 						}));
 		cachedPatternMatchingCode.put(TC_INDEPENDENT_CLASS, new StringBuilder());
 
-		for (final GenPackage genPackage : genModel.getGenPackages()) {
+		for (final GenPackage genPackage : getGenModel().getGenPackages()) {
 			for (final GenClass genClass : genPackage.getGenClasses()) {
 				if (!genClass.isAbstract()) {
 					for (final GenOperation genOperation : genClass.getGenOperations()) {
@@ -405,6 +315,8 @@ public class CMoflonCodeGenerator {
 			}
 			intermediateBuffer.append(nl() + "}").append(nl());
 
+			final Map<GenClass, StringBuilder> cachedPatternMatchingCode = this.getBuildProcessConfigurationProvider()
+					.getCachedPatternMatchingCode();
 			final StringBuilder cachedPatternMatchingCodeForTCAlgorithm = cachedPatternMatchingCode.get(genClass);
 			cachedPatternMatchingCodeForTCAlgorithm.append(intermediateBuffer.toString());
 		} else {
@@ -415,7 +327,13 @@ public class CMoflonCodeGenerator {
 
 	private void initializeCachedMetamodelElementLists() {
 
-		genModel.getGenPackages()
+		final Map<GenClass, List<MethodAttribute>> cachedMethodSignatures = this.getBuildProcessConfigurationProvider()
+				.getCachedMethodSignatures();
+		final Map<GenClass, List<FieldAttribute>> cachedFields = this.getBuildProcessConfigurationProvider()
+				.getCachedFields();
+		final List<GenClass> cachedConcreteClasses = this.getBuildProcessConfigurationProvider()
+				.getCachedConcreteClasses();
+		getGenModel().getGenPackages()
 				.forEach(genPackage -> genPackage.getGenClasses().stream()
 						.filter(genClass -> isTrueSubtypeOfTCAlgorithmParentClass(genClass))//
 						.forEach(genClass -> {
@@ -424,7 +342,7 @@ public class CMoflonCodeGenerator {
 						}));
 		cachedMethodSignatures.put(TC_INDEPENDENT_CLASS, new ArrayList<MethodAttribute>());
 		cachedFields.put(TC_INDEPENDENT_CLASS, new ArrayList<>());
-		genModel.getGenPackages().forEach(genPackage -> genPackage.getGenClasses().forEach(genClass -> {
+		getGenModel().getGenPackages().forEach(genPackage -> genPackage.getGenClasses().forEach(genClass -> {
 			if (!genClass.isAbstract()) {
 				cachedConcreteClasses.add(genClass);
 				List<FieldAttribute> fields;
@@ -453,6 +371,8 @@ public class CMoflonCodeGenerator {
 			final boolean isOperationTypeBuiltIn = operationType == null ? true : isBuiltInType(operationTypeName);
 			final String genClassName = genOperation.getGenClass().getName();
 			List<MethodAttribute> methodDeclarations;
+			final Map<GenClass, List<MethodAttribute>> cachedMethodSignatures = this
+					.getBuildProcessConfigurationProvider().getCachedMethodSignatures();
 			if (isTrueSubtypeOfTCAlgorithmParentClass(genOperation.getGenClass())) {
 				methodDeclarations = cachedMethodSignatures.get(genClass);
 			} else {
@@ -472,16 +392,21 @@ public class CMoflonCodeGenerator {
 	 * This Method generates the Source File.
 	 *
 	 * @param tcClass
-	 *            the name of the specific algorithm
+	 *                          the name of the specific algorithm
 	 * @param inProcessCode
-	 *            the String containing the code that shall be executed in the
-	 *            process
+	 *                          the String containing the code that shall be
+	 *                          executed in the process
 	 * @param genClass
-	 *            the genClass the code is generated for.
+	 *                          the genClass the code is generated for.
 	 * @throws CoreException
 	 */
 	private void generateSourceFile(final GenClass tcClass, final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate source file for " + tcClass, 10);
+
+		final Map<GenClass, StringBuilder> cachedPatternMatchingCode = this.getBuildProcessConfigurationProvider()
+				.getCachedPatternMatchingCode();
+		final String patternMatchingCode = cachedPatternMatchingCode.get(tcClass).toString();
+
 		final STGroup templateGroup = getTemplateConfigurationProvider()
 				.getTemplateGroup(CMoflonTemplateConstants.SOURCE_FILE_GENERATOR);
 		templateGroup.registerRenderer(String.class, new CMoflonStringRenderer());
@@ -501,7 +426,7 @@ public class CMoflonCodeGenerator {
 		contents.append(getUserDefinedHelperMethods(tcClass));
 		contents.append(generatedGlobalMatchDataStructure(tcClass));
 		contents.append(getPatternMatchingCode(tcClass));
-		contents.append(cachedPatternMatchingCode.get(tcClass).toString());
+		contents.append(patternMatchingCode);
 		contents.append(getInitMethod(templateGroup));
 		contents.append(getCleanupMethod(templateGroup));
 		contents.append(getProcessPreludeCode(tcClass, templateGroup));
@@ -509,12 +434,13 @@ public class CMoflonCodeGenerator {
 		contents.append(getProcessClosingCode(tcClass, templateGroup));
 		subMon.worked(8);
 
-		final String parentFolderForAlgorithm = getProjectRelativePathForAlgorithm(tcClass);
+		final String parentFolderForAlgorithm = this.getBuildProcessConfigurationProvider()
+				.getProjectRelativePathForAlgorithm(tcClass);
 		final String outputFileName = parentFolderForAlgorithm + "/" + componentBasename + ".c";
-		final IFile sourceFile = project.getFile(outputFileName);
+		final IFile sourceFile = getProject().getFile(outputFileName);
 		if (!sourceFile.exists()) {
-			WorkspaceHelper.addAllFolders(project, parentFolderForAlgorithm, subMon.split(1));
-			WorkspaceHelper.addFile(project, outputFileName, contents.toString(), subMon.split(1));
+			WorkspaceHelper.addAllFolders(getProject(), parentFolderForAlgorithm, subMon.split(1));
+			WorkspaceHelper.addFile(getProject(), outputFileName, contents.toString(), subMon.split(1));
 		} else {
 			sourceFile.setContents(new ReaderInputStream(new StringReader(contents.toString())), true, true,
 					subMon.split(2));
@@ -526,7 +452,7 @@ public class CMoflonCodeGenerator {
 	 * Generates the code fragment for the global match data structure
 	 *
 	 * @param tcClass
-	 *            the current TC class
+	 *                    the current TC class
 	 * @return the code fragment for the match data structure
 	 */
 	private String generatedGlobalMatchDataStructure(final GenClass tcClass) {
@@ -543,7 +469,7 @@ public class CMoflonCodeGenerator {
 	 * {@link CompilerPattern} invocations that are attached this {@link GenClass}
 	 *
 	 * @param tcClass
-	 *            the {@link GenClass} to analyze
+	 *                    the {@link GenClass} to analyze
 	 * @return the maximum match size. Is 0 if no pattern invocations can be found.
 	 */
 	private int determineMaximumMatchSize(final GenClass tcClass) {
@@ -573,7 +499,7 @@ public class CMoflonCodeGenerator {
 	 * equals operations
 	 *
 	 * @param tcClass
-	 *            needed for naming
+	 *                    needed for naming
 	 */
 	private void generateHeaderFile(final GenClass tcClass, final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Generate header for " + tcClass, 10);
@@ -586,12 +512,7 @@ public class CMoflonCodeGenerator {
 		contents.append(getIncludeGuardForAlgorithm(tcClass));
 		contents.append(getIncludesCode(templateGroup, tcClass));
 		contents.append(getConstantsDefinitionsCode(tcClass, templateGroup));
-		contents.append(getMaxMatchCountDefinition(tcClass));
 		contents.append(getGenerateDuplicatesDefinition(tcClass));
-		contents.append(getMatchTypeDefinitionCode(templateGroup, tcClass));
-		contents.append(getTypeMappingCode(templateGroup, tcClass));
-		contents.append(getAllBuiltInMappings(tcClass));
-		contents.append(getDefaultTypedefs(tcClass));
 		contents.append(getUserDefinedTypedefs(tcClass));
 		contents.append(getUnimplementedMethodsCode(templateGroup, tcClass));
 		contents.append(getAccessorsCode(templateGroup, tcClass));
@@ -600,12 +521,13 @@ public class CMoflonCodeGenerator {
 		contents.append(getHeaderTailCode(tcClass, templateGroup));
 		subMon.worked(8);
 
-		final String parentFolderForAlgorithm = getProjectRelativePathForAlgorithm(tcClass);
+		final String parentFolderForAlgorithm = this.getBuildProcessConfigurationProvider()
+				.getProjectRelativePathForAlgorithm(tcClass);
 		final String outputFileName = parentFolderForAlgorithm + getAlgorithmBasename(tcClass) + ".h";
-		final IFile headerFile = project.getFile(outputFileName);
+		final IFile headerFile = getProject().getFile(outputFileName);
 		if (!headerFile.exists()) {
-			WorkspaceHelper.addAllFolders(project, parentFolderForAlgorithm, subMon.split(1));
-			WorkspaceHelper.addFile(project, outputFileName, contents.toString(), subMon.split(1));
+			WorkspaceHelper.addAllFolders(getProject(), parentFolderForAlgorithm, subMon.split(1));
+			WorkspaceHelper.addFile(getProject(), outputFileName, contents.toString(), subMon.split(1));
 		} else {
 			headerFile.setContents(new ReaderInputStream(new StringReader(contents.toString())), true, true,
 					subMon.split(2));
@@ -622,9 +544,9 @@ public class CMoflonCodeGenerator {
 	 * Generates the file {@link #MAKE_CONF_FILENAME}.
 	 *
 	 * @param subMon
-	 *            the progress monitor. Shall advance two work units
+	 *                   the progress monitor. Shall advance two work units
 	 * @throws CoreException
-	 *             if writing the file fails
+	 *                           if writing the file fails
 	 */
 	private void generateMakefileConstantsFile(final SubMonitor subMon) throws CoreException {
 		final String makefileConfFilename = WorkspaceHelper.GEN_FOLDER + "/" + MAKE_CONF_FILENAME;
@@ -637,16 +559,16 @@ public class CMoflonCodeGenerator {
 		}
 		lines.add("endif");
 		final String content = StringUtils.join(lines, nl());
-		WorkspaceHelper.addFile(project, makefileConfFilename, content, subMon.split(2));
+		WorkspaceHelper.addFile(getProject(), makefileConfFilename, content, subMon.split(2));
 	}
 
 	/**
 	 * Generates the file {@link #APPLICATION_DEFAULTS_FILENAME}.
 	 *
 	 * @param subMon
-	 *            the progress monitor. Shall advance two work units
+	 *                   the progress monitor. Shall advance two work units
 	 * @throws CoreException
-	 *             if writing the file fails
+	 *                           if writing the file fails
 	 */
 	private void generatePreprocessorConstantsFile(final SubMonitor subMon) throws CoreException {
 		final String appConfConstantsFilename = WorkspaceHelper.GEN_FOLDER + "/" + APPLICATION_DEFAULTS_FILENAME;
@@ -660,7 +582,7 @@ public class CMoflonCodeGenerator {
 			lines.add("");
 		}
 		final String content = StringUtils.join(lines, nl());
-		WorkspaceHelper.addFile(project, appConfConstantsFilename, content, subMon.split(2));
+		WorkspaceHelper.addFile(getProject(), appConfConstantsFilename, content, subMon.split(2));
 	}
 
 	private int getUniqueId(final GenClass tcAlgorithm) {
@@ -670,7 +592,7 @@ public class CMoflonCodeGenerator {
 	private List<String> determineBuiltInTypes() {
 		final List<String> builtInTypes = new ArrayList<String>();
 
-		final EList<GenDataType> dataTypes = genModel.getEcoreGenPackage().getGenDataTypes();
+		final EList<GenDataType> dataTypes = getGenModel().getEcoreGenPackage().getGenDataTypes();
 
 		for (final GenDataType obj : dataTypes) {
 			if (obj.getEcoreDataType() instanceof EDataType) {
@@ -678,7 +600,7 @@ public class CMoflonCodeGenerator {
 			}
 		}
 
-		final EList<GenEnum> enums = genModel.getGenPackages().get(0).getGenEnums();
+		final EList<GenEnum> enums = getGenModel().getGenPackages().get(0).getGenEnums();
 		for (final GenEnum eEnum : enums) {
 			builtInTypes.add(eEnum.getName());
 		}
@@ -686,16 +608,12 @@ public class CMoflonCodeGenerator {
 		return builtInTypes;
 	}
 
-	private TemplateConfigurationProvider getTemplateConfigurationProvider() {
-		return codeGenerationEngine.getTemplateConfigurationProvider();
-	}
-
 	/**
 	 * This methods gets all Fields of a GenClass, including Reference fields as
 	 * FieldAttributes usable in the StringTemplates
 	 *
 	 * @param genClass
-	 *            the genClass
+	 *                     the genClass
 	 * @return a Collection of FieldAttributes
 	 */
 	private Collection<? extends FieldAttribute> getFields(final GenClass genClass) {
@@ -717,12 +635,8 @@ public class CMoflonCodeGenerator {
 		return fields;
 	}
 
-	private String getProjectRelativePathForAlgorithm(final GenClass tcClass) {
-		return WorkspaceHelper.GEN_FOLDER + "/";
-	}
-
 	private String getAlgorithmBasename(final GenClass algorithmClass) {
-		return getComponentName() + "-" + project.getName() + "-" + algorithmClass.getName();
+		return getComponentName() + "-" + getProject().getName() + "-" + algorithmClass.getName();
 	}
 
 	private String getProcessPreludeCode(final GenClass tcClass, final STGroup templateGroup) {
@@ -731,16 +645,17 @@ public class CMoflonCodeGenerator {
 	}
 
 	private String getAlgorithmPreprocessorId(final GenClass tcClass) {
-		return ("COMPONENT_" + getComponentName() + "_" + project.getName() + "_" + tcClass.getName()).toUpperCase();
+		return ("COMPONENT_" + getComponentName() + "_" + getProject().getName() + "_" + tcClass.getName())
+				.toUpperCase();
 	}
 
 	private String getAlgorithmImplementationFileId(final GenClass tcClass) {
-		return ("COMPONENT_" + getComponentName() + "_IMPL_FILE_" + project.getName() + "_" + tcClass.getName())
+		return ("COMPONENT_" + getComponentName() + "_IMPL_FILE_" + getProject().getName() + "_" + tcClass.getName())
 				.toUpperCase();
 	}
 
 	private String getAlgorithmImplementationFileName(final GenClass tcClass) {
-		return getComponentName() + "-" + project.getName() + "-" + tcClass.getName() + ".c";
+		return getComponentName() + "-" + getProject().getName() + "-" + tcClass.getName() + ".c";
 	}
 
 	private String getProcessBodyCode(final GenClass tcClass, final STGroup sourceFileGeneratorTemplateGroup) {
@@ -801,6 +716,8 @@ public class CMoflonCodeGenerator {
 	private String getPatternMatchingCode(final GenClass tcClass) {
 		final StringBuilder allinjectedCode = new StringBuilder();
 
+		final List<GenClass> cachedConcreteClasses = this.getBuildProcessConfigurationProvider()
+				.getCachedConcreteClasses();
 		for (final GenClass genClass : cachedConcreteClasses) {
 			if ((!genClass.getName().contentEquals(tcClass.getName())) && isIrrelevantForAlgorithm(genClass, tcClass)) {
 				continue;
@@ -844,7 +761,7 @@ public class CMoflonCodeGenerator {
 	 * invocations of functions that represent methods
 	 *
 	 * @param tcClass
-	 *            the surround class of the method
+	 *                    the surround class of the method
 	 * @return
 	 */
 	private String getClassPrefixForMethods(final GenClass tcClass) {
@@ -883,6 +800,8 @@ public class CMoflonCodeGenerator {
 		final ST memberDeclarationTemplate = templateGroup
 				.getInstanceOf(CMoflonTemplateConstants.SOURCE_MEMB_DECLARATION);
 		final StringBuilder result = new StringBuilder(nl());
+
+		final List<String> blockDeclarations = this.getBuildProcessConfigurationProvider().getBlockDeclarations();
 		for (final String s : blockDeclarations) {
 			// Make sure STS are clean
 			memberDeclarationTemplate.remove("name");
@@ -910,7 +829,7 @@ public class CMoflonCodeGenerator {
 	 */
 	private String getInitMethod(final STGroup templateGroup) {
 		final ST init = templateGroup.getInstanceOf(CMoflonTemplateConstants.SOURCE_INIT);
-		init.add("blocks", blockDeclarations);
+		init.add("blocks", getBuildProcessConfigurationProvider().getBlockDeclarations());
 		init.add("duplicates", generateDuplicates);
 		return init.render();
 	}
@@ -933,13 +852,13 @@ public class CMoflonCodeGenerator {
 	 * are either defined directly in the properties or listed in the constants
 	 *
 	 * @param property
-	 *            the String CSV containing the parameters
+	 *                          the String CSV containing the parameters
 	 * @param component
-	 *            Component string (needed for constants naming)
+	 *                          Component string (needed for constants naming)
 	 * @param tcClass
-	 *            algo string as well needed for naming
+	 *                          algo string as well needed for naming
 	 * @param templateGroup
-	 *            the StringTemplate group
+	 *                          the StringTemplate group
 	 * @return a full String with comma separated parameters
 	 */
 	private String getParameters(final String property, final GenClass tcClass, final STGroup templateGroup) {
@@ -1009,9 +928,9 @@ public class CMoflonCodeGenerator {
 	 * Checks whether the content refers to the tcAlgorithm with name name
 	 *
 	 * @param content
-	 *            the generated code
+	 *                    the generated code
 	 * @param name
-	 *            the name of the current tcAlgorithm
+	 *                    the name of the current tcAlgorithm
 	 * @return true if code size reduction is activated an the content does not
 	 *         refer to the current algorithm but another TC algorithm
 	 */
@@ -1085,11 +1004,7 @@ public class CMoflonCodeGenerator {
 	}
 
 	private String getIncludesCode(final STGroup templateGroup, final GenClass tcClass) {
-		if (tcClass == null) {
-			return (CMoflonCodeGenerator.generateIncludes(ToCoCoComponents.TOPOLOGYCONTROL, templateGroup));
-		} else {
-			return "#include \"cMoflon.h\" " + nl();
-		}
+		return "#include \"cMoflon.h\" " + nl();
 	}
 
 	private String getIncludeGuardForAlgorithm(final GenClass tcClass) {
@@ -1100,14 +1015,6 @@ public class CMoflonCodeGenerator {
 		definition.add("comp", getComponentName().toUpperCase());
 		definition.add("algo", algorithmName.toUpperCase());
 		return definition.render();
-	}
-
-	private String getIncludeGuardCMoflonHeader() {
-		final STGroup templateGroup = getTemplateConfigurationProvider()
-				.getTemplateGroup(CMoflonTemplateConstants.CMOFLON_HEADER_FILE_GENERATOR);
-		final ST definition = templateGroup.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_DEFINITION);
-		final String guardCode = definition.render();
-		return guardCode;
 	}
 
 	private StringBuilder getConstantsDefinitionsCode(final GenClass tcClass, final STGroup templateGroup) {
@@ -1124,31 +1031,6 @@ public class CMoflonCodeGenerator {
 		return constantsCode;
 	}
 
-	private String getMatchTypeDefinitionCode(final STGroup templateGroup, final GenClass tcClass) {
-		if (tcClass == null) {
-			final ST match = templateGroup.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_MATCH);
-			final String matchTypeDef = match.render();
-			return matchTypeDef;
-		} else {
-			return "";
-		}
-	}
-
-	private String getMaxMatchCountDefinition(final GenClass tcClass) {
-		final StringBuilder mycontents = new StringBuilder();
-		mycontents.append(
-				"// The following preprocessor constant is relevant for match collections (foreach story nodes)")
-				.append(nl());
-		mycontents.append("#ifndef MAX_MATCH_COUNT").append(nl());
-		mycontents.append(String.format("#define MAX_MATCH_COUNT %d%s", maximumMatchCount, nl()));
-		mycontents.append("#endif").append(nl2());
-		if (tcClass == null) {
-			return mycontents.toString();
-		} else {
-			return "";
-		}
-	}
-
 	private String getGenerateDuplicatesDefinition(final GenClass tcClass) {
 		final StringBuilder mycontents = new StringBuilder();
 		if (generateDuplicates.contains(tcClass.getName())) {
@@ -1162,112 +1044,47 @@ public class CMoflonCodeGenerator {
 		}
 	}
 
-	private String getTypeMappingCode(final STGroup templateGroup, final GenClass tcClass) {
-		final StringBuilder typeMappingCodeBuilder = new StringBuilder();
-		if (tcClass == null) {
-			final ST typeMappingTemplate = templateGroup.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_DEFINE);
-			for (final Entry<String, String> pair : typeMappings.entrySet()) {
-				typeMappingCodeBuilder.append(getTypeMappingCode(typeMappingTemplate, pair.getKey(), pair.getValue()));
-				typeMappingCodeBuilder.append(nl());
-			}
-			return typeMappingCodeBuilder.toString();
-		} else {
-			return "";
-		}
-	}
-
-	private String getTypeMappingCode(final ST typeMappingTemplate, final String metamodelType, final Object cType) {
-		typeMappingTemplate.remove("orig");
-		typeMappingTemplate.remove("replaced");
-		typeMappingTemplate.add("orig", metamodelType);
-		typeMappingTemplate.add("replaced", cType);
-		final String typeMappingCode = typeMappingTemplate.render();
-		return typeMappingCode;
-	}
-
 	private String getUnimplementedMethodsCode(final STGroup stg, final GenClass tcClass) {
 		final StringBuilder builder = new StringBuilder();
-		if (tcClass == null) {
-			final ST methoddecls = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_METHOD_DECLARATION);
-			methoddecls.add("methods", cachedMethodSignatures.get(TC_INDEPENDENT_CLASS));
-			builder.append(methoddecls.render());
-		} else {
-			final ST methoddecls = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_METHOD_DECLARATION);
-			methoddecls.add("methods", cachedMethodSignatures.get(tcClass));
-			builder.append(methoddecls.render());
-		}
+		final ST methoddecls = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_METHOD_DECLARATION);
+		final Map<GenClass, List<MethodAttribute>> cachedMethodSignatures = this.getBuildProcessConfigurationProvider()
+				.getCachedMethodSignatures();
+		methoddecls.add("methods", cachedMethodSignatures.get(tcClass));
+		builder.append(methoddecls.render());
 		return builder.toString();
 	}
 
 	private String getAccessorsCode(final STGroup stg, final GenClass tcClass) {
 
 		final StringBuilder builder = new StringBuilder();
-		if (tcClass == null) {
-			final ST declarations = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_DECLARATION);
-			declarations.add("fields", cachedFields.get(TC_INDEPENDENT_CLASS));
-			builder.append(declarations.render());
-		} else {
-			final ST declarations = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_DECLARATION);
-			declarations.add("fields", cachedFields.get(tcClass));
-			builder.append(declarations.render());
-		}
+		final Map<GenClass, List<FieldAttribute>> cachedFields = this.getBuildProcessConfigurationProvider()
+				.getCachedFields();
+		final ST declarations = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_DECLARATION);
+		declarations.add("fields", cachedFields.get(tcClass));
+		builder.append(declarations.render());
 		return builder.toString();
 	}
 
 	private String getComparisonFunctionsCode(final STGroup stg, final GenClass tcClass) {
 		final StringBuilder builder = new StringBuilder();
-		if (tcClass == null) {
-			final ST compare = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_COMPARE_DECLARATION);
-			compare.add("types", getBuiltInTypes());
-			builder.append(compare.render());
-			compare.remove("types");
-			compare.add("types", getTypesFromGenModel(tcClass));
-			builder.append(compare.render());
-		} else {
-			final ST compare = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_COMPARE_DECLARATION);
-			compare.add("types", getTypesFromGenModel(tcClass));
-			builder.append(compare.render());
-		}
+		final ST compare = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_COMPARE_DECLARATION);
+		compare.add("types", getTypesFromGenModel(tcClass));
+		builder.append(compare.render());
 		return builder.toString();
 	}
 
 	private String getEqualsFunctionsCode(final STGroup stg, final GenClass tcClass) {
 		final StringBuilder builder = new StringBuilder();
-		if (tcClass == null) {
-			final ST equals = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_EQUALS_DELCARATION);
-			equals.add("types", getBuiltInTypes());
-			builder.append(equals.render());
-			equals.remove("types");
-			equals.add("types", getTypesFromGenModel(tcClass));
-			builder.append(equals.render());
-		} else {
-			final ST equals = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_EQUALS_DELCARATION);
-			equals.add("types", getTypesFromGenModel(tcClass));
-			builder.append(equals.render());
-		}
+		final ST equals = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_EQUALS_DELCARATION);
+		equals.add("types", getTypesFromGenModel(tcClass));
+		builder.append(equals.render());
 		return builder.toString();
 	}
 
-	private String getPrintPatternEnablingCode() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append(
-				"// Uncomment the following directive to enable the printing of pattern invocations for debuging purposes.")
-				.append(nl());
-		sb.append("#ifndef CMOFLON_PRINT_PATTERN_INVOCATION").append(nl());
-		sb.append("//#define CMOFLON_PRINT_PATTERN_INVOCATION").append(nl());
-		sb.append("#endif").append(nl2());
-		return sb.toString();
-	}
-
 	private String getHeaderTailCode(final GenClass tcClass, final STGroup stg) {
-		ST end;
-		if (tcClass == null) {
-			end = stg.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_CONSTANTS_END);
-		} else {
-			end = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_END);
-			end.add("comp", getComponentName().toUpperCase());
-			end.add("algo", tcClass.getName().toUpperCase());
-		}
+		final ST end = stg.getInstanceOf(CMoflonTemplateConstants.HEADER_CONSTANTS_END);
+		end.add("comp", getComponentName().toUpperCase());
+		end.add("algo", tcClass.getName().toUpperCase());
 		return end.render() + nl();
 	}
 
@@ -1279,36 +1096,15 @@ public class CMoflonCodeGenerator {
 	private List<Type> getTypesFromGenModel(final GenClass tcClass) {
 		final List<Type> result = new ArrayList<Type>();
 		// Add non built in Types
-		for (final GenPackage p : genModel.getGenPackages()) {
+		for (final GenPackage p : getGenModel().getGenPackages()) {
 			for (final GenClass clazz : p.getGenClasses()) {
-				if (clazz.getName().contentEquals("Node") || clazz.getName().contentEquals("Link")
-						|| clazz.getName().contentEquals(DEFAULT_TC_PARENT_CLASS_NAME)) {
-					// Add to cMoflon Header
-					if (tcClass == null) {
-						result.add(new Type(false, clazz.getName()));
-					} else {
-						continue;
-					}
-				} else {
-					if (tcClass != null) {
-						if (isTrueSubtypeOfTCAlgorithmParentClass(clazz)
-								&& clazz.getName().contentEquals(tcClass.getName())) {
-							result.add(new Type(false, clazz.getName()));
-						}
-					} else {
-						continue;
-					}
+				if (!(clazz.getName().contentEquals("Node") || clazz.getName().contentEquals("Link")
+						|| clazz.getName().contentEquals(DEFAULT_TC_PARENT_CLASS_NAME))
+						&& isTrueSubtypeOfTCAlgorithmParentClass(clazz)
+						&& clazz.getName().contentEquals(tcClass.getName())) {
+					result.add(new Type(false, clazz.getName()));
 				}
 			}
-		}
-		return result;
-	}
-
-	private List<Type> getBuiltInTypes() {
-		final List<Type> result = new ArrayList<Type>();
-		// Add built in Types
-		for (final CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values()) {
-			result.add(new Type(true, t.name()));
 		}
 		return result;
 	}
@@ -1317,7 +1113,7 @@ public class CMoflonCodeGenerator {
 	 * Checks whether a type is a built in ECore Type or not
 	 *
 	 * @param t
-	 *            the type to check
+	 *              the type to check
 	 * @return true if it is built in else false
 	 */
 	private boolean isBuiltInType(final String t) {
@@ -1328,7 +1124,7 @@ public class CMoflonCodeGenerator {
 	 * Obtains the method parameters for a given EOperation
 	 *
 	 * @param eOperation
-	 *            the EOperation to obtain the parameters from
+	 *                       the EOperation to obtain the parameters from
 	 * @return the Parameters as String
 	 */
 	private String getParametersFromEcore(final EOperation eOperation) {
@@ -1390,7 +1186,7 @@ public class CMoflonCodeGenerator {
 		result.append(
 				"// --- Begin of user-defined helpers for " + algorithmName + " (Path: '" + projectRelativePath + "')")
 				.append(nl());
-		final IFile helperFile = project.getFile(projectRelativePath);
+		final IFile helperFile = getProject().getFile(projectRelativePath);
 		if (helperFile.exists()) {
 			final InputStream stream = helperFile.getContents();
 			try {
@@ -1403,7 +1199,7 @@ public class CMoflonCodeGenerator {
 			}
 		} else {
 			createInjectionFolder();
-			WorkspaceHelper.addFile(project, projectRelativePath,
+			WorkspaceHelper.addFile(getProject(), projectRelativePath,
 					"// Helper definitions for '" + algorithmName + "'." + nl(), new NullProgressMonitor());
 		}
 		result.append("// --- End of user-defined helpers for " + algorithmName).append(nl2());
@@ -1417,7 +1213,7 @@ public class CMoflonCodeGenerator {
 		result.append(
 				"// --- Begin of user-defined algorithm-independent helpers (Path: '" + projectRelativePath + "')")
 				.append(nl());
-		final IFile helperFile = project.getFile(projectRelativePath);
+		final IFile helperFile = getProject().getFile(projectRelativePath);
 		if (helperFile.exists()) {
 			final InputStream stream = helperFile.getContents();
 			try {
@@ -1430,56 +1226,31 @@ public class CMoflonCodeGenerator {
 			}
 		} else {
 			createInjectionFolder();
-			WorkspaceHelper.addFile(project, projectRelativePath, "// Algorithm-independent helper definitions." + nl(),
-					new NullProgressMonitor());
+			WorkspaceHelper.addFile(getProject(), projectRelativePath,
+					"// Algorithm-independent helper definitions." + nl(), new NullProgressMonitor());
 		}
 		result.append("// --- End of user-defined algorithm-independent helpers").append(nl2());
 		final String string = result.toString();
 		return string;
 	}
 
-	private void createInjectionFolder() throws CoreException {
-		WorkspaceHelper.addAllFolders(project, "injection", new NullProgressMonitor());
-	}
-
-	private String getDefaultTypedefs(final GenClass tcClass) throws CoreException {
-		if (tcClass == null) {
-			final StringBuilder result = new StringBuilder();
-			result.append("// --- Begin of default cMoflon type definitions").append(nl());
-			final String urlString = String.format("platform:/plugin/%s/resources/structs.c",
-					WorkspaceHelper.getPluginId(getClass()));
-			try {
-				final URL url = new URL(urlString);
-				try (BufferedReader reader = new BufferedReader(
-						new InputStreamReader(url.openConnection().getInputStream()))) {
-					result.append(reader.lines().collect(Collectors.joining(nl())));
-				} catch (final IOException e) {
-					throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
-							"Failed to read default typedefs from " + url.toString(), e));
-				}
-			} catch (final MalformedURLException e) {
-				throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
-						"Invalid URL : " + urlString, e));
-			}
-			result.append(nl()).append("// --- End of default cMoflon type definitions").append(nl2());
-			return result.toString();
-		} else {
-			return "";
-		}
-	}
-
 	private String getUserDefinedTypedefs(final GenClass tcClass) throws CoreException {
 		final StringBuilder result = new StringBuilder();
-		// Insert custom algorithm-independent typedefs
-		{
-			final String projectRelativePath = "injection/custom-typedefs.c";
-			result.append("// --- Begin of user-defined algorithm-independent type definitions (Path: '"
-					+ projectRelativePath + "')").append(nl());
-			final IFile helperFile = project.getFile(projectRelativePath);
+		// Insert algorithm specific typedefs
+		if (tcClass == null) {
+			return result.toString();
+		}
+		final StringBuilder algorithmSpecificContent = new StringBuilder();
+		for (final GenClass algorithmClass : tcClasses) {
+			final String algorithmName = algorithmClass.getName();
+			final String projectRelativePath = "injection/custom-typedefs_" + algorithmName + ".c";
+			algorithmSpecificContent.append("// --- Begin of user-defined type definitions for " + algorithmName
+					+ "(Path: '" + projectRelativePath + "')").append(nl());
+			final IFile helperFile = getProject().getFile(projectRelativePath);
 			if (helperFile.exists()) {
 				final InputStream stream = helperFile.getContents();
 				try {
-					result.append(IOUtils.toString(stream));
+					algorithmSpecificContent.append(IOUtils.toString(stream));
 				} catch (final IOException e) {
 					throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
 							"Failed to read user-defined helpers " + helperFile, e));
@@ -1488,65 +1259,17 @@ public class CMoflonCodeGenerator {
 				}
 			} else {
 				createInjectionFolder();
-				WorkspaceHelper.addFile(project, projectRelativePath,
-						"// Algorithm-independent type definitions." + nl(), new NullProgressMonitor());
+				WorkspaceHelper.addFile(getProject(), projectRelativePath,
+						"// Type definitions for algorithm '" + algorithmName + "'." + nl(), new NullProgressMonitor());
 			}
-			result.append("// --- End of user-defined algorithm-independent type definitions").append(nl2());
-			if (tcClass != null) {
-				result.delete(0, result.length());
-			}
+			algorithmSpecificContent.append("// --- End of user-defined type definitions for " + algorithmName)
+					.append(nl2());
 		}
-		{
-			// Insert algorithm specific typedefs
-			if (tcClass == null) {
-				return result.toString();
-			}
-			final StringBuilder algorithmSpecificContent = new StringBuilder();
-			for (final GenClass algorithmClass : tcClasses) {
-				final String algorithmName = algorithmClass.getName();
-				final String projectRelativePath = "injection/custom-typedefs_" + algorithmName + ".c";
-				algorithmSpecificContent.append("// --- Begin of user-defined type definitions for " + algorithmName
-						+ "(Path: '" + projectRelativePath + "')").append(nl());
-				final IFile helperFile = project.getFile(projectRelativePath);
-				if (helperFile.exists()) {
-					final InputStream stream = helperFile.getContents();
-					try {
-						algorithmSpecificContent.append(IOUtils.toString(stream));
-					} catch (final IOException e) {
-						throw new CoreException(new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
-								"Failed to read user-defined helpers " + helperFile, e));
-					} finally {
-						IOUtils.closeQuietly(stream);
-					}
-				} else {
-					createInjectionFolder();
-					WorkspaceHelper.addFile(project, projectRelativePath,
-							"// Type definitions for algorithm '" + algorithmName + "'." + nl(),
-							new NullProgressMonitor());
-				}
-				algorithmSpecificContent.append("// --- End of user-defined type definitions for " + algorithmName)
-						.append(nl2());
-			}
-			if (tcClass != null) {
-				result.append(algorithmSpecificContent.toString());
-			}
+		if (tcClass != null) {
+			result.append(algorithmSpecificContent.toString());
 		}
 		return result.toString();
 
-	}
-
-	/**
-	 * Gets a String with Typedefs from EType to the C language Type.
-	 */
-	private String getAllBuiltInMappings(final GenClass tcClass) {
-		final StringBuilder result = new StringBuilder();
-		if (tcClass == null) {
-			for (final CMoflonBuiltInTypes t : CMoflonBuiltInTypes.values()) {
-				result.append("typedef " + CMoflonBuiltInTypes.getCType(t) + " " + t.name() + ";");
-				result.append(nl()).append(nl());
-			}
-		}
-		return result.toString();
 	}
 
 	private String generateConstant(final Object key, final Object value, final String component,
@@ -1590,13 +1313,14 @@ public class CMoflonCodeGenerator {
 
 				continue;
 			case CMoflonProperties.PROPERTY_PM_MAX_MATCH_COUNT:
-				maximumMatchCount = Integer.parseInt(value);
+				this.getBuildProcessConfigurationProvider().setMaximumMatchCount(Integer.parseInt(value));
 				continue;
 			}
 			if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_TOPOLOGYCONTROL)) {
 				readTopologyControlRelatedProperty(key, value);
 			} else if (key.startsWith(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS)) {
-				typeMappings.put(key.replaceAll(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS, ""), value.trim());
+				getBuildProcessConfigurationProvider().getTypeMappings()
+						.put(key.replaceAll(CMoflonProperties.PROPERTY_PREFIX_FOR_TYPE_MAPPINGS, ""), value.trim());
 			}
 		}
 	}
@@ -1692,28 +1416,5 @@ public class CMoflonCodeGenerator {
 			helperClassesList.add(DEFAULT_TC_PARENT_CLASS_NAME);
 			helperClasses.put(tcClass, helperClassesList);
 		}
-	}
-
-	/**
-	 * Generates the general Includes for CMoflon as well as the Component Specific
-	 * stuff
-	 *
-	 * @param comp
-	 *            The desired Component
-	 * @param templateGroup
-	 *            The StringTemplate for the includes
-	 * @return
-	 */
-	private static String generateIncludes(final ToCoCoComponents comp, final STGroup templateGroup) {
-		final ST template = templateGroup.getInstanceOf(CMoflonTemplateConstants.CMOFLON_HEADER_INCLUDE);
-		final StringBuilder result = new StringBuilder();
-		final List<String> includes = CMoflonIncludes.getCMoflonIncludes();
-		includes.addAll(CMoflonIncludes.getComponentSpecificIncludes(comp));
-		for (final String path : includes) {
-			template.add("path", path);
-			result.append(template.render());
-			template.remove("path");
-		}
-		return result.toString();
 	}
 }

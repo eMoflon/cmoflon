@@ -15,7 +15,7 @@ public enum CMoflonBuiltInTypes {
 	 * language.
 	 * 
 	 * @param t
-	 *            the type
+	 *              the type
 	 * @return a string with the type specifier corresponding to the EType
 	 */
 	public static String getCType(final CMoflonBuiltInTypes t) {

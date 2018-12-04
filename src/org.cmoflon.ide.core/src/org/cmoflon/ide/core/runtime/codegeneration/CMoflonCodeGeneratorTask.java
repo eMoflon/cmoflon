@@ -62,11 +62,12 @@ public class CMoflonCodeGeneratorTask implements ITask {
 	 * Initializes the code generation task
 	 *
 	 * @param ecoreFile
-	 *            the ECore file to generate code for
+	 *                               the ECore file to generate code for
 	 * @param resourceSet
-	 *            the {@link ResourceSet} of the running build process
+	 *                               the {@link ResourceSet} of the running build
+	 *                               process
 	 * @param preferencesStorage
-	 *            the container that stores IDE preferences
+	 *                               the container that stores IDE preferences
 	 */
 	public CMoflonCodeGeneratorTask(final IFile ecoreFile, final ResourceSet resourceSet,
 			final EMoflonPreferencesStorage preferencesStorage) {

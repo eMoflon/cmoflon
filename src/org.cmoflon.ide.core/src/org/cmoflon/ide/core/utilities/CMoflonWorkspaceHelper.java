@@ -25,10 +25,10 @@ public class CMoflonWorkspaceHelper {
 	 * Returns the cMoflon-specific properties of the given project
 	 *
 	 * @param project
-	 *            the project
+	 *                    the project
 	 * @return the cMoflon properties
 	 * @throws CoreException
-	 *             e.g., if an IOException occurred
+	 *                           e.g., if an IOException occurred
 	 */
 	public static Properties getCMoflonPropertiesFile(final IProject project) throws CoreException {
 		final IFile file = project.getFile(CMoflonProperties.CMOFLON_PROPERTIES_FILENAME);

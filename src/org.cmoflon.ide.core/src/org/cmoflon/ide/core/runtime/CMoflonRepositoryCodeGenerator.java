@@ -37,13 +37,11 @@ public class CMoflonRepositoryCodeGenerator {
 	public IStatus generateCode(final IProgressMonitor monitor, final Properties cMoflonProperties) {
 		final SubMonitor subMon = SubMonitor.convert(monitor);
 		try {
-			this.getProject().deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+			clearProblemMarkers();
 
 			final IFile ecoreFile = MoflonConventions.getDefaultEcoreFile(this.getProject());
 			if (!ecoreFile.exists()) {
-				return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()),
-						"Unable to generate code for " + getProject().getName()
-								+ ",  as no Ecore file according to naming convention (capitalizeFirstLetter.lastSegmentOf.projectName) was found!");
+				return createErrorMarkerForMissingEcoreFile();
 			}
 
 			final ResourceSet resourceSet = eMoflonEMFUtil.createDefaultResourceSet();
@@ -51,7 +49,9 @@ public class CMoflonRepositoryCodeGenerator {
 			subMon.worked(1);
 			final CMoflonCodeGeneratorTask gen = new CMoflonCodeGeneratorTask(ecoreFile, resourceSet,
 					EMoflonPreferencesActivator.getDefault().getPreferencesStorage());
+
 			final IStatus status = gen.run(subMon.split(1));
+
 			if (status.matches(IStatus.ERROR)) {
 				return status;
 			}
@@ -59,6 +59,16 @@ public class CMoflonRepositoryCodeGenerator {
 			return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Error", e);
 		}
 		return Status.OK_STATUS;
+	}
+
+	private Status createErrorMarkerForMissingEcoreFile() {
+		return new Status(IStatus.ERROR, WorkspaceHelper.getPluginId(getClass()), "Unable to generate code for "
+				+ getProject().getName()
+				+ ",  as no Ecore file according to naming convention (capitalizeFirstLetter.lastSegmentOf.projectName) was found!");
+	}
+
+	private void clearProblemMarkers() throws CoreException {
+		this.getProject().deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 	}
 
 	/**

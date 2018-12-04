@@ -27,11 +27,11 @@ class SourceFileGenerator {
 	 */
 	public static String generateClosingPart(final STGroup templateGroup, final boolean hopcount) {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START)
-				.add("hopcount", hopcount).render());
-		sb.append(templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + PROCESS_END).render());
+		sb.append(
+				templateGroup.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START)
+						.add("hopcount", hopcount).render());
+		sb.append(templateGroup.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + PROCESS_END)
+				.render());
 		return sb.toString();
 	}
 

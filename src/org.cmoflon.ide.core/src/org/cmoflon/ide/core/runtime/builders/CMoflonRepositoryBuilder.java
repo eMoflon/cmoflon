@@ -59,8 +59,7 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 
 		final IProject project = getProject();
 
-		project.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_INFINITE);
-		project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
+		clearProblemMarkers(project);
 		subMon.worked(1);
 
 		cleanFolderButKeepHiddenFiles(project.getFolder(WorkspaceHelper.GEN_FOLDER), subMon.split(1));
@@ -94,6 +93,11 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 		final RelevantElementCollector filteredBuildVisitor = new SingleResourceRelevantElementCollector(buildVisitor,
 				VISITOR_CONDITION, getProject());
 		super.postprocess(filteredBuildVisitor, originalKind, builderArguments, monitor);
+	}
+
+	private void clearProblemMarkers(final IProject project) throws CoreException {
+		project.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_INFINITE);
+		project.deleteMarkers(WorkspaceHelper.MOFLON_PROBLEM_MARKER_ID, false, IResource.DEPTH_INFINITE);
 	}
 
 	private void initializePreferencesStorage() {
@@ -167,11 +171,12 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 			return;
 		}
 
-		final SubMonitor subMon = SubMonitor.convert(monitor, "Cleaning " + folder.getName(),
-				2 * folder.members().length);
+		final String message = "Cleaning " + folder.getName();
+		final int totalWork = 2 * folder.members().length;
+		final SubMonitor subMon = SubMonitor.convert(monitor, message, totalWork);
 
 		for (final IResource resource : folder.members()) {
-			if (!resource.getName().startsWith(".")) {
+			if (!isHiddenResource(resource)) {
 				if (WorkspaceHelper.isFolder(resource)) {
 					cleanFolderButKeepHiddenFiles(IFolder.class.cast(resource), subMon.split(1));
 				} else {
@@ -183,5 +188,9 @@ public class CMoflonRepositoryBuilder extends AbstractVisitorBuilder {
 				subMon.worked(2);
 			}
 		}
+	}
+
+	private boolean isHiddenResource(final IResource resource) {
+		return resource.getName().startsWith(".");
 	}
 }

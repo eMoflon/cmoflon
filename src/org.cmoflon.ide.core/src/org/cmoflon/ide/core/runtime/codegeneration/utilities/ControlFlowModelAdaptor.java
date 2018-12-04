@@ -21,8 +21,8 @@ import org.stringtemplate.v4.misc.STNoSuchPropertyException;
  *
  */
 public class ControlFlowModelAdaptor extends ObjectModelAdaptor {
-	public Object getProperty(final Interpreter interpreter, final ST template, final Object object, final Object property, final String propertyName)
-			throws STNoSuchPropertyException {
+	public Object getProperty(final Interpreter interpreter, final ST template, final Object object,
+			final Object property, final String propertyName) throws STNoSuchPropertyException {
 		if (object instanceof VariableReference && "index".equals(propertyName)) {
 			final VariableReference varRef = (VariableReference) object;
 			return varRef.getInvocation().getParameters().indexOf(varRef);
