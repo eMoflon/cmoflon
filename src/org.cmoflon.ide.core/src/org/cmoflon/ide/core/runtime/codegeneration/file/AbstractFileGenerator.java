@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
 import org.eclipse.emf.codegen.ecore.genmodel.GenModel;
 import org.eclipse.emf.codegen.ecore.genmodel.GenModelFactory;
+import org.eclipse.emf.codegen.ecore.genmodel.GenPackage;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.moflon.compiler.sdm.democles.DemoclesGeneratorAdapterFactory;
@@ -26,6 +27,11 @@ public class AbstractFileGenerator {
 	 * Name of the class that serves as parent class of TC algorithms
 	 */
 	protected static final String DEFAULT_TC_PARENT_CLASS_NAME = "TopologyControlAlgorithm";
+
+	/**
+	 * Name of the TC component in ToCoCo
+	 */
+	private static final String COMPONENT_TOPOLOGY_CONTROL_PREFIX = "topologycontrol";
 
 	static {
 		final EClass tcIndependentEClass = EcoreFactory.eINSTANCE.createEClass();
@@ -43,6 +49,10 @@ public class AbstractFileGenerator {
 
 	private final GenModel genModel;
 
+	protected final String tcAlgorithmParentClassName = DEFAULT_TC_PARENT_CLASS_NAME;
+
+	protected final GenClass tcAlgorithmParentGenClass;
+
 	public AbstractFileGenerator(final IProject project, final GenModel genModel,
 			final DemoclesGeneratorAdapterFactory codeGenerationEngine,
 			final BuildProcessConfigurationProvider buildProcessConfigurationProvider) {
@@ -50,6 +60,19 @@ public class AbstractFileGenerator {
 		this.genModel = genModel;
 		this.codeGenerationEngine = codeGenerationEngine;
 		this.buildProcessConfigurationProvider = buildProcessConfigurationProvider;
+		this.tcAlgorithmParentGenClass = determineTopologyControlParentClass();
+	}
+
+	private GenClass determineTopologyControlParentClass() {
+		for (final GenPackage genPackage : getGenModel().getAllGenPackagesWithClassifiers()) {
+			for (final GenClass genClass : genPackage.getGenClasses()) {
+				if (tcAlgorithmParentClassName.equals(genClass.getName())) {
+					return genClass;
+				}
+			}
+		}
+
+		throw new IllegalStateException("Expected to find class '" + tcAlgorithmParentClassName + "' in genmodel.");
 	}
 
 	/**
@@ -87,5 +110,56 @@ public class AbstractFileGenerator {
 	 */
 	public GenModel getGenModel() {
 		return genModel;
+	}
+
+	/**
+	 * Returns the C type to use when referring to the given topology control class
+	 *
+	 * @param tcClass
+	 * @return
+	 */
+	public String getTypeName(final GenClass tcClass) {
+		final String algorithmName = tcClass.getName();
+		return getTypeName(algorithmName);
+	}
+
+	/**
+	 * Returns the C type to use when referring to the given topology control class
+	 *
+	 * @param tcClass
+	 * @return
+	 */
+	public String getTypeName(final String algorithmName) {
+		return algorithmName.toUpperCase() + "_T";
+	}
+
+	protected String getComponentName() {
+		return COMPONENT_TOPOLOGY_CONTROL_PREFIX;
+	}
+
+	protected boolean isTrueSubtypeOfTCAlgorithmParentClass(final GenClass genClass) {
+		return tcAlgorithmParentGenClass != genClass
+				&& tcAlgorithmParentGenClass.getEcoreClass().isSuperTypeOf(genClass.getEcoreClass());
+	}
+
+	protected String getAlgorithmBasename(final GenClass algorithmClass) {
+		return getComponentName() + "-" + getProject().getName() + "-" + algorithmClass.getName();
+	}
+
+	protected String getAlgorithmPreprocessorId(final GenClass tcClass) {
+		return ("COMPONENT_" + getComponentName() + "_" + getProject().getName() + "_" + tcClass.getName())
+				.toUpperCase();
+	}
+
+	/**
+	 * Returns the prefix is placed in front of the method name when generating
+	 * invocations of functions that represent methods
+	 *
+	 * @param tcClass
+	 *                    the surround class of the method
+	 * @return
+	 */
+	protected String getClassPrefixForMethods(final GenClass tcClass) {
+		return tcClass.getName().substring(0, 1).toLowerCase() + tcClass.getName().substring(1) + "_";
 	}
 }

@@ -1,5 +1,6 @@
-package org.cmoflon.ide.core.runtime.codegeneration;
+package org.cmoflon.ide.core.runtime.codegeneration.file;
 
+import org.cmoflon.ide.core.runtime.codegeneration.CMoflonTemplateConstants;
 import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
