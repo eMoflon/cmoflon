@@ -1098,8 +1098,7 @@ public class CMoflonCodeGenerator extends AbstractFileGenerator {
 		// Add non built in Types
 		for (final GenPackage p : getGenModel().getGenPackages()) {
 			for (final GenClass clazz : p.getGenClasses()) {
-				if (!(clazz.getName().contentEquals("Node") || clazz.getName().contentEquals("Link")
-						|| clazz.getName().contentEquals(DEFAULT_TC_PARENT_CLASS_NAME))
+				if (!(isNodeClass(clazz) || isLinkClass(clazz) || isTopologyControlParentClass(clazz))
 						&& isTrueSubtypeOfTCAlgorithmParentClass(clazz)
 						&& clazz.getName().contentEquals(tcClass.getName())) {
 					result.add(new Type(false, clazz.getName()));
@@ -1107,6 +1106,18 @@ public class CMoflonCodeGenerator extends AbstractFileGenerator {
 			}
 		}
 		return result;
+	}
+
+	private boolean isTopologyControlParentClass(final GenClass clazz) {
+		return clazz.getName().contentEquals(DEFAULT_TC_PARENT_CLASS_NAME);
+	}
+
+	private boolean isLinkClass(final GenClass clazz) {
+		return clazz.getName().contentEquals("Link");
+	}
+
+	private boolean isNodeClass(final GenClass clazz) {
+		return clazz.getName().contentEquals("Node");
 	}
 
 	/**
