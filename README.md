@@ -7,6 +7,8 @@ The target programmling language is (embedded) C.
 [![Project Stats](https://www.openhub.net/p/cmoflon/widgets/project_thin_badge.gif)](https://www.openhub.net/p/cmoflon)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/59c4befefa994cea973be2faba81c01f)](https://www.codacy.com/app/RolandKluge/cmoflon?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=eMoflon/cmoflon&amp;utm_campaign=Badge_Grade)
 
+If you encounter any problems during the installation or usage of cMoflon, please post an issue: https://github.com/eMoflon/cmoflon/issues .
+
 ## Supplementary material for ECMFA 2017
 We have set up a separate document that links to supplementary material (e.g, a SHARE VM) related to the cMoflon paper at ECMFA 2017:
 https://github.com/eMoflon/cmoflon-examples/blob/master/Talks/ECMFA2017/README_ECMFA2017.md
