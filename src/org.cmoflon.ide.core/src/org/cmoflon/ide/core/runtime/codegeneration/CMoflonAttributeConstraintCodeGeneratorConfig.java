@@ -55,7 +55,7 @@ import org.moflon.sdm.democles.literalexpressionsolver.LiteralexpressionsolverFa
  *
  * @author David Giessing
  */
-public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGeneratorConfig {
+class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGeneratorConfig {
 
 	private final WeightedOperationBuilder<GeneratorOperation> builder;
 
@@ -75,7 +75,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 	private final AttributeConstraintLibUtilImpl attributeConstraintLibUtil = (AttributeConstraintLibUtilImpl) ConstraintstodemoclesFactory.eINSTANCE
 			.createAttributeConstraintLibUtil();
 
-	public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet, final IProject project,
+	CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet, final IProject project,
 			final EMoflonPreferencesStorage preferencesStorage) {
 		super(resourceSet, preferencesStorage);
 		if (project == null) {

@@ -66,7 +66,7 @@ public class BuildProcessConfigurationProvider {
 	private final Map<GenClass, Map<String, String>> constantsMapping = new HashMap<>();
 	private final GenModel genModel;
 
-	public BuildProcessConfigurationProvider(final GenModel genModel) {
+	BuildProcessConfigurationProvider(final GenModel genModel) {
 		this.genModel = genModel;
 		this.builtInTypes = determineBuiltInTypes();
 	}

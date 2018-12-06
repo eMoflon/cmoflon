@@ -15,41 +15,41 @@ import org.moflon.sdm.compiler.democles.validation.scope.PatternMatcher;
 /**
  * Overrides {@link DefaultValidatorConfig}. Needed to obtain correct
  * {@link CMoflonTemplateConfiguration}.
- * 
+ *
  * @author David Giessing
  *
  */
-public class CMoflonCodeGeneratorConfig extends DefaultValidatorConfig {
+class CMoflonCodeGeneratorConfig extends DefaultValidatorConfig {
 
 	/**
 	 * Pattern matcher ID for binding+black patterns
 	 */
-	public static final String BINDING_AND_BLACK_PATTERN_MATCHER_GENERATOR = "BindingAndBlackPatternMatcherGenerator";
+	static final String BINDING_AND_BLACK_PATTERN_MATCHER_GENERATOR = "BindingAndBlackPatternMatcherGenerator";
 
 	/**
 	 * Pattern matcher ID for binding patterns
 	 */
-	public static final String BINDING_PATTERN_MATCHER_GENERATOR = "BindingPatternMatcherGenerator";
+	static final String BINDING_PATTERN_MATCHER_GENERATOR = "BindingPatternMatcherGenerator";
 
 	/**
 	 * Pattern matcher ID for black patterns
 	 */
-	public static final String BLACK_PATTERN_MATCHER_GENERATOR = "BlackPatternMatcherGenerator";
+	static final String BLACK_PATTERN_MATCHER_GENERATOR = "BlackPatternMatcherGenerator";
 
 	/**
 	 * Pattern matcher ID for red patterns
 	 */
-	public static final String RED_PATTERN_MATCHER_GENERATOR = "RedPatternMatcherGenerator";
+	static final String RED_PATTERN_MATCHER_GENERATOR = "RedPatternMatcherGenerator";
 
 	/**
 	 * Pattern matcher ID for green patterns
 	 */
-	public static final String GREEN_PATTERN_MATCHER_GENERATOR = "GreenPatternMatcherGenerator";
+	static final String GREEN_PATTERN_MATCHER_GENERATOR = "GreenPatternMatcherGenerator";
 
 	/**
 	 * Pattern matcher ID for expression patterns
 	 */
-	public static final String EXPRESSION_PATTERN_MATCHER_GENERATOR = "ExpressionPatternMatcherGenerator";
+	static final String EXPRESSION_PATTERN_MATCHER_GENERATOR = "ExpressionPatternMatcherGenerator";
 
 	/**
 	 * The cached preferences store
@@ -60,12 +60,11 @@ public class CMoflonCodeGeneratorConfig extends DefaultValidatorConfig {
 	 * Initializes this configuration with the build process's {@link ResourceSet}
 	 * and the {@link EMoflonPreferencesStorage} to consult for configuration
 	 * parameters.
-	 * 
+	 *
 	 * @param resourceSet
 	 * @param preferencesStorage
 	 */
-	public CMoflonCodeGeneratorConfig(final ResourceSet resourceSet,
-			final EMoflonPreferencesStorage preferencesStorage) {
+	CMoflonCodeGeneratorConfig(final ResourceSet resourceSet, final EMoflonPreferencesStorage preferencesStorage) {
 		super(resourceSet, preferencesStorage);
 
 		this.preferencesStorage = preferencesStorage;
@@ -157,7 +156,7 @@ public class CMoflonCodeGeneratorConfig extends DefaultValidatorConfig {
 
 	/**
 	 * Returns the cached preferences store
-	 * 
+	 *
 	 * @return
 	 */
 	public final EMoflonPreferencesStorage getPreferencesStorage() {

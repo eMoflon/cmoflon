@@ -50,9 +50,9 @@ import org.moflon.core.utilities.WorkspaceHelper;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-public class TCAlgorithmSourceFileGenerator extends AbstractFileGenerator {
+class TCAlgorithmSourceFileGenerator extends AbstractFileGenerator {
 
-	public TCAlgorithmSourceFileGenerator(final IProject project, final GenModel genModel,
+	TCAlgorithmSourceFileGenerator(final IProject project, final GenModel genModel,
 			final DemoclesGeneratorAdapterFactory codeGenerationEngine,
 			final BuildProcessConfigurationProvider buildProcessConfigurationProvider) {
 		super(project, genModel, codeGenerationEngine, buildProcessConfigurationProvider);

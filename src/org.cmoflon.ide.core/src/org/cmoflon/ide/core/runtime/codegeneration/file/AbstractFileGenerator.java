@@ -49,7 +49,7 @@ public class AbstractFileGenerator {
 
 	private final GenModel genModel;
 
-	protected final String tcAlgorithmParentClassName = DEFAULT_TC_PARENT_CLASS_NAME;
+	private final String tcAlgorithmParentClassName = DEFAULT_TC_PARENT_CLASS_NAME;
 
 	protected final GenClass tcAlgorithmParentGenClass;
 
@@ -116,6 +116,7 @@ public class AbstractFileGenerator {
 	 * Returns the C type to use when referring to the given topology control class
 	 *
 	 * @param tcClass
+	 * 					@SuppressWarnings("ucd")
 	 * @return
 	 */
 	public String getTypeName(final GenClass tcClass) {

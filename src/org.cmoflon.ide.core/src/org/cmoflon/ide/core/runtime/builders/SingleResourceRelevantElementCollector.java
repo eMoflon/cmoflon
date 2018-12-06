@@ -15,7 +15,7 @@ import org.gervarro.eclipse.workspace.util.VisitorCondition;
  * @author Roland Kluge - Initial implementation
  *
  */
-public class SingleResourceRelevantElementCollector extends RelevantElementCollector {
+class SingleResourceRelevantElementCollector extends RelevantElementCollector {
 
 	/**
 	 * The {@link RelevantElementCollector} to consult for resources and deltas
@@ -35,7 +35,7 @@ public class SingleResourceRelevantElementCollector extends RelevantElementColle
 	 *                              the same {@link IProject} as used for
 	 *                              delegateCollector
 	 */
-	public SingleResourceRelevantElementCollector(final RelevantElementCollector delegateCollector,
+	SingleResourceRelevantElementCollector(final RelevantElementCollector delegateCollector,
 			final VisitorCondition visitorCondition, final IProject project) {
 		super(project, visitorCondition);
 		this.delegateCollector = delegateCollector;

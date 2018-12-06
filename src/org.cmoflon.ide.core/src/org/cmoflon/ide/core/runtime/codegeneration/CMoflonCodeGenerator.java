@@ -96,7 +96,7 @@ public class CMoflonCodeGenerator extends AbstractFileGenerator {
 	private final CMoflonCommonHeaderGenerator commonHeaderFileGenerator;
 	private final TCAlgorithmCodeGenerator topologyControlComponentCodeGenerator;
 
-	public CMoflonCodeGenerator(final Resource ecore, final IProject project, final GenModel genModel,
+	CMoflonCodeGenerator(final Resource ecore, final IProject project, final GenModel genModel,
 			final Descriptor codeGenerationEngine) {
 		super(project, genModel, ((DemoclesGeneratorAdapterFactory) codeGenerationEngine),
 				new BuildProcessConfigurationProvider(genModel));
@@ -109,7 +109,7 @@ public class CMoflonCodeGenerator extends AbstractFileGenerator {
 				this.getCodeGenerationEngine(), this.getBuildProcessConfigurationProvider());
 	}
 
-	public IStatus generateCode(final IProgressMonitor monitor) throws CoreException {
+	IStatus generateCode(final IProgressMonitor monitor) throws CoreException {
 		final List<GenClass> tcClasses = this.getBuildProcessConfigurationProvider().getTcClasses();
 		final SubMonitor subMon = SubMonitor.convert(monitor, "Generating code", tcClasses.size() * 10 + 20);
 		final MultiStatus codeGenerationResult = new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0,

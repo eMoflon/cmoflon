@@ -8,7 +8,7 @@ package org.cmoflon.ide.core.runtime.codegeneration.utilities;
  * @author David Giessing
  *
  */
-public class ClassAttribute {
+class ClassAttribute {
 
 	// the name of the attribute
 	private final String name;
@@ -19,7 +19,7 @@ public class ClassAttribute {
 	// The Type(Class) this Attribute belongs to.
 	private final Type owningType;
 
-	public ClassAttribute(final Type owningType, final Type type, final String name) {
+	ClassAttribute(final Type owningType, final Type type, final String name) {
 		this.name = name;
 		this.type = type;
 		this.owningType = owningType;
