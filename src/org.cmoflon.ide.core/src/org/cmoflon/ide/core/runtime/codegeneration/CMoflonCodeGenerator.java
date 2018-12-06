@@ -72,7 +72,7 @@ import org.stringtemplate.v4.STGroup;
  */
 public class CMoflonCodeGenerator extends AbstractFileGenerator {
 
-	public static final String PARAMETER_SEPARATOR = ",";
+	private static final String PARAMETER_SEPARATOR = ",";
 	private static final String KEY_VALUE_SEPARATOR = "=";
 	private static final Logger logger = Logger.getLogger(CMoflonCodeGenerator.class);
 
@@ -129,6 +129,10 @@ public class CMoflonCodeGenerator extends AbstractFileGenerator {
 		this.getBuildProcessConfigurationProvider().resetCaches();
 
 		return codeGenerationResult;
+	}
+
+	public static List<String> splitParameterList(final String parameterList) {
+		return Arrays.asList(parameterList.split(Pattern.quote(PARAMETER_SEPARATOR)));
 	}
 
 	private final boolean isClassInGenmodel(final String className) {

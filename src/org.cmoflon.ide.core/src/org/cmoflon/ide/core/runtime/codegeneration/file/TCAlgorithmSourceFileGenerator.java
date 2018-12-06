@@ -351,7 +351,7 @@ class TCAlgorithmSourceFileGenerator extends AbstractFileGenerator {
 		}
 
 		final StringBuilder result = new StringBuilder();
-		final String[] params = property.split(CMoflonCodeGenerator.PARAMETER_SEPARATOR);
+		final List<String> params = CMoflonCodeGenerator.splitParameterList(property);
 		for (final String p : params) {
 			if (p.trim().contains(CMoflonProperties.PROPERTY_PREFIX_FOR_CONSTANTS)) {
 				final ST parametersTemplate = templateGroup
