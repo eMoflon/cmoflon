@@ -22,23 +22,30 @@ If you encounter any problems or need support, please
 If you want to run the generated code in the testbed, follow the steps in the *Complete walkthrough* section.
 This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 and Enterprise Architect 12.
 
-1. **Install Eclipse with Modeling Components Oxygen (or newer)**
+1. **Install Eclipse 2018-09 R with Modeling Components Oxygen (or newer)**
    * All Eclipse packages are available here: https://eclipse.org/downloads/
 1. **Install Enterprise Architect 12 (or later)**
    * A 30-days trial version of Enterprise Architect is available here: https://www.sparxsystems.de/uml/download-trial/
-1. **Install eMoflon 3.4.0**
-   * Follow the installation instructions from here:  https://github.com/eMoflon/emoflon-tool/releases/tag/emoflon-tie_3.4.0
-   * From eMoflon Tool you only need the basic eMoflon Tool feature
-   * If not done automatically, you will have to enable the update site https://emoflon.org/emoflon-core-updatesite/stable/updatesite/ in the Software Site dialog of the Eclipse preferences.
-   * Additionally, download, unpack and install the eMoflon addin for Enterprice Architect from here: https://emoflon.org/eclipse-plugin/beta/updatesite/ea-ecore-addin.zip
 1. **Install cMoflon**
-   * Eclipse update site cMoflon 1.0.0: https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/cmoflon_1.0.0/updatesite
-   * Current Eclipse update site: https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/master/updatesite
-   * You may also use the following: <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3266408" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a> from Eclipse Marketplace via drap and drop.
+   1. In Eclipse, navigate to the *Install* dialog (*Help &rarr; Install New Software...*).
+   1. First, install only *PlantUML 1.1.21* (or above)&ndash;no need to restart Eclipse afterwards: https://hallvard.github.io/plantuml/
+   1. Again, open the *Install* dialog.
+   1. Paste the following Eclipse update site: https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/cmoflon_2.0.0/updatesite
+       * Note: The most recent (maybe unstable) Eclipse update site is located here: https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/master/updatesite
+   1. Select *Manage...*.
+   1. Enable at least the following update sites:
+        * https://emoflon.org/eclipse-plugin/beta/updatesite/ (aka. https://emoflon.github.io/eclipse-plugin/beta/updatesite )
+        * http://emoflon.org/emoflon-core-updatesite/stable/updatesite/
+        * "Latest Eclipse release"
+   1. Go back via *Apply and Close*.
+   1. Make sure that the option *Contact all update sites during install to find required software* is enabled.
+   1. Select *cMoflon* and complete the installation via *Next* etc.
+        * Note: The dependency resolution may take some time...
+   1. Restart Eclipse, open a fresh workspace, and switch to the *eMoflon* perspective.
 1. **Demo specification**
    1. Import the sample projects into your workspace as follows: 
-       * *Right-click &rarr; Import... &rarr; Git/Projects from Git*
-       * Choose to clone the following repository: https://github.com/eMoflon/cmoflon-examples.git
+       * Go *Right-click &rarr; Import... &rarr; Git/Projects from Git*.
+       * Choose the following URL: https://github.com/eMoflon/cmoflon-examples.git .
        * Choose the projects *CMoflonDemoEASpecification* and *CMoflonDemoLanguage*.
    1. Select the projects and perform a full build (e.g., via the *Right-click &rarr; eMoflon &rarr; Build selected projects fully*).
    1. After the build was successful, the project *CMoflonDemoLanguage* contains the generated C code (*/gen* folder).
