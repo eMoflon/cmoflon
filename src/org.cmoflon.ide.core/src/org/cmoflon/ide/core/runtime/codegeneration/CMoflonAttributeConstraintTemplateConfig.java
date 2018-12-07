@@ -19,8 +19,8 @@ import org.stringtemplate.v4.STGroupString;
 /**
  * @author David Giessing
  */
-public class CMoflonAttributeConstraintTemplateConfig extends CMoflonTemplateConfiguration {
-	public CMoflonAttributeConstraintTemplateConfig(final GenModel genModel,
+class CMoflonAttributeConstraintTemplateConfig extends CMoflonTemplateConfiguration {
+	CMoflonAttributeConstraintTemplateConfig(final GenModel genModel,
 			final java.util.List<AttributeConstraintLibrary> attributeConstraintLibs) {
 		super(genModel);
 		addAttrConstTemplatesToBlackTemplates(attributeConstraintLibs);
@@ -42,7 +42,6 @@ public class CMoflonAttributeConstraintTemplateConfig extends CMoflonTemplateCon
 			for (final OperationSpecificationGroup opSpecGroup : library.getOperationSpecifications()) {
 				if (!opSpecGroup.isTemplateGroupGenerated()) {
 					opSpecGroup.gernerateTemplate();
-
 				}
 
 				final STGroup newGroup = new STGroupString("someName", opSpecGroup.getTemplateGroupString(),

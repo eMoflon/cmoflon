@@ -1,5 +1,6 @@
-package org.cmoflon.ide.core.runtime.codegeneration;
+package org.cmoflon.ide.core.runtime.codegeneration.file;
 
+import org.cmoflon.ide.core.runtime.codegeneration.CMoflonTemplateConstants;
 import org.eclipse.emf.codegen.ecore.genmodel.GenClass;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -27,11 +28,11 @@ class SourceFileGenerator {
 	 */
 	public static String generateClosingPart(final STGroup templateGroup, final boolean hopcount) {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START)
-				.add("hopcount", hopcount).render());
-		sb.append(templateGroup
-				.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + PROCESS_END).render());
+		sb.append(
+				templateGroup.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + WATCHDOG_START)
+						.add("hopcount", hopcount).render());
+		sb.append(templateGroup.getInstanceOf("/" + CMoflonTemplateConstants.SOURCE_FILE_GENERATOR + "/" + PROCESS_END)
+				.render());
 		return sb.toString();
 	}
 

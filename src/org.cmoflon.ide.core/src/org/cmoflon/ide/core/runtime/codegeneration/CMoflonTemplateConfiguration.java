@@ -49,14 +49,14 @@ import org.stringtemplate.v4.STGroup;
  * @author Roland Kluge
  *
  */
-public class CMoflonTemplateConfiguration implements TemplateConfigurationProvider {
+class CMoflonTemplateConfiguration implements TemplateConfigurationProvider {
 	private final HashMap<String, STGroup> templates = new HashMap<>();
 
 	protected final HashMap<String, OperationSequenceCompiler> operationSequenceCompilers = new HashMap<>();
 
 	private static final Logger logger = Logger.getLogger(CMoflonTemplateConfiguration.class);
 
-	public CMoflonTemplateConfiguration(final GenModel genModel) {
+	CMoflonTemplateConfiguration(final GenModel genModel) {
 		final EcoreToGenModelConverter ecoreToGenModelConverter = new EcoreToGenModelConverter(genModel);
 		final EcoreModelAdaptor ecoreModelAdaptor = new CMoflonEcoreModelAdaptor(ecoreToGenModelConverter);
 

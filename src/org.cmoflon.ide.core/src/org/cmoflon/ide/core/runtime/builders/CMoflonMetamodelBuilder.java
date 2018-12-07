@@ -3,14 +3,12 @@ package org.cmoflon.ide.core.runtime.builders;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.cmoflon.ide.core.runtime.ResourceFillingMocaCMoflonTransformation;
 import org.cmoflon.ide.core.runtime.natures.CMoflonMetamodelNature;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -56,15 +54,14 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 	private static final Logger logger = Logger.getLogger(CMoflonMetamodelBuilder.class);
 
 	@Override
-	protected void processResource(final IResource mocaFile, final int kind, Map<String, String> args,
+	protected void processResource(final IResource mocaFile, final int kind, final Map<String, String> args,
 			final IProgressMonitor monitor) {
 		final MultiStatus mocaToMoflonStatus = new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0,
 				getClass().getName() + " failed", null);
 
 		final String mocaFilePath = MetamodelBuilder.TEMP_FOLDER + "/" + getProject().getName() + "."
 				+ MetamodelBuilder.MOCA_XMI_FILE_EXTENSION;
-		if (mocaFile instanceof IFile && mocaFilePath.equals(mocaFile.getProjectRelativePath().toString())
-				&& mocaFile.isAccessible()) {
+		if (suitableMocaFileExists(mocaFile, mocaFilePath)) {
 			try {
 				final SubMonitor subMon = SubMonitor.convert(monitor, "Processing .temp", 140);
 
@@ -74,46 +71,38 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 					final URI workspaceURI = URI.createPlatformResourceURI("/", true);
 					final URI projectURI = URI.createURI(getProject().getName() + "/", true).resolve(workspaceURI);
 
-					// Create and initialize resource set
 					final ResourceSet set = eMoflonEMFUtil.createDefaultResourceSet();
 
-					// Load Moca tree in read-only mode
 					final URI mocaFileURI = URI.createURI(mocaFilePath, true).resolve(projectURI);
 					final Resource mocaTreeResource = set.getResource(mocaFileURI, true);
 					final MocaTreeEAPropertiesReader mocaTreeReader = new MocaTreeEAPropertiesReader();
 					final Map<String, PluginProperties> properties = mocaTreeReader.getProperties(getProject());
 
 					final IProgressMonitor exporterSubMonitor = subMon.split(100);
-					exporterSubMonitor.beginTask("Running MOCA-to-cMoflon transformation", properties.keySet().size());
+					exporterSubMonitor.beginTask("Running Moca-to-cMoflon transformation", properties.keySet().size());
 
-					ResourceFillingMocaCMoflonTransformation exporter = new ResourceFillingMocaCMoflonTransformation(
+					final ResourceFillingMocaCMoflonTransformation exporter = new ResourceFillingMocaCMoflonTransformation(
 							set, properties, exporterSubMonitor, this.getProject(), this);
 					exporter.mocaToEcore(mocaTreeReader.getMocaTree());
 					for (final ErrorMessage message : exporter.getMocaToMoflonReport().getErrorMessages()) {
 						mocaToMoflonStatus.add(ValidationStatus.createValidationStatus(message));
 					}
+
 					if (exporter.getEpackages().isEmpty()) {
-						final String errorMessage = "Unable to transform exported files to Ecore models";
-						ProblemMarkerUtil.createProblemMarker(mocaFile, errorMessage, IMarker.SEVERITY_ERROR,
-								mocaFile.getProjectRelativePath().toString());
-						logger.error(errorMessage);
+						reportErrorAboutEmptyEPackages(mocaFile);
 						return;
 					}
 
-					// Remove mocaTreeResource
 					set.getResources().remove(mocaTreeResource);
 
 					// Enforce resource change notifications to update workspace plugin information
 					ResourcesPlugin.getWorkspace().checkpoint(false);
 
-					// Load resources (metamodels and tgg files)
-					getTriggerProjects().clear();
+					// Load resources
 					ITask[] taskArray = new ITask[exporter.getMetamodelLoaderTasks().size()];
 					taskArray = exporter.getMetamodelLoaderTasks().toArray(taskArray);
 					final IStatus metamodelLoaderStatus = ProgressMonitoringJob.executeSyncSubTasks(taskArray,
-							new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, "Resource loading failed",
-									null),
-							subMon.newChild(5));
+							resourceLoaderStatus(), subMon.newChild(5));
 					ProgressMonitorUtil.checkCancellation(subMon);
 					if (!metamodelLoaderStatus.isOK()) {
 						if (kind == IncrementalProjectBuilder.FULL_BUILD && !getTriggerProjects().isEmpty()) {
@@ -127,14 +116,11 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 					ProjectDependencyAnalyzer[] dependencyAnalyzers = new ProjectDependencyAnalyzer[exporter
 							.getProjectDependencyAnalyzerTasks().size()];
 					dependencyAnalyzers = exporter.getProjectDependencyAnalyzerTasks().toArray(dependencyAnalyzers);
-					for (ProjectDependencyAnalyzer analyzer : dependencyAnalyzers) {
+					for (final ProjectDependencyAnalyzer analyzer : dependencyAnalyzers) {
 						analyzer.setInterestingProjects(getTriggerProjects());
 					}
-					getTriggerProjects().clear();
 					final IStatus projectDependencyAnalyzerStatus = ProgressMonitoringJob.executeSyncSubTasks(
-							dependencyAnalyzers, new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0,
-									"Dependency analysis failed", null),
-							subMon.newChild(5));
+							dependencyAnalyzers, dependencyAnalysisErrorStatus(), subMon.newChild(5));
 					ProgressMonitorUtil.checkCancellation(subMon);
 					if (!projectDependencyAnalyzerStatus.isOK()) {
 						processProblemStatus(projectDependencyAnalyzerStatus, mocaFile);
@@ -143,7 +129,7 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 
 					saveModels(set);
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				throw new UncheckedCoreException(
 						new CoreException(ExceptionUtil.createDefaultErrorStatus(getClass(), e)));
 			} finally {
@@ -154,8 +140,28 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 		}
 	}
 
+	private MultiStatus dependencyAnalysisErrorStatus() {
+		return new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, "Dependency analysis failed", null);
+	}
+
+	private MultiStatus resourceLoaderStatus() {
+		return new MultiStatus(WorkspaceHelper.getPluginId(getClass()), 0, "Resource loading failed", null);
+	}
+
+	private void reportErrorAboutEmptyEPackages(final IResource mocaFile) throws CoreException {
+		final String errorMessage = "Unable to transform exported files to Ecore models";
+		ProblemMarkerUtil.createProblemMarker(mocaFile, errorMessage, IMarker.SEVERITY_ERROR,
+				mocaFile.getProjectRelativePath().toString());
+		logger.error(errorMessage);
+	}
+
+	private boolean suitableMocaFileExists(final IResource mocaFile, final String mocaFilePath) {
+		return mocaFile instanceof IFile && mocaFilePath.equals(mocaFile.getProjectRelativePath().toString())
+				&& mocaFile.isAccessible();
+	}
+
 	private void saveModels(final ResourceSet set) throws IOException {
-		Map<Object, Object> saveOnlyIfChangedOption = new HashMap<Object, Object>();
+		final Map<Object, Object> saveOnlyIfChangedOption = new HashMap<Object, Object>();
 		saveOnlyIfChangedOption.put(Resource.OPTION_SAVE_ONLY_IF_CHANGED,
 				Resource.OPTION_SAVE_ONLY_IF_CHANGED_MEMORY_BUFFER);
 		saveOnlyIfChangedOption.put(SDMEnhancedEcoreResource.SAVE_GENERATED_PACKAGE_CROSSREF_URIS, true);
@@ -164,14 +170,6 @@ public class CMoflonMetamodelBuilder extends MetamodelBuilder {
 		for (final Resource resource : set.getResources()) {
 			resource.save(saveOnlyIfChangedOption);
 		}
-	}
-
-	/**
-	 * Returns trigger projects as modifiable set
-	 */
-	@SuppressWarnings("deprecation")
-	public Set<IProject> getTriggerProjects() {
-		return triggerProjects;
 	}
 
 	/**

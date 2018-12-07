@@ -38,10 +38,12 @@ public class ResourceFillingMocaCMoflonTransformation extends BasicResourceFilli
 	private IProgressMonitor monitor;
 
 	/**
-	 * Initializes the transformation from EA export file to the Eclipse project structure
+	 * Initializes the transformation from EA export file to the Eclipse project
+	 * structure
+	 * 
 	 * @param monitor
-	 *            the monitor to be used during project construction. Every project
-	 *            to be generated should advance the monitor 1 tick
+	 *                    the monitor to be used during project construction. Every
+	 *                    project to be generated should advance the monitor 1 tick
 	 * @param builder
 	 * @param project
 	 */

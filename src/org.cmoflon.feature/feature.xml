@@ -24,12 +24,13 @@ See here for more details on EPL: http://www.eclipse.org/org/documents/epl-v10.p
    </license>
 
    <url>
-      <update label="cMoflon Update Site" url="https://github.com/eMoflon/cmoflon-docu/update-site"/>
-      <discovery label="eMoflon Update Site" url="http://emoflon.github.io/eclipse-plugin/beta/update-site2/"/>
+      <update label="cMoflon Update Site" url="https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/master/updatesite/"/>
+      <discovery label="eMoflon::TIE-SDM Update Site" url="https://emoflon.org/eclipse-plugin/beta/updatesite/"/>
+      <discovery label="eMoflon::Core Update Site" url="https://raw.githubusercontent.com/eMoflon/emoflon-core-updatesite/emoflon-core_1.3.3/stable/updatesite/"/>
    </url>
 
    <requires>
-      <import feature="org.moflon.ide.feature" version="2.28.0"/>
+      <import feature="org.moflon.ide.feature" version="3.5.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

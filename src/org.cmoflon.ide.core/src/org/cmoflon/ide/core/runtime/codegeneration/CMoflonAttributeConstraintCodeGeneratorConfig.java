@@ -33,7 +33,6 @@ import org.moflon.sdm.compiler.democles.validation.scope.BindingExpressionBuilde
 import org.moflon.sdm.compiler.democles.validation.scope.BlackPatternBuilder;
 import org.moflon.sdm.compiler.democles.validation.scope.ExpressionExplorer;
 import org.moflon.sdm.compiler.democles.validation.scope.NacPatternBuilder;
-import org.moflon.sdm.compiler.democles.validation.scope.PatternMatcher;
 import org.moflon.sdm.compiler.democles.validation.scope.RedNodeDeletionBuilder;
 import org.moflon.sdm.compiler.democles.validation.scope.RedPatternBuilder;
 import org.moflon.sdm.compiler.democles.validation.scope.RegularPatternInvocationBuilder;
@@ -56,7 +55,7 @@ import org.moflon.sdm.democles.literalexpressionsolver.LiteralexpressionsolverFa
  *
  * @author David Giessing
  */
-public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGeneratorConfig {
+class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGeneratorConfig {
 
 	private final WeightedOperationBuilder<GeneratorOperation> builder;
 
@@ -68,15 +67,15 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 	private final AttributeConstraintsOperationBuilder attributeConstraintsOperationBuilder = new AttributeConstraintsOperationBuilder();
 
 	// Constraint libraries
-	private List<AttributeConstraintLibrary> attributeVariableConstraintLibraries = new LinkedList<AttributeConstraintLibrary>();
+	private final List<AttributeConstraintLibrary> attributeVariableConstraintLibraries = new LinkedList<AttributeConstraintLibrary>();
 
 	// Constraint type module
 	private final AttributeVariableConstraintsTypeModule attributeVariableConstraintsTypeModule;
 
-	private AttributeConstraintLibUtilImpl attributeConstraintLibUtil = (AttributeConstraintLibUtilImpl) ConstraintstodemoclesFactory.eINSTANCE
+	private final AttributeConstraintLibUtilImpl attributeConstraintLibUtil = (AttributeConstraintLibUtilImpl) ConstraintstodemoclesFactory.eINSTANCE
 			.createAttributeConstraintLibUtil();
 
-	public CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet, final IProject project,
+	CMoflonAttributeConstraintCodeGeneratorConfig(final ResourceSet resourceSet, final IProject project,
 			final EMoflonPreferencesStorage preferencesStorage) {
 		super(resourceSet, preferencesStorage);
 		if (project == null) {
@@ -128,11 +127,11 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			expressionTransformerResource.getContents().add(expressionExplorer);
 			expressionExplorer.setExpressionTransformer(expressionTransformer);
 
-			final PatternMatcher bindingAndBlackPatternMatcher = configureBindingAndBlackPatternMatcher(resource);
-			final PatternMatcher bindingPatternMatcher = configureBindingPatternMatcher(resource);
-			final PatternMatcher blackPatternMatcher = configureBlackPatternMatcher(resource);
-			final PatternMatcher redPatternMatcher = configureRedPatternMatcher(resource);
-			final PatternMatcher greenPatternMatcher = configureGreenPatternMatcher(resource);
+			this.setBindingAndBlackPatternMatcher(configureBindingAndBlackPatternMatcher(resource));
+			this.setBindingPatternMatcher(configureBindingPatternMatcher(resource));
+			this.setBlackPatternMatcher(configureBlackPatternMatcher(resource));
+			this.setRedPatternMatcher(configureRedPatternMatcher(resource));
+			this.setGreenPatternMatcher(configureGreenPatternMatcher(resource));
 
 			// (1) Handler for regular story nodes
 			final StoryNodeActionBuilder regularStoryNodeActionBuilder = ScopeFactory.eINSTANCE
@@ -146,7 +145,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			regularBindingAndBlackInvocationBuilder
 					.setSuffix(DemoclesMethodBodyHandler.BINDING_AND_BLACK_FILE_EXTENSION);
 			regularBindingAndBlackInvocationBuilder.setMainActionBuilder(true);
-			regularBindingAndBlackInvocationBuilder.setPatternMatcher(bindingAndBlackPatternMatcher);
+			regularBindingAndBlackInvocationBuilder.setPatternMatcher(getBindingAndBlackPatternSearchPlanGenerator());
 
 			final BindingExpressionBuilder regularBindingExpressionBuilder = ScopeFactory.eINSTANCE
 					.createBindingExpressionBuilder();
@@ -157,7 +156,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			regularBindingExpressionBuilder.setExpressionExplorer(expressionExplorer);
 			regularBindingExpressionBuilder.setSuffix(DemoclesMethodBodyHandler.BINDING_FILE_EXTENSION);
 			regularBindingExpressionBuilder.setMainActionBuilder(false);
-			regularBindingExpressionBuilder.setPatternMatcher(bindingPatternMatcher);
+			regularBindingExpressionBuilder.setPatternMatcher(getBindingPatternSearchPlanGenerator());
 			regularBindingPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final BlackPatternBuilder regularBlackInvocationBuilder = ScopevalidationFactory.eINSTANCE
@@ -171,7 +170,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			regularBlackInvocationBuilder.setExpressionExplorer(expressionExplorer);
 			regularBlackInvocationBuilder.setSuffix(DemoclesMethodBodyHandler.BLACK_FILE_EXTENSION);
 			regularBlackInvocationBuilder.setMainActionBuilder(true);
-			regularBlackInvocationBuilder.setPatternMatcher(blackPatternMatcher);
+			regularBlackInvocationBuilder.setPatternMatcher(getBlackPatternSearchPlanGenerator());
 			regularBlackPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final NacPatternBuilder regularNacPatternBuilder = ScopeFactory.eINSTANCE.createNacPatternBuilder();
@@ -181,7 +180,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			regularNacPatternBuilder.setPatternTransformer(regularNacPatternTransformer);
 			regularNacPatternBuilder.setExpressionExplorer(expressionExplorer);
 			regularNacPatternBuilder.setMainActionBuilder(false);
-			regularNacPatternBuilder.setPatternMatcher(blackPatternMatcher);
+			regularNacPatternBuilder.setPatternMatcher(getBlackPatternSearchPlanGenerator());
 			regularNacPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final RedPatternBuilder regularRedInvocationBuilder = ScopeFactory.eINSTANCE.createRedPatternBuilder();
@@ -192,7 +191,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			regularRedInvocationBuilder.setExpressionExplorer(expressionExplorer);
 			regularRedInvocationBuilder.setSuffix(DemoclesMethodBodyHandler.RED_FILE_EXTENSION);
 			regularRedInvocationBuilder.setMainActionBuilder(false);
-			regularRedInvocationBuilder.setPatternMatcher(redPatternMatcher);
+			regularRedInvocationBuilder.setPatternMatcher(getRedPatternSearchPlanGenerator());
 			regularRedPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final RegularPatternInvocationBuilder regularGreenInvocationBuilder = ScopevalidationFactory.eINSTANCE
@@ -204,7 +203,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			regularGreenInvocationBuilder.setExpressionExplorer(expressionExplorer);
 			regularGreenInvocationBuilder.setSuffix(DemoclesMethodBodyHandler.GREEN_FILE_EXTENSION);
 			regularGreenInvocationBuilder.setMainActionBuilder(true);
-			regularGreenInvocationBuilder.setPatternMatcher(greenPatternMatcher);
+			regularGreenInvocationBuilder.setPatternMatcher(getGreenPatternSearchPlanGenerator());
 			regularGreenPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final RedNodeDeletionBuilder regularRedNodeDeletionBuilder = ScopeFactory.eINSTANCE
@@ -226,7 +225,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			forEachBindingExpressionBuilder.setExpressionExplorer(expressionExplorer);
 			forEachBindingExpressionBuilder.setSuffix(DemoclesMethodBodyHandler.BINDING_FILE_EXTENSION);
 			forEachBindingExpressionBuilder.setMainActionBuilder(false);
-			forEachBindingExpressionBuilder.setPatternMatcher(bindingPatternMatcher);
+			forEachBindingExpressionBuilder.setPatternMatcher(getBindingPatternSearchPlanGenerator());
 			forEachBindingPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final BlackPatternBuilder forEachBlackInvocationBuilder = ScopevalidationFactory.eINSTANCE
@@ -239,7 +238,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			forEachBlackInvocationBuilder.setExpressionExplorer(expressionExplorer);
 			forEachBlackInvocationBuilder.setSuffix(DemoclesMethodBodyHandler.BLACK_FILE_EXTENSION);
 			forEachBlackInvocationBuilder.setMainActionBuilder(true);
-			forEachBlackInvocationBuilder.setPatternMatcher(blackPatternMatcher);
+			forEachBlackInvocationBuilder.setPatternMatcher(getBlackPatternSearchPlanGenerator());
 			forEachBlackPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final NacPatternBuilder forEachNacPatternBuilder = ScopeFactory.eINSTANCE.createNacPatternBuilder();
@@ -249,7 +248,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			forEachNacPatternBuilder.setPatternTransformer(forEachNacPatternTransformer);
 			forEachNacPatternBuilder.setExpressionExplorer(expressionExplorer);
 			forEachNacPatternBuilder.setMainActionBuilder(false);
-			forEachNacPatternBuilder.setPatternMatcher(blackPatternMatcher);
+			forEachNacPatternBuilder.setPatternMatcher(getBlackPatternSearchPlanGenerator());
 			forEachNacPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final RedPatternBuilder forEachRedInvocationBuilder = ScopeFactory.eINSTANCE.createRedPatternBuilder();
@@ -260,7 +259,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			forEachRedInvocationBuilder.setExpressionExplorer(expressionExplorer);
 			forEachRedInvocationBuilder.setSuffix(DemoclesMethodBodyHandler.RED_FILE_EXTENSION);
 			forEachRedInvocationBuilder.setMainActionBuilder(false);
-			forEachRedInvocationBuilder.setPatternMatcher(redPatternMatcher);
+			forEachRedInvocationBuilder.setPatternMatcher(getRedPatternSearchPlanGenerator());
 			forEachRedPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final RegularPatternInvocationBuilder forEachGreenInvocationBuilder = ScopevalidationFactory.eINSTANCE
@@ -272,7 +271,7 @@ public class CMoflonAttributeConstraintCodeGeneratorConfig extends CMoflonCodeGe
 			forEachGreenInvocationBuilder.setExpressionExplorer(expressionExplorer);
 			forEachGreenInvocationBuilder.setSuffix(DemoclesMethodBodyHandler.GREEN_FILE_EXTENSION);
 			forEachGreenInvocationBuilder.setMainActionBuilder(true);
-			forEachGreenInvocationBuilder.setPatternMatcher(greenPatternMatcher);
+			forEachGreenInvocationBuilder.setPatternMatcher(getGreenPatternSearchPlanGenerator());
 			forEachGreenPatternTransformer.setExpressionTransformer(expressionTransformer);
 
 			final RedNodeDeletionBuilder forEachRedNodeDeletionBuilder = ScopeFactory.eINSTANCE

@@ -43,8 +43,6 @@ public class CMoflonProperties {
 
 	private static final int DEFAULT_TC_MIN_ALGORITHM_ID = 1000;
 
-	public static final boolean DEFAULT_REDUCE_CODE_SIZE = false;
-
 	private static final Map<String, String> DEFAULT_TYPE_MAPPINGS = createDefaultTypeMappingsMap();
 
 	private static final String DEFAULT_CMOFLON_PROPERTIES_CONTENT = //
@@ -73,7 +71,7 @@ public class CMoflonProperties {
 	 */
 	public static final String DEFAULT_HOPCOUNT_CONSTANTS = "const-updateinterval=300, const-broadcasthopcount_immediate_max = 10, const-broadcasthopcount_immediate_min = 1, const-broadcasthopcount_smalldelay_min = 55, const-broadcasthopcount_smalldelay_max = 65, const-broadcasthopcount_periodic_min = 270, const-broadcasthopcount_periodic_max = 330";
 
-	public static String getDefaultCMoflonPropertiesContent() {
+	static String getDefaultCMoflonPropertiesContent() {
 		return DEFAULT_CMOFLON_PROPERTIES_CONTENT;
 	}
 

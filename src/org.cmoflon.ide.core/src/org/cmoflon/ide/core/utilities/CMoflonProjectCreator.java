@@ -135,8 +135,8 @@ public class CMoflonProjectCreator extends MoflonProjectCreator {
 
 		if (!project.getFile(CMoflonProperties.CMOFLON_PROPERTIES_FILENAME).exists()) {
 			final String cMoflonPropertiesContent = CMoflonProperties.getDefaultCMoflonPropertiesContent();
-			WorkspaceHelper.addFile(project, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME,
-					cMoflonPropertiesContent, subMon.split(1));
+			WorkspaceHelper.addFile(project, CMoflonProperties.CMOFLON_PROPERTIES_FILENAME, cMoflonPropertiesContent,
+					subMon.split(1));
 		}
 
 		initializeConstraintsLibrary(project, subMon.split(1));

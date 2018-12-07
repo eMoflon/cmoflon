@@ -46,9 +46,9 @@ public class FormattingUtils {
 	 * This method uses {@link #nl()} to identify lines
 	 *
 	 * @param code
-	 *            the string
+	 *                   the string
 	 * @param prefix
-	 *            the prefix
+	 *                   the prefix
 	 * @return the modified string
 	 */
 	public static String prependEachLineWithPrefix(final String code, final String prefix) {

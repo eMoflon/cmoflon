@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site
-      associateSitesURL="https://emoflon.github.io/cmoflon/updatesite/associateSites.xml">
-   <description name="cMoflon update site" url="https://raw.githubusercontent.com/eMoflon/cmoflon/update-site">
+<site>
+   <description name="cMoflon update site" url="https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/master/updatesite/">
       This is the main update site of cMoflon
    </description>
    <feature url="features/org.cmoflon.feature_2.0.0.qualifier.jar" id="org.cmoflon.feature" version="2.0.0.qualifier">

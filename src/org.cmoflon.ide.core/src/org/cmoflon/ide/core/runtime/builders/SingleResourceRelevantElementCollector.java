@@ -15,22 +15,27 @@ import org.gervarro.eclipse.workspace.util.VisitorCondition;
  * @author Roland Kluge - Initial implementation
  *
  */
-public class SingleResourceRelevantElementCollector extends RelevantElementCollector {
+class SingleResourceRelevantElementCollector extends RelevantElementCollector {
 
+	/**
+	 * The {@link RelevantElementCollector} to consult for resources and deltas
+	 */
 	private final RelevantElementCollector delegateCollector;
 
 	/**
 	 * Instantiates this collector.
 	 *
 	 * @param delegateCollector
-	 *            the {@link RelevantElementCollector} to query for relevant
-	 *            resources
+	 *                              the {@link RelevantElementCollector} to query
+	 *                              for relevant resources
 	 * @param visitorCondition
-	 *            the same {@link VisitorCondition} as used for delegateCollector
+	 *                              the same {@link VisitorCondition} as used for
+	 *                              delegateCollector
 	 * @param project
-	 *            the same {@link IProject} as used for delegateCollector
+	 *                              the same {@link IProject} as used for
+	 *                              delegateCollector
 	 */
-	public SingleResourceRelevantElementCollector(final RelevantElementCollector delegateCollector,
+	SingleResourceRelevantElementCollector(final RelevantElementCollector delegateCollector,
 			final VisitorCondition visitorCondition, final IProject project) {
 		super(project, visitorCondition);
 		this.delegateCollector = delegateCollector;
@@ -50,6 +55,10 @@ public class SingleResourceRelevantElementCollector extends RelevantElementColle
 		}
 	}
 
+	/**
+	 * Returns the first relevant delta of the relevant deltas of the delegate
+	 * collector
+	 */
 	@Override
 	public List<IResourceDelta> getRelevantDeltas() {
 		final List<IResourceDelta> relevantDeltas = getDelegateCollector().getRelevantDeltas();

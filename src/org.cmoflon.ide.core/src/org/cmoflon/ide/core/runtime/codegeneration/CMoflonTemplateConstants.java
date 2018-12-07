@@ -68,8 +68,6 @@ public interface CMoflonTemplateConstants {
 	String HEADER_DEFINITION = HEADER_PREFIX + CMoflonTemplateConstants.HEADER_TEMPLATE;
 	String HEADER_CONSTANTS_END = HEADER_PREFIX + CMoflonTemplateConstants.CONSTANTS_END;
 	String HEADER_CONSTANTS_DEFINITION = HEADER_PREFIX + CMoflonTemplateConstants.CONSTANTS_DEFINTION;
-	String HEADER_DEFINE = HEADER_PREFIX + CMoflonTemplateConstants.DEFINE;
-	String HEADER_MATCH = HEADER_PREFIX + CMoflonTemplateConstants.MATCH;
 
 	String DROP_UNIDIRECTIONAL_EDGES = "dropUnidirectionalEdges";
 	String PARAMETER_CONSTANT = "parameterConstant";
