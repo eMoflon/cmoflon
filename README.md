@@ -13,11 +13,6 @@ If you encounter any problems during the installation or usage of cMoflon, pleas
 We have set up a separate document that links to supplementary material (e.g, a SHARE VM) related to the cMoflon paper at ECMFA 2017:
 https://github.com/eMoflon/cmoflon-examples/blob/master/Talks/ECMFA2017/README_ECMFA2017.md
 
-## Troubleshooting
-If you encounter any problems or need support, please 
-* post an issue (https://github.com/eMoflon/cmoflon/issues) or
-* send me (Roland Kluge) a message
-
 ## cMoflon user setup
 If you want to run the generated code in the testbed, follow the steps in the *Complete walkthrough* section.
 This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 and Enterprise Architect 12.
