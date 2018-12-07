@@ -45,23 +45,22 @@ This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 an
 1. **Demo specification**
    1. Import the sample projects into your workspace as follows: 
        * Go *Right-click &rarr; Import... &rarr; Git/Projects from Git*.
-       * Choose the following URL: https://github.com/eMoflon/cmoflon-examples.git .
-       * Choose the projects *CMoflonDemoEASpecification* and *CMoflonDemoLanguage*.
+       * Choose the following URL: https://github.com/eMoflon/cmoflon-examples.git 
+       * Follow the displayed instructions
+       * When asked, choose the projects 
+           * *CMoflonDemoEASpecification*
+           * *CMoflonDemoLanguage*.
    1. Select the projects and perform a full build (e.g., via the *Right-click &rarr; eMoflon &rarr; Build selected projects fully*).
    1. After the build was successful, the project *CMoflonDemoLanguage* contains the generated C code (*/gen* folder).
-
-## Complete walkthrough
-cMoflon requires a mixed environment with a Windows system (for Enterprise Architect) and a Linux/Instant Contiki VM.
-
-1. **User setup:** Follow the steps above to set up your development workspace.
 1. **Get Contiki 3.0**
-   * Download the *Instant Contiki 3.0* Virtual Box VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download (Get Virtual Box here: https://www.virtualbox.org/)
+   * Download the *Instant Contiki 3.0* Virtual Box VM from here: https://sourceforge.net/projects/contiki/files/Instant%20Contiki/Instant%20Contiki%203.0/InstantContiki3.0.zip/download 
+       * Get Virtual Box here: https://www.virtualbox.org/
    * Detailed setup instructions can be found here: http://www.contiki-os.org/start.html
    * If you use Instant Contiki, you need to call ```git submodule update --init```. 
      Otherwise, starting Cooja will fail.
 1. **Get ToCoco 2.0.0**
-   * Checkout the ToCoCo framework from inside the Instant Contiki VM: `git clone -b tococo_2.0 https://github.com/eMoflon/ToCoCo.git`
-   * The root folder of the working copy will be refered to as *$ToCoCo* in the following.
+   * Checkout the ToCoCo framework from inside the Instant Contiki VM: `git clone https://github.com/eMoflon/ToCoCo.git`
+   * The root folder of the working copy is called *$ToCoCo* in the following.
  
 ## How to specify a sample TC algorithm/test the existing TC algorithms
 1. Open a fresh workspace in Eclipse.
