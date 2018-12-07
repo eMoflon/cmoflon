@@ -25,9 +25,9 @@ This version of cMoflon has been tested with Eclipse Oxygen and eMoflon 3.4.0 an
 1. **Install Enterprise Architect 12 (or later)**
    * A 30-days trial version of Enterprise Architect is available here: https://www.sparxsystems.de/uml/download-trial/
 1. **Install cMoflon**
-   1. Navigate to the *Install* dialog (*Help &rarr; Install New Software...*).
-   1. Install PlantUML 1.1.21 (or above) first (no need to restart Eclipse afterwards!): https://hallvard.github.io/plantuml/
-   1. After the installation of PlantUML is done, open the *Install* dialog once more.
+   1. In Eclipse, navigate to the *Install* dialog (*Help &rarr; Install New Software...*).
+   1. First, install only *PlantUML 1.1.21* (or above)&ndash;no need to restart Eclipse afterwards: https://hallvard.github.io/plantuml/
+   1. Again, open the *Install* dialog.
    1. Paste the following Eclipse update site: https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/cmoflon_2.0.0/updatesite
        * Note: The most recent (maybe unstable) Eclipse update site is located here: https://raw.githubusercontent.com/eMoflon/cmoflon-updatesite/master/updatesite
    1. Select *Manage...*.
